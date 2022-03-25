@@ -1,0 +1,29 @@
+// Práctica 1 - Ejercicio 2
+
+TAD ArbolBinarioExtendido(α)
+    extiende
+        ArbolBinario(α)
+    otras operaciones
+        esHoja?: ab(α) → bool
+        #hojas: ab(α) → nat
+        degeneradoAIzquierda: ab(α) → bool
+        degeneradoADerecha: ab(α) → bool
+        zigZag: ab(α) → bool
+        últimoNivelCompleto: ab(α) → nat
+        espejo: ab(α) → ab(α)
+        esSimétrico: ab(α) × ab(α) → bool
+    axiomas
+        esHoja?(a) ≡ ¬nil?(a) ∧ nil?(izq(a)) ∧ nil?(der(a))
+        #hojas(a) ≡ if nil?(a) then 0 else β(esHoja?(a)) + #hojas(izq(a)) + #hojas(der(a)) fi
+        degeneradoAIzquierda(a) ≡ nil?(a) ∨ esHoja?(a) ∨ (degeneradoAIzquierda(izq(a)) ∧ nil?(der(a)))
+        degeneradoADerecha(a) ≡ nil?(a) ∨ esHoja?(a) ∨ (degeneradoADerecha(izq(a) ∧ nil?(der(a)))
+        zigZag(a) ≡ nil?(a) ∨ esHoja?(a)
+            // Este choclo lógico en esencia lo que chequea son los próximos 2 niveles al mismo tiempo.
+            ∨ (¬nil?(izq(a)) ∧ nil?(der(a)) ∧ (esHoja?(izq(a)) ∨ (nil?(izq(izq(a))) ∧ ¬nil?(der(izq(a))) ∧ zigZag(izq(a)))))
+            ∨ (nil?(izq(a)) ∧ ¬nil?(der(a)) ∧ (esHoja?(der(a)) ∨ (¬nil?(izq(der(a))) ∧ nil?(der(der(a))) ∧ zigZag(der(a)))))
+        últimoNivelCompleto(a) ≡ if nil?(a) ∨ nil?(izq(a)) ∨ nil?(der(a)) then 0 else
+            1 + min(últimoNivelCompleto(izq(a)), últimoNivelCompleto(der(a)))
+        fi
+        espejo(a) ≡ if nil?(a) then a else bin(espejo(der(a)), raíz(a), espejo(izq(a))) fi
+        esSimétrico(a, b) ≡ a =obs espejo(b)
+Fin TAD

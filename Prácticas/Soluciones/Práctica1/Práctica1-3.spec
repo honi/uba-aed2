@@ -1,0 +1,22 @@
+// Práctica 1 - Ejercicio 3
+
+TAD ConjuntoExtendido(α)
+    extiende
+        Conjunto(α)
+    otras operaciones
+        partesDe: conj(α) → conj(conj(α))
+        agregarATodos: α × conj(conj(α)) → conj(conj(α))
+        combinacionesDeK: conj(α) c × nat k → conj(conj(α))
+    axiomas
+        partesDe(c) ≡ if ∅?(c) then Ag(c, ∅) else
+            agregarATodos(dameUno(c), partesDe(sinUno(c))) ∪ partesDe(sinUno(c))
+        fi
+        agregarATodos(e, cs) ≡ if ∅?(cs) then ∅ else
+            Ag(agregarATodos(e, sinUno(cs)), Ag(dameUno(cs), e))
+        fi
+        combinacionesDeK(c, k) ≡ if k = 0 then Ag(∅, ∅) else
+            if k > #c then ∅ else
+                agregarATodos(dameUno(c), combinacionesDeK(sinUno(c), k - 1)) ∪ combinacionesDeK(sinUno(c), k)
+            fi
+        fi
+Fin TAD
