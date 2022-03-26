@@ -1,0 +1,8 @@
+// Práctica 1 - Ejercicio 5
+
+TAD ArbolTernarioExtendido(α)
+    extiende
+        ArbolTernario(α)
+    otras operaciones
+    axiomas
+Fin TAD

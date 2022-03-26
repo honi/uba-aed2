@@ -1,6 +1,6 @@
 // Práctica 1 - Ejercicio 6
 
-TAD Rosetree(α)
+TAD RosetreeExtendido(α)
     extiende
         Rosetree(α)
     otras operaciones
