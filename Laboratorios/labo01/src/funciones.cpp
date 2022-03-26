@@ -107,7 +107,7 @@ bool integrantes_repetidos(vector<Mail> s) {
 map<set<LU>, Mail> entregas_finales(vector<Mail> s) {
     map<set<LU>, Mail> res;
     for (Mail m: s) {
-        if (m.adjunto()) {
+        if (m.adjunto() && m.fecha() > res[m.libretas()].fecha()) {
             res[m.libretas()] = m;
         }
     }

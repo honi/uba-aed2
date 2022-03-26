@@ -37,7 +37,7 @@ bool Mail::adjunto() const { return _adjunto; }
 
 bool Mail::operator==(const Mail &o) const {
   return asunto() == o.asunto() and adjunto() == o.adjunto() and
-         libretas() == o.libretas();
+         libretas() == o.libretas() and fecha() == o.fecha();
 }
 
 set<LU> Mail::libretas() const {

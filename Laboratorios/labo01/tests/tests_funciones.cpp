@@ -197,4 +197,8 @@ TEST(Ej, 11) {
   Mail e23 = Mail("007/11", 35, false);
   dict_entrega r2 = entregas_finales(vector<Mail>({e21, e22, e23, e11, e12, e13, e14}));
   EXPECT_EQ(r2, dict_entrega({{pg("123/45"), e12}, {pg("007/11"), e22}}));
+
+  Mail e24 = Mail("007/11", 35, true);
+  dict_entrega r3 = entregas_finales(vector<Mail>({e24, e21, e22, e23, e11, e12, e13, e14}));
+  EXPECT_EQ(r3, dict_entrega({{pg("123/45"), e12}, {pg("007/11"), e24}}));
 };
