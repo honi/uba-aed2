@@ -21,7 +21,7 @@ TAD SecuenciaExtendida(α)
         s ≤ t ≡ if vacía?(s) ∨ vacía?(t) then vacía?(s) else prim(s) ≤ prim(t) ∧ fin(s) ≤ fin(t) fi
         reverso(s) ≡ if vacía?(s) then <> else reverso(s) ∘ prim(s) fi
         capicúa(s) ≡ vacía?(s) ∨ prim(s) = ult(s) ∧ capicúa(com(fin(s)))
-        esPrefijo?(s, t) ≡ if vacía?(s) ∨ vacía?(t) then vacía?(s) else prim(s) = prim(t) ∧ esPrefijo(s, t) fi
+        esPrefijo?(s, t) ≡ if vacía?(s) ∨ vacía?(t) then vacía?(s) else prim(s) = prim(t) ∧ esPrefijo(fin(s), fin(t)) fi
         buscar(s, t) ≡ if esPrefijo(s, t) then 0 else buscar(s, fin(t)) fi
         estáOrdenada?(s) ≡ long(s) < 2 ∨ prim(s) < prim(fin(s)) ∧ estáOrdenada?(fin(s))
         insertarOrdenada(s, e) ≡ if vacía?(s) ∨ e < prim(s) then e • s else prim(s) • insertarOrdenada(fin(s), e) fi
