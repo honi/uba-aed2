@@ -4,5 +4,12 @@ TAD ArbolTernarioExtendido(α)
     extiende
         ArbolTernario(α)
     otras operaciones
+        NivelNormal: at(α) × ent → bool
     axiomas
+        NivelNormal(a, k) ≡
+            if k = 0 then
+                ¬nil?(a) ∧ ¬nil?(izq(a)) ∧ ¬nil?(med(a)) ∧ ¬nil?(der(a))
+            else
+                NivelNormal(izq(a), k - 1) ∧ NivelNormal(med(a), k - 1) ∧ NivelNormal(der(a), k - 1)
+            fi
 Fin TAD
