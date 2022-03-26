@@ -12,7 +12,7 @@ TAD ConjuntoExtendido(α)
             agregarATodos(dameUno(c), partesDe(sinUno(c))) ∪ partesDe(sinUno(c))
         fi
         agregarATodos(e, cs) ≡ if ∅?(cs) then ∅ else
-            Ag(agregarATodos(e, sinUno(cs)), Ag(dameUno(cs), e))
+            Ag(Ag(e, dameUno(cs)), agregarATodos(e, sinUno(cs)))
         fi
         combinacionesDeK(c, k) ≡ if k = 0 then Ag(∅, ∅) else
             if k > #c then ∅ else
