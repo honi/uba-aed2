@@ -21,7 +21,7 @@ TAD ArbolBinarioExtendido(α)
             // Este choclo lógico en esencia lo que chequea son los próximos 2 niveles al mismo tiempo.
             ∨ (¬nil?(izq(a)) ∧ nil?(der(a)) ∧ (esHoja?(izq(a)) ∨ (nil?(izq(izq(a))) ∧ ¬nil?(der(izq(a))) ∧ zigZag(izq(a)))))
             ∨ (nil?(izq(a)) ∧ ¬nil?(der(a)) ∧ (esHoja?(der(a)) ∨ (¬nil?(izq(der(a))) ∧ nil?(der(der(a))) ∧ zigZag(der(a)))))
-        últimoNivelCompleto(a) ≡ if nil?(a) ∨ nil?(izq(a)) ∨ nil?(der(a)) then 0 else
+        últimoNivelCompleto(a) ≡ if nil?(a) then 0 else
             1 + min(últimoNivelCompleto(izq(a)), últimoNivelCompleto(der(a)))
         fi
         espejo(a) ≡ if nil?(a) then a else bin(espejo(der(a)), raíz(a), espejo(izq(a))) fi
