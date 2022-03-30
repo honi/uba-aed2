@@ -8,6 +8,7 @@ Cursada: 1er cuatrimestre 2022
 - Laboratorios
 
   - [Laboratorio 1](Laboratorios/labo01)
+  - [Laboratorio 2](Laboratorios/labo02)
 
 - Prácticas
 

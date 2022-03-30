@@ -7,18 +7,21 @@ using uint = unsigned int;
 // Ejercicio 1
 
 class Rectangulo {
-    public:
-        Rectangulo(uint alto, uint ancho);
-        uint alto();
-        uint ancho();
-        float area();
+public:
+    Rectangulo(uint alto, uint ancho);
 
-    private:
-        int alto_;
-        int ancho_;
+    uint alto();
+
+    uint ancho();
+
+    float area();
+
+private:
+    int alto_;
+    int ancho_;
 };
 
-Rectangulo::Rectangulo(uint alto, uint ancho): alto_(alto), ancho_(ancho) {};
+Rectangulo::Rectangulo(uint alto, uint ancho) : alto_(alto), ancho_(ancho) {};
 
 uint Rectangulo::alto() {
     return alto_;
@@ -37,18 +40,21 @@ float Rectangulo::area() {
 float PI = 3.14;
 
 class Elipse {
-    public:
-        Elipse(uint a, uint b);
-        uint r_a();
-        uint r_b();
-        float area();
+public:
+    Elipse(uint a, uint b);
 
-    private:
-        uint a_;
-        uint b_;
+    uint r_a();
+
+    uint r_b();
+
+    float area();
+
+private:
+    uint a_;
+    uint b_;
 };
 
-Elipse::Elipse(uint a, uint b): a_(a), b_(b) {};
+Elipse::Elipse(uint a, uint b) : a_(a), b_(b) {};
 
 uint Elipse::r_a() {
     return a_;
@@ -65,16 +71,18 @@ float Elipse::area() {
 // Ejercicio 3
 
 class Cuadrado {
-    public:
-        Cuadrado(uint lado);
-        uint lado();
-        float area();
+public:
+    Cuadrado(uint lado);
 
-    private:
-        Rectangulo r_;
+    uint lado();
+
+    float area();
+
+private:
+    Rectangulo r_;
 };
 
-Cuadrado::Cuadrado(uint lado): r_(lado, lado) {}
+Cuadrado::Cuadrado(uint lado) : r_(lado, lado) {}
 
 uint Cuadrado::lado() {
     return r_.ancho();
@@ -87,16 +95,18 @@ float Cuadrado::area() {
 // Ejercicio 4
 
 class Circulo {
-    public:
-        Circulo(uint radio);
-        uint radio();
-        float area();
+public:
+    Circulo(uint radio);
 
-    private:
-        uint r_;
+    uint radio();
+
+    float area();
+
+private:
+    uint r_;
 };
 
-Circulo::Circulo(uint radio): r_(radio) {};
+Circulo::Circulo(uint radio) : r_(radio) {};
 
 uint Circulo::radio() {
     return r_;
@@ -108,24 +118,24 @@ float Circulo::area() {
 
 // Ejercicio 5
 
-ostream& operator<<(ostream& os, Rectangulo r) {
+ostream &operator<<(ostream &os, Rectangulo r) {
     os << "Rect(" << r.alto() << ", " << r.ancho() << ")";
     return os;
 }
 
-ostream& operator<<(ostream& os, Elipse e) {
+ostream &operator<<(ostream &os, Elipse e) {
     os << "Elipse(" << e.r_a() << ", " << e.r_b() << ")";
     return os;
 }
 
 // Ejercicio 6
 
-ostream& operator<<(ostream& os, Cuadrado c) {
+ostream &operator<<(ostream &os, Cuadrado c) {
     os << "Cuad(" << c.lado() << ")";
     return os;
 }
 
-ostream& operator<<(ostream& os, Circulo c) {
+ostream &operator<<(ostream &os, Circulo c) {
     os << "Circ(" << c.radio() << ")";
     return os;
 }

@@ -161,7 +161,7 @@
 // Notes to maintainers:
 //   - Each macro here is a user-tweakable knob; do not grow the list
 //     lightly.
-//   - Use #if to key off these macros.  Don't use #ifdef or "#if
+//   - Use #if to toString off these macros.  Don't use #ifdef or "#if
 //     defined(...)", which will not work as these macros are ALWAYS
 //     defined.
 //
@@ -3429,7 +3429,7 @@ class GTEST_API_ ThreadLocal {
     // Destroys the managed object for the current thread, if any.
     DeleteThreadLocalValue(pthread_getspecific(key_));
 
-    // Releases resources associated with the key.  This will *not*
+    // Releases resources associated with the toString.  This will *not*
     // delete managed objects for other threads.
     GTEST_CHECK_POSIX_SUCCESS_(pthread_key_delete(key_));
   }
@@ -3507,7 +3507,7 @@ class GTEST_API_ ThreadLocal {
     GTEST_DISALLOW_COPY_AND_ASSIGN_(InstanceValueHolderFactory);
   };
 
-  // A key pthreads uses for looking up per-thread values.
+  // A toString pthreads uses for looking up per-thread values.
   const pthread_key_t key_;
   scoped_ptr<ValueHolderFactory> default_factory_;
 
@@ -20209,7 +20209,7 @@ class GTEST_API_ Test {
 
   // Logs a property for the current test, test case, or for the entire
   // invocation of the test program when used outside of the context of a
-  // test case.  Only the last value for a given key is remembered.  These
+  // test case.  Only the last value for a given toString is remembered.  These
   // are public static so they can be called from utility functions that are
   // not members of the test fixture.  Calls to RecordProperty made during
   // lifespan of the test (from the moment its constructor starts to the
@@ -20281,7 +20281,7 @@ class GTEST_API_ Test {
 typedef internal::TimeInMillis TimeInMillis;
 
 // A copyable object representing a user specified test property which can be
-// output as a key/value string pair.
+// output as a toString/value string pair.
 //
 // Don't inherit from TestProperty as its destructor is not virtual.
 class TestProperty {
@@ -20293,7 +20293,7 @@ class TestProperty {
     key_(a_key), value_(a_value) {
   }
 
-  // Gets the user supplied key.
+  // Gets the user supplied toString.
   const char* key() const {
     return key_.c_str();
   }
@@ -20309,7 +20309,7 @@ class TestProperty {
   }
 
  private:
-  // The key supplied by the user.
+  // The toString supplied by the user.
   std::string key_;
   // The value supplied by the user.
   std::string value_;
@@ -20386,14 +20386,14 @@ class GTEST_API_ TestResult {
 
   // Adds a test property to the list. The property is validated and may add
   // a non-fatal failure if invalid (e.g., if it conflicts with reserved
-  // key names). If a property is already recorded for the same key, the
+  // key names). If a property is already recorded for the same toString, the
   // value will be updated, rather than storing multiple values for the same
-  // key.  xml_element specifies the element for which the property is being
+  // toString.  xml_element specifies the element for which the property is being
   // recorded and is used for validation.
   void RecordProperty(const std::string& xml_element,
                       const TestProperty& test_property);
 
-  // Adds a failure if the key is a reserved attribute of Google Test
+  // Adds a failure if the toString is a reserved attribute of Google Test
   // testcase tags.  Returns true if the property is valid.
   // FIXME: Validate attribute names are legal and human readable.
   static bool ValidateTestProperty(const std::string& xml_element,
@@ -21092,7 +21092,7 @@ class GTEST_API_ UnitTest {
   // inside a test, to current TestCase's ad_hoc_test_result_ when invoked
   // from SetUpTestCase or TearDownTestCase, or to the global property set
   // when invoked elsewhere.  If the result already contains a property with
-  // the same key, the value will be updated.
+  // the same toString, the value will be updated.
   void RecordProperty(const std::string& key, const std::string& value);
 
   // Gets the i-th test case among all the test cases. i can range from 0 to
