@@ -1,0 +1,126 @@
+TAD JuegoDeLaOca
+    igualdad observacional
+        (∀o1,o2: oca)(o1 =obs o2 ⟺ (
+            Tablero(o1) =obs Tablero(o2)
+            ∧ #Turno(o1) =obs #Turno(o2)
+            ∧L (∀n: nat)(n < #Turno(o1) ⟹L Dado(n, o1) =obs Dado(n, o2))
+        ))
+    géneros oca
+    exporta oca, generadores, observadores
+    usa Nat, Tablero
+    observadores básicos
+        Tablero: oca → tablero
+        #Turno: oca → nat
+        Dado: nat n × oca o → nat {n < #Turno(o)}
+    generadores
+        Iniciar: tablero t → oca
+        Avanzar: nat d × oca o → oca {(∀j: nat)(j ≤ 1 ⟹L DóndeEstá(j, o) < #Baldozas(Tablero(o)) - 1)}
+    otras operaciones
+        PasóPorBaldoza?: nat j × nat b × oca o → bool {j ≤ 1 ∧ b < #Baldozas(Tablero(o))}
+        BaldozaMáxima: nat j × oca o → nat {j ≤ 1}
+        DóndeEstá: nat j × oca o → nat {j ≤ 1}
+        EsElTurnoDe: nat j × oca o → bool {j ≤ 1}
+    axiomas
+        ∀o: oca, ∀t: tablero, ∀j,b,d: nat
+
+        Tablero(Iniciar(t)) ≡ t
+        Tablero(Avanzar(d, o)) ≡ Tablero(o)
+
+        #Turno(Iniciar(t)) ≡ 0
+        #Turno(Avanzar(d, o)) ≡ 1 + #Turno(o)
+
+        Dado(n, Avanzar(d, o)) ≡
+            if #Turno(o) =obs n then
+                d
+            else
+                Dado(n, o)
+            fi
+
+        PasóPorBaldoza?(j, b, Iniciar(t)) ≡ false
+        PasóPorBaldoza?(j, b, Avanzar(d, o)) ≡
+            if EsElTurnoDe(j, o) then
+                BaldozaMáxima(j, Avanzar(d, o)) ≤ b
+            else
+                PasóPorBaldoza?(j, b, o)
+            fi
+
+        BaldozaMáxima(j, Iniciar(t)) ≡ 0
+        BaldozaMáxima(j, Avanzar(d, o)) ≡
+            if EsElTurnoDe(j, o) then
+                max(
+                    max(
+                        DóndeEstá(j, o) + d,
+                        EfectoBaldoza(DóndeEstá(j, o) + d, Tablero(o))
+                    ),
+                    BaldozaMáxima(j, o)
+                )
+            else
+                BaldozaMáxima(j, o)
+            fi
+
+        DóndeEstá(j, Iniciar(t)) ≡ 0
+        DóndeEstá(j, Avanzar(d, o)) ≡
+            if EsElTurnoDe(j, o) then
+                EfectoBaldoza(DóndeEstá(j, o) + d, Tablero(o))
+            else
+                DóndeEstá(j, o)
+            fi
+
+        EsElTurnoDe(j, o) ≡ #Turnos(o) % 2 =obs j // Definir operación módulo %
+Fin TAD
+
+TAD Tablero
+    igualdad observacional
+        (∀t1,t2: tablero)(t1 =obs t2 ⟺ (
+            #Baldozas(t1) =obs #Baldozas(t2)
+            ∧L (∀b: nat)(b < #Baldozas(t1) ⟹L EfectoBaldoza(b, t1) =obs EfectoBaldoza(b, t2))
+        ))
+    géneros tablero
+    exporta tablero, generadores, observadores
+    usa Nat, Secuencia
+    observadores básicos
+        #Baldozas: tablero t → nat
+        EfectoBaldoza: nat b × tablero t → nat
+    generadores
+        Nuevo: secu[baldoza] bs → tablero {long(bs) ≥ 2 ∧ (∀b: ent)(b < long(bs) ⟹L 0 ≤ AplicarEfecto(b, bs[b]) < long(bs))}
+    axiomas
+        ∀t: tablero, ∀bs: secu[baldoza], ∀b: nat
+        #Baldozas(Nuevo(bs)) ≡ long(bs)
+        EfectoBaldoza(b, t) ≡
+            if CuántasBaldozasSePasó(b, t) > 0 then
+                #Baldozas(t) - CuántasBaldozasSePasó(b, t) - 1
+            else
+                AplicarEfecto(b, bs[b])
+            fi
+        CuántasBaldozasSePasó(b, t) ≡
+            if b ≥ #Baldozas(t) then
+                b - #Baldozas(t) + 1
+            else
+                0
+            fi
+Fin TAD
+
+TAD Baldoza
+    igualdad observacional
+        (∀b1,b2: baldoza)(b1 =obs b2 ⟺ (
+            #Casilleros(b1) =obs #Casilleros(b2) ∧ Avanza?(b1) =obs Avanza?(b2)
+        ))
+    géneros baldoza
+    exporta baldoza, generadores, observadores
+    usa Nat, Bool
+    observadores básicos
+        #Casilleros: baldoza → nat
+        Avanza?: baldoza → bool
+    generadores
+        Baldoza: nat casilleros × bool avanza → baldoza
+    otras operaciones
+        AplicarEfecto: nat × baldoza → nat
+    axiomas
+        ∀n: nat, ∀b: baldoza
+        AplicarEfecto(n, b) ≡
+            if Avanza?(b) then
+                n + #Casilleros(b)
+            else
+                n - #Casilleros(b)
+            fi
+Fin TAD

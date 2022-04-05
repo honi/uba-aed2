@@ -8,15 +8,35 @@ TAD ConjuntoExtendido(α)
         agregarATodos: α × conj(conj(α)) → conj(conj(α))
         combinacionesDeK: conj(α) c × nat k → conj(conj(α))
     axiomas
-        partesDe(c) ≡ if ∅?(c) then Ag(c, ∅) else
-            agregarATodos(dameUno(c), partesDe(sinUno(c))) ∪ partesDe(sinUno(c))
-        fi
-        agregarATodos(e, cs) ≡ if ∅?(cs) then ∅ else
-            Ag(Ag(e, dameUno(cs)), agregarATodos(e, sinUno(cs)))
-        fi
-        combinacionesDeK(c, k) ≡ if k = 0 then Ag(∅, ∅) else
-            if k > #c then ∅ else
-                agregarATodos(dameUno(c), combinacionesDeK(sinUno(c), k - 1)) ∪ combinacionesDeK(sinUno(c), k)
+        partesDe(c) ≡
+            if ∅?(c) then
+                Ag(c, ∅)
+            else
+                agregarATodos(
+                    dameUno(c),
+                    partesDe(sinUno(c))
+                ) ∪ partesDe(sinUno(c))
             fi
-        fi
+        agregarATodos(e, cs) ≡
+            if ∅?(cs) then
+                ∅
+            else
+                Ag(
+                    Ag(e, dameUno(cs)),
+                    agregarATodos(e, sinUno(cs))
+                )
+            fi
+        combinacionesDeK(c, k) ≡
+            if k = 0 then
+                Ag(∅, ∅)
+            else
+                if k > #c then
+                    ∅
+                else
+                    agregarATodos(
+                        dameUno(c),
+                        combinacionesDeK(sinUno(c), k - 1)
+                    ) ∪ combinacionesDeK(sinUno(c), k)
+                fi
+            fi
 Fin TAD

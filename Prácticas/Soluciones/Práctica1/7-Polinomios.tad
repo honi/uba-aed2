@@ -1,0 +1,11 @@
+TAD Polinomio
+    otras operaciones
+        esRaíz: polinomio × nat → bool
+    axiomas
+        ∀n,c: nat, ∀p,q: polinomio
+        Evaluar(Cte(c), n) ≡ c
+        Evaluar(X, n) ≡ n
+        Evaluar(p + q, n) ≡ Evaluar(p, n) + Evaluar(q, n)
+        Evaluar(p × q, n) ≡ Evaluar(p, n) × Evaluar(q, n)
+        esRaíz(p, n) ≡ Evaluar(p, n) = 0?
+Fin TAD

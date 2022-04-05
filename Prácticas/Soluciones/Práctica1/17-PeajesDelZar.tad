@@ -1,0 +1,125 @@
+TAD Peaje
+    igualdad observacional
+        (∀p1,p2: peaje, ∀c: cabina, ∀tv: tipoVehículo)(p1 =obs p2 ⟺
+            cabinas(p1) =obs cabinas(p2)
+            ∧L precio(p1, tv) =obs precio(p2, tv)
+            ∧ filaMáxima(p1) =obs filaMáxima(p2)
+            ∧ (c ∈ cabinas(p1) ⟹ (
+                fila(p1, c) =obs fila(p2, c)
+                ∧ vehículosQuePasaron(p1, c) =obs vehículosQuePasaron(p2, c)
+                ∧ facturación(p1, c) =obs facturación(p2, c)
+            ))
+        )
+    géneros peaje
+    exporta peaje, generadores, observadores, dóndePasaronMasVehículos
+    usa Nat, Cola, Cabina, TipoVehículo
+    observadores básicos
+        cabinas: peaje → conj(cabina)
+        precio: peaje × tipoVehículo → nat
+        filaMáxima: peaje → nat
+        fila: peaje p × cabina c → cola(tipoVehículo) {c ∈ cabinas(p)}
+        facturación: peaje p × cabina c → nat {c ∈ cabinas(p)}
+        vehículosQuePasaron: peaje p × cabina c → multiconj(tipoVehículo) {c ∈ cabinas(p)}
+    generadores
+        nuevoPeaje: conj(cabina) cs × dicc(tipoVehículo, nat) precios × nat filaMáxima → peaje {#cs > 0}
+        llegaUnAuto: peaje p × cabina c × tipoVehículo → peaje {c ∈ cabinas(p)}
+        cobrar: peaje p × cabina c → peaje {c ∈ cabinas(p) ∧ hayVehículosEnLaFila(p, c)}
+    otras operaciones
+        dóndePasaronMasVehículos: peaje × tipoVehículo → conj(cabina)
+        hayVehículosEnLaFila: peaje × cabina c → bool {c ∈ cabinas(p)}
+        hayLugarEnLaFila: peaje × cabina c → bool {c ∈ cabinas(p)}
+        precioPorTipoDeVehículo: peaje × tipoVehículo → nat
+        reducirFilaALaMitad: cola(tipoVehículo) → cola(tipoVehículo)
+        desencolarHastaLaMitad: cola(tipoVehículo) × nat → cola(tipoVehículo)
+        tamañoDeLaMitad: cola(tipoVehículo) → nat
+    axiomas
+        ∀p: peaje
+        ∀c,c2: cabina
+        ∀cs: conj(cabina)
+        ∀lp: dicc(tipoVehículo, nat) // lista de precios
+        ∀tv,tv2: tipoVehículo
+        ∀n: nat
+
+        cabinas(nuevoPeaje(cs, lp, n)) ≡ cs
+        cabinas(llegaUnAuto(p, c, tv)) ≡ cabinas(p)
+        cabinas(cobrar(p, c)) ≡ cabinas(p)
+
+        filaMáxima(nuevoPeaje(cs, lp, n)) ≡ n
+        filaMáxima(llegaUnAuto(p, c, tv)) ≡ filaMáxima(p)
+        filaMáxima(cobrar(p, c)) ≡ filaMáxima(p)
+
+        precio(nuevoPeaje(cs, lp, n), tv) ≡
+            if def?(tv, lp) then
+                obtener(lp, tv)
+            else
+                0
+            fi
+        precio(llegaUnAuto(p, c, tv2), tv) ≡ precio(p, tv)
+        precio(cobrar(p, c), tv) ≡ precio(p, tv)
+
+        fila(nuevoPeaje(cs, lp, n), c) ≡ vacía
+        fila(llegaUnAuto(p, c2, tv), c) ≡
+            if c =obs c2 then
+                if hayLugarEnLaFila(p, c) then
+                    encolar(tv, fila(p, c))
+                else
+                    reducirFilaALaMitad(encolar(tv, fila(p, c)))
+                fi
+            else
+                if hayLugarEnLaFila(p, c2) then
+                    fila(p, c)
+                else
+                    reducirFilaALaMitad(fila(p, c))
+                fi
+            fi
+        fila(cobrar(p, c2), c) ≡
+            if c =obs c2 then
+                desencolar(fila(p, c))
+            else
+                fila(p, c)
+            fi
+
+        facturación(nuevoPeaje(cs, lp, n), c) ≡ 0
+        facturación(llegaUnAuto(p, c2, tv), c) ≡ facturación(p, c)
+        facturación(cobrar(p, c2), c) ≡
+            if c =obs c2 then
+                precio(p, próximo(fila(cobrar(p, c), c))) + facturación(p, c)
+            else
+                facturación(p, c)
+            fi
+
+        vehículosQuePasaron(nuevoPeaje(cs, lp, n), c) ≡ ∅
+        vehículosQuePasaron(llegaUnAuto(p, c2, tv2), c) ≡
+            if c =obs c2 then
+                if hayLugarEnLaFila(p, c) then
+                    vehículosQuePasaron(p, c, tv)
+                else
+                    tamañoDeLaMitad(encolar(tv2, fila(p, c))) + vehículosQuePasaron(p, c, tv)
+                fi
+            else
+                vehículosQuePasaron(p, c, tv)
+            fi
+        vehículosQuePasaron(cobrar(p, c2), c, tv) ≡
+            β(c =obs c2 ∧ tv =obs tv2) + vehículosQuePasaron(p, c, tv)
+
+        // dóndePasaronMasVehículos(p, tv) ≡
+
+        hayVehículosEnLaFila(p, c) ≡ tamaño(filas(p, c)) > 0
+        hayLugarEnLaFila(p, c) ≡ tamaño(filas(p, c)) < filaMáxima(p)
+
+        reducirFilaALaMitad(f) ≡ desencolarHastaLaMitad(f, tamaño(f))
+        desencolarHastaLaMitad(f, n) ≡
+            if tamaño(f) * 2 ≤ n then
+                f
+            else
+                desencolarHastaLaMitad(desencolar(f), n)
+            fi
+        tamañoDeLaMitad(f) ≡ tamaño(reducirFilaALaMitad(f))
+        // cantidadDeTipoVehículoEnLaMitad(f)
+Fin TAD
+
+TAD Cabina es Nat
+    géneros cabina
+
+TAD TipoVehículo es Nat
+    géneros tipoVehículo
