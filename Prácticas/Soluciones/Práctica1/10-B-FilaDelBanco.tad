@@ -1,0 +1,65 @@
+TAD Fila
+    igualdad observacional
+        (∀f1,f2: fila)(f1 =obs f2 ⟺ (
+            (∀p: persona)(
+                Esperando(p, f1) =obs Esperando(p, f2)
+                ∧L (Esperando(p, f1) ⟹L (
+                    Posición(p, f1) =obs Posición(p, f2)
+                    ∧ SeColó(p, f1) =obs SeColó(p, f2)
+                ))
+            )
+        ))
+    géneros fila
+    exporta fila, generadores, observadores
+    usa Nat, Bool
+    observadores básicos
+        Esperando: persona × fila → bool
+        Posición: persona p × fila f → nat {Esperando(p, f)}
+        SeColó?: persona p × fila f → bool {Esperando(p, f)}
+    generadores
+        AbrirVentanilla: → fila
+        Llegar: persona p × fila f → fila {¬Esperando(p, f)}
+        Atender: fila f → fila {¬Vacía(f)}
+        ColarseAdelanteDe: persona p × persona q × fila f → fila {¬Esperando(p, f) ∧ Esperando(q, f)}
+        Retirarse: persona p × fila f → fila {Esperando(p, f)}
+    otras operaciones
+        Longitud: fila → nat
+        Vacía: fila → bool
+    axiomas
+        ∀f: fila, ∀p,q,r: persona
+
+        Esperando(p, AbrirVentanilla()) ≡ false
+        Longitud(AbrirVentanilla()) ≡ 0
+
+        Esperando(q, Llegar(p, f)) ≡ q =obs p ∨ Esperando(q, f)
+        Posición(q, Llegar(p, f)) ≡ if q =obs p then Longitud(f) + 1 else Posición(q, f) fi
+        SeColó(q, Llegar(p, f)) ≡ q ≠obs p ∧ SeColó(q, f)
+        Longitud(Llegar(p, f)) ≡ Longitud(f) + 1
+
+        Esperando(p, Atender(f)) ≡ Esperando(p, f) ∧L Posición(p, f) > 1
+        Posición(p, Atender(f)) ≡ Posición(p, f) - 1
+        SeColó(p, Atender(f)) ≡ SeColó(p, f)
+        Longitud(Atender(f)) ≡ Longitud(f) - 1
+
+        Esperando(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ Esperando(r, f)
+        Posición(r, ColarseAdelanteDe(p, q, f)) ≡
+            if r =obs p then
+                Posición(q, f)
+            else
+                Posición(r, f) + β(Posición(q, f) ≤ Posición(r, f))
+            fi
+        SeColó(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ SeColó(r, f)
+        Longitud(ColarseAdelanteDe(p, q, f)) ≡ Longitud(f) + 1
+
+        Esperando(q, Retirarse(p, f)) ≡ q ≠obs p ∧ Esperando(q, f)
+        Posición(q, Retirarse(p, f)) ≡ Posición(q, f) - β(Posición(p, f) < Posición(q, f))
+        SeColó(q, Retirarse(p, f)) ≡ SeColó(q, f)
+        Longitud(Retirarse(p, f)) ≡ Longitud(f) - 1
+
+        Vacía(f) ≡ Longitud(f) =obs 0
+Fin TAD
+
+// Identifico a las personas por nombre.
+// Ya se que no existe el TAD String, pero es básicamente una secuencia de chars.
+// También se que no existe el TAD char, pero es básicamente un número natural que mapea a un determinado símbolo.
+TAD Persona es String
