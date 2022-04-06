@@ -1,0 +1,103 @@
+TAD Juego
+    igualdad observacional
+        (∀j1,j2: juego)(j1 =obs j2 ⟺ (
+            tablero(j1) =obs tablero(j2)
+            ∧ iniciado(j1) =obs iniciado(j2)
+            ∧ jugadoresVivos(j1) =obs jugadoresVivos(j2)
+            ∧L (∀g: jugador)(g ∈ jugadoresVivos(j1) ⟹L (
+                posición(g, j1) =obs posición(g, j2)
+                dirección(g, j1) =obs puntaje(g, j2)
+                puntaje(g, j1) =obs puntaje(g, j2)
+            ))
+        ))
+    géneros juego
+    exporta juego, generadores, observadores
+    usa Nat, Bool, Posición, Dirección, Tablero
+    observadores básicos
+        tablero: juego → tablero
+        iniciado: juego → bool // Se agregaron los 64 jugadores.
+        jugadoresVivos: juego → conj(jugador)
+        posición: jugador g × juego j → posición {g ∈ jugadoresVivos(j)}
+        dirección: jugador g × juego j → dirección {g ∈ jugadoresVivos(j)}
+        puntaje: jugador g × juego j → nat {g ∈ jugadoresVivos(j)}
+    generadores
+        nuevoJuego: tablero → juego
+        agregarJugador: posición p × dirección × jugador g × juego j → juego j {¬iniciado(j) ∧ g ∉ jugadoresVivos(j) ∧ posiciónVacía(p, j)}
+        mover: jugador g × juego j → juego j {iniciado(j) ∧ ¬hayGanador?(j) ∧ g ∈ jugadoresVivos(j)}
+        cambiarDirección: dirección × jugador g × juego j → juego j {iniciado(j) ∧ ¬hayGanador?(j) ∧ g ∈ jugadoresVivos(j)}
+    otras operaciones
+        #jugadoresAgregados: juego → nat
+        posiciónVacía: posición p × juego j → bool {posiciónVálida(p, tablero(j))}
+        quienEstá?: posición p × juego j → jugador {posiciónVálida(p, tablero(j)) ∧ ¬posiciónVacía(p, j)}
+        hayGanador?: juego j → bool
+        siguiente: jugador g × juego j → posición {g ∈ jugadoresVivos(j)}
+    axiomas
+        ∀j: juego, ∀g,g2: jugador, ∀p,p2: posición, ∀d: dirección
+
+        tablero(nuevoJuego(t)) ≡ t
+        tablero(agregarJugador(p, d, g, j)) ≡ tablero(j)
+        tablero(mover(g, j)) ≡ tablero(j)
+        tablero(cambiarDirección(d, g, j)) ≡ tablero(j)
+
+        jugadoresVivos(nuevoJuego(t)) ≡ ∅
+        jugadoresVivos(agregarJugador(p, d, g, j)) ≡ Ag(g, jugadoresVivos(j))
+        jugadoresVivos(mover(g, j)) ≡
+            if posiciónVacía(siguiente(g, j), j) then
+                jugadoresVivos(j)
+            else
+                jugadoresVivos(j) - {quienEstá?(siguiente(g, j), j)}
+            fi
+        jugadoresVivos(cambiarDirección(d, g, j)) ≡ jugadoresVivos(j)
+
+        posición(g, agregarJugador(g2, d, p, j)) ≡ if g =obs g2 then p else posición(g, j) fi
+        posición(g, mover(g2, j)) ≡ if g =obs g2 then siguente(g, j) else posición(g, j) fi
+        posición(g, cambiarDirección(d, g2, j)) ≡ posición(g, j)
+
+        dirección(g, agregarJugador(g2, d, p, j)) ≡ if g =obs g2 then d else dirección(g, j) fi
+        dirección(g, mover(g2, j)) ≡ dirección(g, j)
+        dirección(g, cambiarDirección(d, g2, j)) ≡ if g =obs g2 then d else dirección(g, j) fi
+
+        puntaje(g, agregarJugador(g2, d, p, j)) ≡ 0
+        puntaje(g, mover(g2, j)) ≡
+            if g =obs g2 then
+                if posiciónVacía(siguiente(g, j), j) then
+                    puntaje(g, j)
+                else
+                    puntaje(g, j) + puntaje(quienEstá?(siguiente(g, j), j), j) + 1
+                fi
+            else
+                puntaje(g, j)
+            fi
+        puntaje(g, cambiarDirección(d, g2, j)) ≡ puntaje(g, j)
+
+        iniciado(j) ≡ #jugadoresAgregados(j) =obs 64
+
+        #jugadoresAgregados(nuevoJuego(t)) ≡ 0
+        #jugadoresAgregados(agregarJugador(g2, d, p, j)) ≡ 1 + #jugadoresAgregados(j)
+        #jugadoresAgregados(mover(g2, j)) ≡ #jugadoresAgregados(j)
+        #jugadoresAgregados(cambiarDirección(d, g2, j)) ≡ #jugadoresAgregados(j)
+
+        posiciónVacía(p, nuevoJuego(t)) ≡ true
+        posiciónVacía(p, agregarJugador(p2, d, g, j)) ≡ p ≠obs p2 ∧ posiciónVacía(p, j)
+        posiciónVacía(p, mover(g, j)) ≡ p ≠obs siguiente(g, j) ∧ posiciónVacía(p, j)
+        posiciónVacía(p, cambiarDirección(d, g, j)) ≡ posiciónVacía(p, j)
+
+        quienEstá?(p, agregarJugador(p2, d, g, j)) ≡ if p =obs p2 then g else quienEstá?(p, j) fi
+        quienEstá?(p, mover(g, j)) ≡ if p =obs siguiente(g, j) then g else quienEstá?(p, j) fi
+        quienEstá?(p, cambiarDirección(d, g, j)) ≡ quienEstá?(p, j)
+
+        hayGanador?(nuevoJuego(t)) ≡ false
+        hayGanador?(agregarJugador(p, d, g, j)) ≡ hayGanador?(j)
+        hayGanador?(mover(g, j)) ≡
+            if posiciónVacía(siguiente(g, j), j) then
+                hayGanador?(j)
+            else
+                puntaje(g, mover(g, j)) > 32
+            fi
+        hayGanador?(cambiarDirección(d, g, j)) ≡ hayGanador(j)
+
+        siguiente(g, j) ≡ siguiente(posición(g, j), dirección(g, j), tablero(j))
+Fin TAD
+
+TAD Jugador es Nat
+    géneros jugador
