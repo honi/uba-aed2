@@ -41,6 +41,6 @@ TAD SecuenciaExtendida2(α)
             if ∅?(c) then
                 false
             else
-                (s ≠ dameUno(c) ∧ esPrefijo?(s, dameUno(c))) ∨ esPrefijoDeOtra(s, sinUno(c))
+                (s ≠obs dameUno(c) ∧ esPrefijo?(s, dameUno(c))) ∨ esPrefijoDeOtra(s, sinUno(c))
             fi
 Fin TAD
