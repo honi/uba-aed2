@@ -13,6 +13,8 @@ using namespace std;
 
 class SistemaDeMensajes {
 public:
+    class Proxy; // Forward declaration
+
     SistemaDeMensajes();
 
     ~SistemaDeMensajes();
@@ -32,7 +34,8 @@ public:
     // Pre: registrado(id)
     string ipJugador(int id) const;
 
-    class Proxy;
+    // Pre: 0 <= id < 4 && registrado(id)
+    Proxy *obtenerProxy(int id);
 
     class Proxy {
     public:
@@ -46,10 +49,6 @@ public:
         // No puedo copiarlo
         Proxy(const Proxy &);
     };
-
-    // Pre: 0 <= id < 4 && registrado(id)
-    Proxy *obtenerProxy(int id);
-
 
 private:
     ConexionJugador *_conns[4];
