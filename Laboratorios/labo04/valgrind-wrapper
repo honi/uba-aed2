@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+
+if [ "$1" = "build" ]; then
+  docker build --rm -t labo04-valgrind .
+else
+  docker run --rm \
+    -v "$(pwd)/src":/valgrind/src \
+    -v "$(pwd)/tests":/valgrind/tests \
+    labo04-valgrind make "$1"
+fi
