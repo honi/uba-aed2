@@ -1,0 +1,76 @@
+// Práctica 1 - Ejercicio 13-A
+
+// Decisiones tomadas:
+// - El colectivo realiza su recorrido parando en cada parada de forma secuencial.
+// - Cuando llega al final del recorrido, ya no puede manejar más (habría que comenzar un nuevo recorrido).
+// - El recorrido es un arreglo dimensionable para poder indexar fácilmente en la parada actual, además tiene sentido porque el recorrido está fijo (no cambia a mitad de camino).
+
+TAD Colectivo
+    igualdad observacional
+        (∀c, c': colectivo)(c =obs c' ⟺ (
+            recorrido(c) =obs recorrido(c')
+            ∧ paradaActual(c) =obs paradaActual(c')
+            ∧ cantidadAsientos(c) =obs cantidadAsientos(c')
+            ∧ pasajeros(c) =obs pasajeros(c')
+            ∧L (∀p: pasajero)(p ∈ pasajeros(c) ⟹L dondeSeBaja(c, p) =obs dondeSeBaja(c', p))
+        ))
+    géneros colectivo
+    exporta
+    usa ArregloDimensionable, Conjunto, Nat
+    observadores básicos
+        recorrido: colectivo → ad(parada)
+        paradaActual: colectivo → parada
+        cantidadAsientos: colectivo → nat
+        pasajeros: colectivo → conj(pasajero)
+        dondeSeBaja: pasajero p × colectivo c → parada {p ∈ pasajeros(c)}
+    generadores
+        comenzarRecorrido: secu(parada) ds × nat asientos → colectivo {¬vacía?(ds)}
+        levantarPasajero: pasajero p × parada d × colectivo c → colectivo {p ∉ pasajeros(c) ∧ está?(d, recorrido(c))}
+        manejar: colectivo c → colectivo {paradaActual(c) < long(recorrido(c)) - 1}
+    otras operaciones
+        índiceParadaActual: colectivo → nat
+        quiénBaja?: colectivo c → conj(pasajero)
+        quiénBajaAux: conj(pasajero) ps × parada d × colectivo c → conj(pasajero) {ps ⊆ pasajeros(c) ∧ está?(d, recorrido(c))}
+    axiomas
+        ∀c: colectivo, ∀d: parada, ∀ds: secu(parada), ∀a: nat, ∀p,p2: pasajero, ∀ps: conj(pasajero)
+
+        recorrido(comenzarRecorrido(ds, a)) ≡ ds
+        recorrido(levantarPasajero(p, d, c)) ≡ recorrido(c)
+        recorrido(manejar(c)) ≡ recorrido(c)
+
+        paradaActual(c) ≡ recorrido(c)[índiceParadaActual(c)]
+
+        índiceParadaActual(comenzarRecorrido(ds, a)) ≡ 0
+        índiceParadaActual(levantarPasajero(p, d, c)) ≡ índiceParadaActual(c)
+        índiceParadaActual(manejar(c)) ≡ 1 + índiceParadaActual(c)
+
+        cantidadAsientos(comenzarRecorrido(ds, a)) ≡ a
+        cantidadAsientos(levantarPasajero(p, d, c)) ≡ cantidadAsientos(c)
+        cantidadAsientos(manejar(c)) ≡ cantidadAsientos(c)
+
+        pasajeros(comenzarRecorrido(ds, a)) ≡ ∅
+        pasajeros(levantarPasajero(p, d, c)) ≡ Ag(p, pasajeros(c))
+        pasajeros(manejar(c)) ≡ pasajeros(c) - quiénBaja?(c)
+
+        // dondeSeBaja(p, comenzarRecorrido(ds, a)) ≡ No se axiomatiza porque no existe p que cumpla con la restricción.
+        dondeSeBaja(p, levantarPasajero(p2, d, c)) ≡ if p =obs p2 then d else dondeSeBaja(p, c) fi
+        dondeSeBaja(p, manejar(c)) ≡ dondeSeBaja(p, c)
+
+        quiénBaja?(c) ≡ quiénBajaAux(recorrido(c), paradaActual(c), c)
+        quiénBajaAux(ps, d, c)
+            if ∅?(ps) then
+                ∅
+            else
+                if dondeSeBaja(dameUno(ps), c) =obs d then
+                    Ag(dameUno(ps), quiénBaja?(sinUno(ps), d, c))
+                else
+                    quiénBaja?(sinUno(ps), d, c)
+                fi
+            fi
+Fin TAD
+
+TAD Parada es Nat
+    géneros parada
+
+TAD Pasajero es Nat
+    géneros pasajero
