@@ -1,3 +1,5 @@
+// Práctica 1 - Ejercicio 17
+
 TAD Peaje
     igualdad observacional
         (∀p1,p2: peaje, ∀c: cabina, ∀tv: tipoVehículo)(p1 =obs p2 ⟺

@@ -1,3 +1,5 @@
+// Práctica 1 - Ejercicio 10-A
+
 TAD Fila
     igualdad observacional
         (∀f1,f2: fila)(f1 =obs f2 ⟺ (

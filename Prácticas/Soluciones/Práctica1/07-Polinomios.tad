@@ -1,3 +1,5 @@
+// Práctica 1 - Ejercicio 7
+
 TAD Polinomio
     otras operaciones
         esRaíz: polinomio × nat → bool

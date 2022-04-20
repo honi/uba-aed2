@@ -1,3 +1,5 @@
+// Práctica 1 - Ejercicio 12
+
 TAD JuegoDeLaOca
     igualdad observacional
         (∀o1,o2: oca)(o1 =obs o2 ⟺ (

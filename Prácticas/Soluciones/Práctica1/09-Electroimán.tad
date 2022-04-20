@@ -1,3 +1,5 @@
+// Práctica 1 - Ejercicio 9
+
 TAD Electroimán
     igualdad observacional
         (∀e1,e2: electroimán)(e1 =obs e2 ⟺ (

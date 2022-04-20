@@ -1,3 +1,5 @@
+// Práctica 1 - Ejercicio 16
+
 TAD Juego
     igualdad observacional
         (∀j1,j2: juego)(j1 =obs j2 ⟺ (
