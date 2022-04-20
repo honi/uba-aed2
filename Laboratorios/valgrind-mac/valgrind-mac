@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+
+if [ "$1" = "" ]; then
+  echo "Usage: valgrind-mac [setup|TARGET]"
+elif [ "$1" = "setup" ]; then
+  SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+  docker build --rm -t aed2-valgrind $SCRIPT_DIR
+else
+  docker run --rm \
+    -v "$(pwd)/CMakeLists.txt":/valgrind/CMakeLists.txt:ro \
+    -v "$(pwd)/src":/valgrind/src:ro \
+    -v "$(pwd)/tests":/valgrind/tests:ro \
+    aed2-valgrind bash -c "cmake . && make $1"
+fi

@@ -4,9 +4,3 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential cmake valgrind
 
 WORKDIR /valgrind
-
-ADD CMakeLists.txt .
-ADD src ./src
-ADD tests ./tests
-
-RUN cmake .
