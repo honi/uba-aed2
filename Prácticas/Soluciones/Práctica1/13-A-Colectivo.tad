@@ -15,7 +15,7 @@ TAD Colectivo
             ∧L (∀p: pasajero)(p ∈ pasajeros(c) ⟹L dondeSeBaja(c, p) =obs dondeSeBaja(c', p))
         ))
     géneros colectivo
-    exporta
+    exporta colectivo, generadores, observadores
     usa ArregloDimensionable, Conjunto, Nat
     observadores básicos
         recorrido: colectivo → ad(parada)
