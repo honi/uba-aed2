@@ -8,6 +8,7 @@ TAD ConjuntoExtendido(α)
         agregarATodos: α × conj(conj(α)) → conj(conj(α))
         combinacionesDeK: conj(α) c × nat k → conj(conj(α))
     axiomas
+        ∀c: conj(α), ∀cs: conj(conj(α)), ∀e: α, ∀k: nat
         partesDe(c) ≡
             if ∅?(c) then
                 Ag(c, ∅)

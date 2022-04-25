@@ -13,6 +13,7 @@ TAD ArbolBinarioExtendido(α)
         espejo: ab(α) → ab(α)
         esSimétrico: ab(α) × ab(α) → bool
     axiomas
+        ∀a,b: ab(α)
         esHoja?(a) ≡ ¬nil?(a) ∧ nil?(izq(a)) ∧ nil?(der(a))
         #hojas(a) ≡ if nil?(a) then 0 else β(esHoja?(a)) + #hojas(izq(a)) + #hojas(der(a)) fi
         degeneradoAIzquierda(a) ≡ nil?(a) ∨ esHoja?(a) ∨ (degeneradoAIzquierda(izq(a)) ∧ nil?(der(a)))

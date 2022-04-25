@@ -17,6 +17,7 @@ TAD SecuenciaExtendida(α)
         esPermutación?: secu(α) × secu(α) → bool
         combinar: secu(α) s × secu(α) t → secu(α) {estáOrdenada?(s) ∧ estáOrdenada?(t)}
     axiomas
+        ∀s,t,u: secu(α), ∀e,x,y: α
         duplicar(s) ≡ if vacía?(s) then <> else prim(s) • prim(s) • duplicar(fin(s)) fi
         s ≤ t ≡ if vacía?(s) ∨ vacía?(t) then vacía?(s) else prim(s) ≤ prim(t) ∧ fin(s) ≤ fin(t) fi
         reverso(s) ≡ if vacía?(s) then <> else reverso(s) ∘ prim(s) fi

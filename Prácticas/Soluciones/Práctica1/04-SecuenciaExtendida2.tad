@@ -10,6 +10,7 @@ TAD SecuenciaExtendida2(α)
         sinPrefijos: conj(secu(α)) × conj(secu(α)) → conj(secu(α))
         esPrefijoDeOtra: secu(α) × conj(secu(α)) → bool
     axiomas
+        ∀c,d: conj(secu(α)), ∀s,t: secu(α)
         NTN(c, s) ≡ sinPrefijos(dameSubSecuencias(c, s), c)
         dameSubSecuencias(c, s) ≡
             if ∅?(c) then ∅ else
