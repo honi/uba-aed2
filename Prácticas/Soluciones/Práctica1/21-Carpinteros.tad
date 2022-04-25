@@ -103,7 +103,7 @@ TAD CCC
 
         miembros(e) ≡ maestros(e) ∪ aprendices(e)
 
-        descendientes(c, e) ≡ descendientesAux(c, miembros(e), e)
+        descendientes(c, e) ≡ descendientesAux(c, aprendices(e), e)
         descendientesAux(c, cs, e) ≡
             if ∅?(cs) then
                 ∅
