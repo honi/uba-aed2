@@ -6,19 +6,61 @@ TAD RosetreeExtendido(α)
     otras operaciones
         hoja?: rosetree(α) → bool
         altura: rosetree(α) → nat
-        alturaDeHijos: secu(rosetree(α)) s → nat {¬vacía?(s)}
+        maxAlturaDeHijos: secu(rosetree(α)) s → nat
         #hojas: rosetree(α) → nat
-        #hojasDeHijos: secu(rosetree(α)) s → nat {¬vacía?(s)}
-        podar: rosetree(α) a → rosetree(α) {altura(a) > 1}
+        #hojasDeHijos: secu(rosetree(α)) s → nat
+        podar: rosetree(α) r → rosetree(α) {altura(r) > 1}
         podarHijos: secu(rosetree(α)) → secu(rosetree(α))
+        ramas: rosetree(α) → secu(secu(α))
+        ramasDeHijos: secu(rosetree(α)) → secu(secu(α))
+        prefijarEnTodos: α × secu(secu(α)) → secu(secu(α))
+        ramasDeLongitud: rosetree(α) × nat → secu(secu(α))
+        ramasDeLongitudAux: secu(secu(α)) × nat → secu(secu(α))
+        nivelN: rosetree(α) r × nat n → secu(α) {altura(r) ≥ n}
     axiomas
-        hoja?(a) ≡ vacía?(hijos(a))
-        altura(a) ≡ 1 + if hoja?(a) then 0 else alturaDeHijos(hijos(a)) fi
-        alturaDeHijos(s) ≡ if vacía?(fin(s)) then altura(prim(s)) else max(altura(prim(s)), alturaDeHijos(fin(s))) fi
-        #hojas(a) ≡ if hoja?(a) then 1 else #hojasDeHijos(hijos(a)) fi
-        #hojasDeHijos(s) ≡ #hojas(prim(s)) + #hojasDeHijos(fin(s))
-        podar(a) ≡ rose(raíz(a), podarHijos(hijos(a)))
-        podarHijos(s) ≡ if vacía?(s) then <> else
-            if hoja?(prim(s)) then podarHijos(fin(s)) else podar(prim(s)) • podarHijos(fin(s)) fi
-        fi
+        ∀r: rosetree(α), ∀s: secu(rosetree(α)), ∀a: α, ∀as: secu(secu(α)), ∀n: nat
+        hoja?(r) ≡ vacía?(hijos(r))
+        altura(r) ≡ 1 + maxAlturaDeHijos(hijos(r))
+        maxAlturaDeHijos(s) ≡ if vacía?(s) then 0 else max(altura(prim(s)), maxAlturaDeHijos(fin(s))) fi
+        #hojas(r) ≡ if hoja?(r) then 1 else #hojasDeHijos(hijos(r)) fi
+        #hojasDeHijos(s) ≡ if vacía?(s) then 0 else #hojas(prim(s)) + #hojasDeHijos(fin(s)) fi
+        podar(r) ≡ rose(raíz(r), podarHijos(hijos(r)))
+        podarHijos(s) ≡
+            if vacía?(s) then
+                <>
+            else
+                if hoja?(prim(s)) then
+                    podarHijos(fin(s))
+                else
+                    podar(prim(s)) • podarHijos(fin(s))
+                fi
+            fi
+        ramas(r) ≡
+            if hoja?(r) then
+                (raíz(r) • <>) • <>
+            else
+                prefijarEnTodos(raíz(r), ramasDeHijos(hijos(r)))
+            fi
+        ramasDeHijos(s) ≡
+            if vacía?(s) then
+                <>
+            else
+                ramas(prim(s)) & ramasDeHijos(fin(s))
+            fi
+        prefijarEnTodos(a, as) ≡
+            if vacía?(as) then
+                <>
+            else
+                (a • prim(as)) • prefijarEnTodos(a, fin(as))
+        ramasDeLongitud(r, n) ≡ ramasDeLongitudAux(ramas(r), n)
+        ramasDeLongitudAux(as, n) ≡
+            if vacía?(as) then
+                <>
+            else
+                if long(prim(as)) ≤ n then
+                    prim(as) • ramasDeLongitudAux(fin(as), n)
+                else
+                    ramasDeLongitudAux(fin(as), n)
+                fi
+            fi
 Fin TAD

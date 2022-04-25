@@ -7,13 +7,12 @@ class Rosetree:
     raiz: Any
     hijos: List['Rosetree'] = field(default_factory=list)
 
+    def __eq__(self, otro: 'Rosetree') -> bool:
+        if not isinstance(otro, Rosetree):
+            return False
+        return self.raiz == otro.raiz and self.hijos == otro.hijos
+
 rose = Rosetree
-
-def raiz(a):
-    return a.raiz
-
-def hijos(a):
-    return a.hijos
 
 def prim(s):
     return s[0]
@@ -21,38 +20,35 @@ def prim(s):
 def fin(s):
     return s[1:]
 
-def hoja(a):
-    return not hijos(a)
+def raiz(r):
+    return r.raiz
 
-def altura(a):
-    return 1 + (0 if hoja(a) else maxAlturaDeHijos(hijos(a)))
+def hijos(r):
+    return r.hijos
+
+def hoja(r):
+    return not hijos(r)
+
+def altura(r):
+    return 1 + maxAlturaDeHijos(hijos(r))
 
 def maxAlturaDeHijos(s):
     if not s:
         return 0
-    if not fin(s):
-        return altura(prim(s))
     return max(altura(prim(s)), maxAlturaDeHijos(fin(s)))
 
-def minAlturaDeHijos(s):
-    if not s:
-        return 0
-    if not fin(s):
-        return altura(prim(s))
-    return min(altura(prim(s)), minAlturaDeHijos(fin(s)))
-
-def numHojas(a):
-    if hoja(a):
+def numHojas(r):
+    if hoja(r):
         return 1
-    return numHojasDeHijos(hijos(a))
+    return numHojasDeHijos(hijos(r))
 
 def numHojasDeHijos(s):
     if not s:
         return 0
     return numHojas(prim(s)) + numHojasDeHijos(fin(s))
 
-def podar(a):
-    return rose(raiz(a), podarHijos(hijos(a)))
+def podar(r):
+    return rose(raiz(r), podarHijos(hijos(r)))
 
 def podarHijos(s):
     if not s:
@@ -61,12 +57,56 @@ def podarHijos(s):
         return podarHijos(fin(s))
     return [podar(prim(s)), *podarHijos(fin(s))]
 
+def ramas(r):
+    if hoja(r):
+        return [[raiz(r)]]
+    return prefijarEnTodos(raiz(r), ramasDeHijos(hijos(r)))
 
-a = rose(1, [rose(2), rose(3, [rose(31)]), rose(4, [rose(41), rose(42, [rose(5)])])])
+def ramasDeHijos(s):
+    if not s:
+        return []
+    return ramas(prim(s)) + ramasDeHijos(fin(s))
+
+def prefijarEnTodos(a, as_):
+    if not as_:
+        return []
+    return [[a, *prim(as_)], *prefijarEnTodos(a, fin(as_))]
+
+
+def ramasDeLongitud(r, n):
+    return ramasDeLongitudAux(ramas(r), n)
+
+def ramasDeLongitudAux(as_, n):
+    if not as_:
+        return []
+    if len(prim(as_)) <= n:
+        return [prim(as_), *ramasDeLongitudAux(fin(as_), n)]
+    return ramasDeLongitudAux(fin(as_), n)
+
+a = rose(1, [
+    rose(2),
+    rose(3, [rose(4)]),
+    rose(5, [
+        rose(6),
+        rose(7, [rose(8)]),
+    ]),
+])
+
+aPodado = rose(1, [
+    rose(3),
+    rose(5, [
+        rose(7),
+    ]),
+])
+
 b = rose(1)
 
 print(altura(a) == 4)
-print(minAlturaDeHijos(hijos(a)) == 1)
-print(minAlturaDeHijos(hijos(b)) == 0)
+print(altura(b) == 1)
 print(numHojas(a) == 4)
-print(str(podar(a)) == 'Rosetree(raiz=1, hijos=[Rosetree(raiz=3, hijos=[]), Rosetree(raiz=4, hijos=[Rosetree(raiz=42, hijos=[])])])')
+print(numHojas(b) == 1)
+print(podar(a) == aPodado)
+print(ramas(a) == [[1, 2], [1, 3, 4], [1, 5, 6], [1, 5, 7, 8]])
+print(ramasDeLongitud(a, 1) == [])
+print(ramasDeLongitud(a, 3) == [[1, 2], [1, 3, 4], [1, 5, 6]])
+print(ramasDeLongitud(a, 5) == [[1, 2], [1, 3, 4], [1, 5, 6], [1, 5, 7, 8]])
