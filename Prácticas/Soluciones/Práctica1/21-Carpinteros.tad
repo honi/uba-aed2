@@ -1,0 +1,132 @@
+// Práctica 1 - Ejercicio 21
+
+// Decisiones tomadas:
+// - Los conjuntos de maestros y aprendices son disjuntos.
+// - Cuando un aprendiz supera el nivel 10, se convierte en maestro. Ahí deja de ser
+//   aprendiz y ya no tiene nivel, es simplemente maestro.
+// - La operación dameTutor intenta especificar lo menos posible respecto a qué tutor asignar,
+//   ya que el enunciado aclara que aún no está definido este procedimiento. No obstante, al
+//   utilizar dameUno del TAD Conjunto estamos especificando indirectamente cómo elegir el
+//   tutor (por más que no sepamos exactamente cómo es que dameUno elige al elemento).
+//   Aceptamos esto porque es lo mínimo que podemos decir para poder axiomatizar.
+
+TAD CCC
+    igualdad observacional
+    géneros ccc
+    exporta ccc, generadores, observadores, descendientes
+    usa Nat, Conjunto, Carpintero
+    observadores básicos
+        maestros: ccc → conj(carpintero) // Los maestros carpinteros.
+        aprendices: ccc → conj(carpintero) // Todos los aprendices de todos los niveles.
+        tutor: carpintero c × ccc e → carpintero {c ∈ aprendices(e)} // El tutor para un aprendiz en particular.
+        nivel: carpintero c × ccc e → nat {c ∈ aprendices(e)} // El nivel de un aprendiz en particular.
+        desertores: ccc → conj(carpintero) // Los que se fueron.
+    generadores
+        abrir: conj(carpintero) → ccc // Recibe los maestros carpinteros iniciales.
+        iniciarCurso: carpintero c × ccc e → ccc {c ∉ miembros(e) ∧ c ∉ desertores(e)} // El nuevo carpintero no puede ser un aprendiz ni un desertor.
+        subirNivel: carpintero c × ccc e → ccc {c ∈ aprendices(e)} // Cuando el carpintero se convierte en maestro deja de estar en aprendices(e) y por lo tanto ya no puede subir más de nivel.
+        desertar: carpintero c × ccc e → ccc {c ∈ miembros(e) ∧ c ∈ maestros(e) ⟹L #(maestros(e)) > 1} // Se cansó y se fué a hacer otra cosa. Si es el último maestro de la escuela, no se puede ir. Eso equivale a directamente destruir la instancia del TAD ya que no puede haber escuela sin al menos 1 maestro pues no podrían generarse nuevos maestros.
+    otras operaciones
+        miembros: ccc → conj(carpintero) // Simplemente hace la unión entre maestros y aprendices.
+        descendientes: carpintero c × ccc e → conj(carpintero) {c ∈ miembros(e)} // Todos los aprendices directos e indirectos del carpintero.
+        descendientesAux: carpintero c × conj(carpintero) × ccc e → conj(carpintero) {c ∈ miembros(e)}
+        dameTutor: nat n × ccc → caprintero {n ≤ 10} // Devuelve un tutor válido para el nivel n.
+        dameTutorAux: nat n × conj(carpintero) × ccc → caprintero {n ≤ 10}
+    axiomas
+        ∀e: ccc, ∀c,c2: carpintero, ∀cs: conj(carpintero), ∀n: nat
+
+        maestros(abrir(cs)) ≡ cs
+        maestros(iniciarCurso(c, e)) ≡ maestros(e)
+        maestros(subirNivel(c, e)) ≡
+            if nivel(c, e) =obs 10 then
+                Ag(c, maestros(e))
+            else
+                maestros(e)
+            fi
+        maestros(desertar(c, e)) ≡
+            if c ∈ maestros(e) then
+                maestros(e) - {c}
+            else
+                maestros(e)
+            fi
+
+        aprendices(abrir(cs)) ≡ ∅
+        aprendices(iniciarCurso(c, e)) ≡ Ag(c, aprendices(e))
+        aprendices(subirNivel(c, e)) ≡
+            if nivel(c, e) =obs 10 then
+                aprendices(e) - {c}
+            else
+                Ag(c, aprendices(e))
+            fi
+        aprendices(desertar(c, e)) ≡
+            if c ∈ aprendices(e) then
+                aprendices(e) - {c}
+            else
+                aprendices(e)
+            fi
+
+        // tutor(c, abrir(cs))
+        // No se axiomatiza porque no existe c que cumpla con la restricción pues:
+        // aprendices(abrir(cs)) ≡ ∅
+
+        tutor(c, iniciarCurso(c2, e)) ≡
+            if c =obs c2 then
+                dameTutor(1, e)
+            else
+                tutor(c, e)
+            fi
+        tutor(c, subirNivel(c2, e)) ≡
+            if c =obs c2 ∧ nivel(c, e) =obs nivel(tutor(c, e)) + 1 then
+                dameTutor(nivel(c, e) + 1, e)
+            else
+                tutor(c, e)
+            fi
+        tutor(c, desertar(c2, e)) ≡
+            if tutor(c, e) =obs c2 then
+                tutor(c2, e)
+            else
+                tutor(c, e)
+            fi
+
+        // nivel(c, abrir(cs))
+        // No se axiomatiza porque no existe c que cumpla con la restricción pues:
+        // aprendices(abrir(cs)) ≡ ∅
+
+        nivel(c, iniciarCurso(c2, e)) ≡ if c =obs c2 then 1 else nivel(c, e) fi
+        nivel(c, subirNivel(c2, e)) ≡ β(c =obs c2) + nivel(c, e)
+        nivel(c, desertar(c2, e)) ≡ nivel(c, e)
+
+        desertores(abrir(cs)) ≡ ∅
+        desertores(iniciarCurso(c, e)) ≡ desertores(e)
+        desertores(subirNivel(c, e)) ≡ desertores(e)
+        desertores(desertar(c, e)) ≡ Ag(c, desertores(e))
+
+        miembros(e) ≡ maestros(e) ∪ aprendices(e)
+
+        descendientes(c, e) ≡ descendientesAux(c, miembros(e), e)
+        descendientesAux(c, cs, e) ≡
+            if ∅?(cs) then
+                ∅
+            else
+                if tutor(dameUno(cs), e) =obs c then
+                    Ag(dameUno(cs), descendientesAux(c, sinUno, e))
+                    ∪ descendientes(dameUno(cs), e)
+                else
+                    descendientesAux(c, sinUno, e)
+                fi
+            fi
+
+        dameTutor(n, e) ≡ dameTutorAux(n, miembros(e), e)
+        dameTutorAux(n, cs, e) ≡
+            // Acá es donde, de forma indirecta, estamos especificando cómo elegir un tutor.
+            // Pero no tenemos otra forma de axiomatizarlo.
+            if dameUno(cs) ∈ maestros(cs) ∨L nivel(dameUno(cs), e) > n then
+                dameUno(cs)
+            else
+                dameTutorAux(n, sinUno(cs), e)
+            fi
+Fin TAD
+
+
+TAD Carpintero es Nat
+    géneros carpintero
