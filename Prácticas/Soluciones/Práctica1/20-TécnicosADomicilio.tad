@@ -1,0 +1,155 @@
+// Práctica 1 - Ejercicio 20
+
+TAD TécnicosADomicilio
+    igualdad observacional
+        (∀e1,e2: tad)(e1 =obs e2 ⟺ (
+            técnicos(e1) =obs técnicos(e2)
+            ∧ visitasPendientes(e1) =obs visitasPendientes(e2)
+            ∧L (∀t: técnico)(t ∈ técnicos(e1) ⟹L (
+                disponible(t, e1) =obs disponible(t, e2)
+                ∧ dóndeEstá(t, e1) =obs dóndeEstá(t, e2)
+                ∧ direccionesVisitadas(t, e1) =obs direccionesVisitadas(t, e2)
+            ))
+        ))
+    géneros tad
+    exporta tad, generadores, observadores
+    usa Dirección, Secuencia, Conjunto, Bool, Nat
+    observadores básicos
+        técnicos: tad → conj(técnico)
+        disponible: técnico t × tad e → bool {t ∈ técnicos(e)}
+        dóndeEstá: técnico t × tad e → dirección {t ∈ técnicos(e) ∧L ¬disponible(t, e)}
+        direccionesVisitadas: técnico t × tad e → secu(dirección) {t ∈ técnicos(e)}
+        visitasPendientes: tad → secu(dirección)
+    generadores
+        iniciar: conj(técnico) → tad
+        solicitar: dirección d × tad → tad
+        terminarTrabajo: técnico t × tad e → tad {t ∈ técnicos(e) ∧L ¬disponible(t, e)}
+    otras operaciones
+        técnicosMásFrecuentes: dirección × tad → conj(técnico)
+        técnicosMásFrecuentesAux: dirección × nat × conj(técnico) × tad → conj(técnico)
+        maxCantidadDeVisitas: dirección × tad → nat
+        maxCantidadDeVisitasAux: dirección × conj(técnico) × tad → nat
+        cantidadDeVisitas: dirección × técnico t × tad e → nat {t ∈ técnicos(e)}
+        cantidadDeVisitasAux: dirección × secu(dirección) → nat
+        técnicosDisponibiles: tad → conj(técnico)
+        técnicosDisponibilesAux: conj(técnico) × tad → conj(técnico)
+        hayTécnicosDisponibiles: tad → bool
+        dameUnTécnico: tad e → técnico {hayTécnicosDisponibiles(e)}
+        hayVisitasPendientes: tad → bool
+        próximaVisita: dirección × tad e → dirección {hayVisitasPendientes(e)}
+        próximaVisitaAux: dirección d × conj(dirección) → dirección
+        sacarDeLasVisitasPendientes: dirección d × secu(dirección) ds → secu(dirección) {está?(d, ds)}
+    axiomas
+        ∀e: tad, ∀t,t2: técnico, ∀ts: conj(técnico), ∀d,d2: dirección, ∀ds: secu(dirección)
+
+        técnicos(iniciar(ts)) ≡ ts
+        técnicos(solicitar(d, e)) ≡ técnicos(e)
+        técnicos(terminarTrabajo(t, e)) ≡ técnicos(e)
+
+        disponible(t, iniciar(ts)) ≡ true
+        disponible(t, solicitar(d, e)) ≡ disponible(t, e) ∧L dameUnTécnico(e) ≠obs t
+        disponible(t, terminarTrabajo(t2, e)) ≡
+            if t =obs t2 then
+                ¬hayVisitasPendientes(e)
+            else
+                disponible(t, e)
+            fi
+
+        // dóndeEstá(t, iniciar(ts)) ≡ No se axiomatiza porque no existe t que cumpla con la restricción.
+        dóndeEstá(t, solicitar(d, e)) ≡ if dameUnTécnico(e) =obs t then d else dóndeEstá(t, e) fi
+        dóndeEstá(t, terminarTrabajo(t2, e)) ≡
+            if t =obs t2 then
+                próximaVisita(t, e)
+            else
+                dóndeEstá(t, e)
+            fi
+
+        direccionesVisitadas(t, iniciar(ts)) ≡ <>
+        direccionesVisitadas(t, solicitar(d, e)) ≡
+            if dameUnTécnico(e) =obs t then
+                direccionesVisitadas(t, e) ◦ d
+            else
+                direccionesVisitadas(t, e)
+            fi
+        direccionesVisitadas(t, terminarTrabajo(t2, e)) ≡ direccionesVisitadas(t, e)
+
+        visitasPendientes(iniciar(ts)) ≡ <>
+        visitasPendientes(solicitar(d, e)) ≡
+            if hayTécnicosDisponibiles(e) then
+                visitasPendientes(e)
+            else
+                visitasPendientes(e) ◦ d
+            fi
+        visitasPendientes(terminarTrabajo(t, e)) ≡
+            if hayTécnicosDisponibiles(e) then
+                sacarDeLasVisitasPendientes(próximaVisita(t, e), visitasPendientes(e))
+            else
+                visitasPendientes(e)
+            fi
+
+        técnicosMásFrecuentes(d, e) ≡ técnicosMásFrecuentesAux(d, maxCantidadDeVisitas(d, e), técnicos(e), e)
+        técnicosMásFrecuentesAux(d, n, ts, e) ≡
+            if ∅?(ts) then
+                ∅
+            else
+                if cantidadDeVisitas(d, dameUno(ts), e) =obs n then {dameUno(ts)} else {} fi
+                ∪ técnicosMásFrecuentesAux(d, n, sinUno(ts), e)
+            fi
+
+        maxCantidadDeVisitas(d, e) ≡ maxCantidadDeVisitasAux(d, técnicos(e), e)
+        maxCantidadDeVisitasAux(d, ts, e) ≡
+            if ∅?(ts) then
+                0
+            else
+                if cantidadDeVisitas(d, dameUno(ts), e) ≥ maxCantidadDeVisitasAux(d, sinUno(ts), e) then
+                    dameUno(ts)
+                else
+                    maxCantidadDeVisitasAux(d, sinUno(ts), e)
+                fi
+            fi
+
+        cantidadDeVisitas(d, t, e) ≡ cantidadDeVisitasAux(d, direccionesVisitadas(t, e))
+        cantidadDeVisitasAux(d, ds) ≡ if vacía?(ds) then 0 else β(d =obs prim(ds)) + cantidadDeVisitasAux(d, fin(ds)) fi
+
+        técnicosDisponibiles(e) ≡ técnicosDisponibiles(técnicos(e), e)
+        técnicosDisponibilesAux(ts, e) ≡
+            if ∅?(ts) then
+                ∅
+            else
+                if disponible(dameUno(ts), e) then  {dameUno(ts)} else {} fi
+                ∪ técnicosDisponibilesAux(sinUno(ts), e)
+            fi
+
+        hayTécnicosDisponibiles(e) ≡ ¬∅?(técnicosDisponibiles(e))
+
+        dameUnTécnico(e) ≡ dameUno(técnicosDisponibiles(e))
+
+        hayVisitasPendientes(e) ≡ ¬vacía?(visitasPendientes(e))
+
+        próximaVisita(t, e) ≡ próximaVisitaAux(dóndeEstá(t, e), visitasPendientes(e))
+        próximaVisitaAux(d, ds) ≡
+            if long(ds) =obs 1 then
+                prim(ds)
+            else
+                if dist(d, prim(ds)) ≤ dist(d, próximaVisitaAux(d, fin(ds))) then
+                    prim(ds)
+                else
+                    próximaVisitaAux(d, fin(ds))
+                fi
+            fi
+
+        sacarDeLasVisitasPendientes(d, ds) ≡
+            if vacía?(ds) then
+                <>
+            else
+                if d =obs prim(ds) then
+                    // Sacamos solo la primer aparición.
+                    fin(ds)
+                else
+                    d • sacarDeLasVisitasPendientes(d, fin(ds))
+                fi
+            fi
+Fin TAD
+
+TAD Técnico es Nat
+    géneros técnico
