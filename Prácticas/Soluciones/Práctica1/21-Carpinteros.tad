@@ -12,6 +12,15 @@
 
 TAD CCC
     igualdad observacional
+        (∀e1, e2: ccc)(e1 =obs e2 ⟺ (
+            maestros(e1) =obs maestros(e2)
+            ∧ aprendices(e1) =obs aprendices(e2)
+            ∧ desertores(e1) =obs desertores(e2)
+            ∧L (∀c: carpintero)(c ∈ aprendices(e1) ⟹L (
+                tutor(c, e1) =obs tutor(c, e2)
+                ∧ nivel(c, e1) =obs nivel(c, e2)
+            ))
+        ))
     géneros ccc
     exporta ccc, generadores, observadores, descendientes
     usa Nat, Conjunto, Carpintero
@@ -76,14 +85,20 @@ TAD CCC
                 tutor(c, e)
             fi
         tutor(c, subirNivel(c2, e)) ≡
-            if c =obs c2 ∧ nivel(c, e) =obs nivel(tutor(c, e)) + 1 then
+            if c =obs c2 ∧ nivel(c, e) + 1 =obs nivel(tutor(c, e)) then
                 dameTutor(nivel(c, e) + 1, e)
             else
                 tutor(c, e)
             fi
         tutor(c, desertar(c2, e)) ≡
             if tutor(c, e) =obs c2 then
-                tutor(c2, e)
+                // El que se va es el tutor de c.
+                if c2 ∈ maestros(e) then
+                    // Al pedir un tutor de nivel 10 necesariamente obtenemos otro maestro.
+                    dameTutor(10, e)
+                else
+                    tutor(c2, e)
+                fi
             else
                 tutor(c, e)
             fi
@@ -109,10 +124,10 @@ TAD CCC
                 ∅
             else
                 if tutor(dameUno(cs), e) =obs c then
-                    Ag(dameUno(cs), descendientesAux(c, sinUno, e))
+                    Ag(dameUno(cs), descendientesAux(c, sinUno(cs), e))
                     ∪ descendientes(dameUno(cs), e)
                 else
-                    descendientesAux(c, sinUno, e)
+                    descendientesAux(c, sinUno(cs), e)
                 fi
             fi
 
