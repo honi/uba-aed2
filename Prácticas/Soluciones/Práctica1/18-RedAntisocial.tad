@@ -26,12 +26,14 @@ TAD RedAntisocial
         tribunalAux: conj(miembro) × nat n → conj(miembro)
         esExpulsado: miembro m × red r → bool {m ∈ miembros(r)}
     axiomas
+        ∀r: red, ∀m,s,q: miembro, ∀ms: conj(miembro), ∀n: nat
+
         // Notemos que es imposible expulsar el lider y por lo tanto el lider que inició la red siempre será el lider.
         // Esto sucede porque toda la red siempre va a descender desde el lider, entonces al intentar expulsarlo
         // siempre va a ser verdadero que el lider convocó a más de la mitad del tribunal. Es más, siempre va a resultar
         // que el lider convocó a todo el tribunal entero, no hay forma de expulsarlo.
         lider(iniciar(m)) ≡ m
-        lider(convocar(m, m2, r)) ≡ lider(r)
+        lider(convocar(m, s, r)) ≡ lider(r)
         lider(enjuiciar(m, r)) ≡ lider(r)
         lider(absolver(m, r)) ≡ lider(r)
 
