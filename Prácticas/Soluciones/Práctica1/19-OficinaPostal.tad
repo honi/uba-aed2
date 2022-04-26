@@ -2,6 +2,15 @@
 
 TAD OficinaPostal
     igualdad observacional
+        (∀o1,o2: tad)(o1 =obs o2 ⟺ (
+            carteros(o1) =obs carteros(o2)
+            ∧ depósito(o1) =obs depósito(o2)
+            ∧ #rebotados(o1) =obs #rebotados(o2)
+            ∧L (∀c: cartero)(c ∈ carteros(o1) ⟹L (
+                cpAsignado(c, o1) =obs cpAsignado(c, o2)
+                ∧ paquetesAsignados(c, o1) =obs paquetesAsignados(c, o2)
+            ))
+        ))
     géneros oficina
     exporta oficina, generadores, observadores
     usa Nat, Diccionario, Conjunto, Multiconjunto
@@ -10,7 +19,7 @@ TAD OficinaPostal
         cpAsignado: cartero c × oficina o → cp {c ∈ carteros(o)}
         paquetesAsignados: cartero c × oficina o → multiconj(paquete) {c ∈ carteros(o)}
         depósito: oficina → multiconj(paquete)
-        #rebotados: oficina → multiconj(paquete)
+        #rebotados: oficina → nat
     generadores
         abrirOficina: dicc(cartero, cp) → oficina
         recibirPaquetes: multiconj(paquete) × oficina → oficina
