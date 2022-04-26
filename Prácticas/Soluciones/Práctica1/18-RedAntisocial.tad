@@ -1,0 +1,78 @@
+// Práctica 1 - Ejercicio 18
+
+TAD RedAntisocial
+    igualdad observacional
+        (∀r1,r2: red)(r1 =obs r2 ⟺ (
+            lider(r1) =obs lider(r2)
+            ∧ miembros(r1) =obs miembros(r2)
+            ∧L (∀m: miembro)(m ∈ miembros(r1) ⟹L descendientes(m, r1) =obs descendientes(m, r2))
+            ∧ expulsados(r1) =obs expulsados(r2)
+        ))
+    géneros red
+    exporta red, generadores, observadores
+    usa Nat, Bool, Miembro
+    observadores básicos
+        lider: red → miembro
+        descendientes: miembro m × red r → conj(miembro) {m ∈ miembros(r)} // Los convocados directa e indirectamente de m.
+        expulsados: red → conj(miembro)
+    generadores
+        iniciar: miembro → red
+        convocar: miembro m × miembro s × red r → red {m ∉ miembros(r) ∧ m ∉ expulsados(r) ∧ s ∈ miembros(r)}
+        enjuiciar: miembro m × red r → red {m ∈ miembros(r) ∧ #(miembros(r)) ≥ 4} // Decidí que se puede enjuiciar recién cuando hay al menos 4 miembros, ya que solo así se puede asegurar que se pueda conformar un tribunal de 3 personas.
+        absolver: miembro m × red r → red {m ∈ expulsados(r)}
+    otras operaciones
+        miembros: red → conj(miembro)
+        tribunal: miembro m × red r → conj(miembro) {m ∈ miembros(r)}
+        tribunalAux: conj(miembro) × nat n → conj(miembro)
+        esExpulsado: miembro m × red r → bool {m ∈ miembros(r)}
+    axiomas
+        // Notemos que es imposible expulsar el lider y por lo tanto el lider que inició la red siempre será el lider.
+        // Esto sucede porque toda la red siempre va a descender desde el lider, entonces al intentar expulsarlo
+        // siempre va a ser verdadero que el lider convocó a más de la mitad del tribunal. Es más, siempre va a resultar
+        // que el lider convocó a todo el tribunal entero, no hay forma de expulsarlo.
+        lider(iniciar(m)) ≡ m
+        lider(convocar(m, m2, r)) ≡ lider(r)
+        lider(enjuiciar(m, r)) ≡ lider(r)
+        lider(absolver(m, r)) ≡ lider(r)
+
+        descendientes(q, iniciar(m)) ≡ ∅
+        descendientes(q, convocar(m, s, r)) ≡
+            if q =obs m then
+                Ag(s, descendientes(q, r)) ∪ descendientes(s, r)
+            else
+                descendientes(q, r)
+            fi
+        // Siempre vale que q != m pues sino q no cumple con la restricción: q ∈ miembros(r)
+        descendientes(q, enjuiciar(m, r)) ≡
+            if esExpulsado(m, r) then
+                descendientes(q, r) - descendientes(m, r)
+            else
+                descendientes(q, r)
+            fi
+        descendientes(q, absolver(m, r)) ≡ descendientes(q, r)
+
+        expulsados(q, iniciar(m)) ≡ ∅
+        expulsados(q, convocar(m, s, r)) ≡ expulsados(q, r)
+        expulsados(q, enjuiciar(m, r)) ≡
+            if esExpulsado(m, r) then
+                expulsados(q, r) ∪ descendientes(m, r)
+            else
+                expulsados(q, r)
+            fi
+        expulsados(q, absolver(m, r)) ≡ expulsados(q, r) - {m}
+
+        miembros(r) ≡ {lider(r)} ∪ descendientes(lider(r), r)
+
+        tribunal(m, r) ≡ tribunalAux(miembros(r) - {m}, 3)
+        tribunalAux(ms, n) ≡
+            if n =obs 0 then
+                ∅
+            else
+                Ag(dameUno(ms), tribunalAux(sinUno(ms), n - 1))
+            fi
+
+        esExpulsado(m, r) ≡ #(tribunal(m, r) ∩ descendientes(m, r)) < 2
+Fin TAD
+
+TAD Miembro es Nat
+    géneros miembro
