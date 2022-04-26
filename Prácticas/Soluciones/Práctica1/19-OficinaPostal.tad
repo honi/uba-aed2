@@ -14,21 +14,19 @@ TAD OficinaPostal
     generadores
         abrirOficina: dicc(cartero, cp) → oficina
         recibirPaquetes: multiconj(paquete) × oficina → oficina
-        iniciarRecorrido: cartero c × multiconj(paquete) ps × oficina o → oficina
-            {c ∈ carteros(o) ∧ ∅?(paquetesAsignados(c, o)) ∧ ps ⊆ depósito(o) ∧ pesoTotal(ps) ≤ 25000 ∧ cpsPaquetes(ps) ⊆ cpsOficina(o)}
-        finalizarRecorrido: cartero c × multiconj(paquete) ps × oficina o → oficina
-            {c ∈ carteros(o) ∧ ps ⊆ paquetesAsignados(c, o) ∧ ¬∅?(paquetesAsignados(c, o))}
+        iniciarRecorrido: cartero c × oficina o → oficina {c ∈ carteros(o) ∧ ∅?(paquetesAsignados(c, o))}
+        finalizarRecorrido: cartero c × multiconj(paquete) ps × oficina o → oficina {c ∈ carteros(o) ∧ ps ⊆ paquetesAsignados(c, o) ∧ ¬∅?(paquetesAsignados(c, o))}
     otras operaciones
-        pesoTotal: multiconj(paquete) → nat
-        cpsPaquetes: multiconj(paquete) → conj(cp)
+        asignarPaquetes: cartero c × oficina o → multiconj(paquete) {c ∈ carteros(o)}
+        asignarPaquetesAux: cp × multiconj(paquete) × nat → multiconj(paquete)
         cpsOficina: oficina o → conj(cp)
         cpsOficinaAux: conj(cartero) cs × oficina o → conj(cp) {cs ⊆ carteros(o)}
     axiomas
-        ∀o: oficina, ∀p: paquete, ∀ps: multiconj(paquete), ∀c,c2: cartero, ∀cs: conj(cartero), ∀ccp: dicc(cartero, cp)
+        ∀o: oficina, ∀p: paquete, ∀ps: multiconj(paquete), ∀c,c2: cartero, ∀cs: conj(cartero), ∀cp: cp, ∀ccp: dicc(cartero, cp)
 
         carteros(abrirOficina(ccp)) ≡ claves(ccp)
         carteros(recibirPaquetes(ps, o)) ≡ carteros(o)
-        carteros(iniciarRecorrido(c, ps, o)) ≡ carteros(o)
+        carteros(iniciarRecorrido(c, o)) ≡ carteros(o)
         carteros(finalizarRecorrido(c, ps, o)) ≡
             if paquetesAsignados(c, o) =obs ps then
                 carteros(o) - {c}
@@ -38,14 +36,14 @@ TAD OficinaPostal
 
         cpAsignado(c, abrirOficina(ccp)) ≡ obtener(c, ccp)
         cpAsignado(c, recibirPaquetes(ps, o)) ≡ cpAsignado(c, o)
-        cpAsignado(c, iniciarRecorrido(c2, ps, o)) ≡ cpAsignado(c, o)
+        cpAsignado(c, iniciarRecorrido(c2, o)) ≡ cpAsignado(c, o)
         cpAsignado(c, finalizarRecorrido(c2, ps, o)) ≡ cpAsignado(c, o)
 
         paquetesAsignados(c, abrirOficina(ccp)) ≡ ∅
         paquetesAsignados(c, recibirPaquetes(ps, o)) ≡ paquetesAsignados(c, o)
-        paquetesAsignados(c, iniciarRecorrido(c2, ps, o)) ≡
+        paquetesAsignados(c, iniciarRecorrido(c2, o)) ≡
             if c =obs c2 then
-                ps
+                asignarPaquetes(c, o)
             else
                 paquetesAsignados(c, o)
             fi
@@ -64,26 +62,27 @@ TAD OficinaPostal
                 if cp(dameUno(ps)) ∈ cpsOficina(o) then {dameUno(ps)} else {} fi
                 ∪ depósito(recibirPaquetes(sinUno(ps), o))
             fi
-        depósito(iniciarRecorrido(c, ps, o)) ≡ depósito(o) - ps
+        depósito(iniciarRecorrido(c, o)) ≡ depósito(o) - paquetesAsignados(iniciarRecorrido(c, o))
         depósito(finalizarRecorrido(c, ps, o)) ≡ depósito(o) ∪ ps
 
         #rebotados(abrirOficina(ccp)) ≡ 0
         #rebotados(recibirPaquetes(ps, o)) ≡ #rebotados(o)
-        #rebotados(iniciarRecorrido(c, ps, o)) ≡ #rebotados(o)
+        #rebotados(iniciarRecorrido(c, o)) ≡ #rebotados(o)
         #rebotados(finalizarRecorrido(c, ps, o)) ≡ #rebotados(o) + #(ps)
 
-        pesoTotal(ps) ≡
-            if ∅?(ps) then
-                0
-            else
-                peso(dameUno(ps)) + pesoTotal(sinUno(ps))
-            fi
-
-        cpsPaquetes(ps) ≡
+        asignarPaquetes(c, o) ≡ asignarPaquetesAux(cpAsignado(c), depósito(o), 0)
+        asignarPaquetesAux(cp, ps, n) ≡
             if ∅?(ps) then
                 ∅
             else
-                Ag(cp(dameUno(ps)), cpsPaquetes(sinUno(ps)))
+                if cp(dameUno(ps)) =obs cp ∧ peso(dameUno(ps)) + n ≤ 25000 then
+                    Ag(
+                        dameUno(ps),
+                        asignarPaquetesAux(cp, sinUno(ps), peso(dameUno(ps)) + n)
+                    )
+                else
+                    asignarPaquetesAux(cp, sinUno(ps), n)
+                fi
             fi
 
         cpsOficina(o) ≡ cpsOficinaAux(carteros(o), o)
