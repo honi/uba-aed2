@@ -12,10 +12,13 @@ Cursada: 1er cuatrimestre 2022
 
 - Laboratorios
 
-  - [Laboratorio 1](Laboratorios/labo01)
-  - [Laboratorio 2](Laboratorios/labo02)
-  - [Laboratorio 3](Laboratorios/labo03)
-  - [Laboratorio 4](Laboratorios/labo04)
+  - [Laboratorio 1](Laboratorios/labo01): clases
+  - [Laboratorio 2](Laboratorios/labo02): mas clases
+  - [Laboratorio 3](Laboratorios/labo03): preprocesamiento y compilación
+  - [Laboratorio 4](Laboratorios/labo04): punteros
+  - Laboratorio 5: taller entregable, lo subo al final del cuatrimestre
+  - [Laboratorio 6](Laboratorios/labo06): templates
+  - [Laboratorio 6.2](Laboratorios/labo06.2): iteradores
 
 - Extra
 
