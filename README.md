@@ -5,6 +5,11 @@ Cursada: 1er cuatrimestre 2022
 
 ## Índice
 
+- Prácticas
+
+  - Práctica 1: [enunciado](Prácticas/Enunciados/Práctica1.pdf), [soluciones](Prácticas/Soluciones/Práctica1)
+  - Práctica 2: [enunciado](Prácticas/Enunciados/Práctica2.pdf), [soluciones](Prácticas/Soluciones/Práctica2.md)
+
 - Laboratorios
 
   - [Laboratorio 1](Laboratorios/labo01)
@@ -12,7 +17,6 @@ Cursada: 1er cuatrimestre 2022
   - [Laboratorio 3](Laboratorios/labo03)
   - [Laboratorio 4](Laboratorios/labo04)
 
-- Prácticas
+- Extra
 
-  - Práctica 1: [enunciado](Prácticas/Enunciados/Práctica1.pdf), [soluciones](Prácticas/Soluciones/Práctica1)
-  - Práctica 2: [enunciado](Prácticas/Enunciados/Práctica2.pdf), [soluciones](Prácticas/Soluciones/Práctica2.md)
+  - [Valgrind + MacOS](Laboratorios/valgrind-mac)
