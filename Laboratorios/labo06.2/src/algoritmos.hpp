@@ -57,10 +57,10 @@ typename Iterator::value_type promedioIter(const Iterator& desde, const Iterator
 
 template<class Contenedor>
 void filtrar(Contenedor& c, const typename Contenedor::value_type& elem) {
-    typename Contenedor::iterator ptr = c.begin();
-    while (ptr != c.end()) {
-        if (*ptr == elem) c.erase(ptr);
-        ptr++;
+    typename Contenedor::iterator it = c.begin();
+    while (it != c.end()) {
+        if (*it == elem) c.erase(it);
+        it++;
     }
 }
 
