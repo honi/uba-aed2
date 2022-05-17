@@ -4,43 +4,44 @@ TAD Fila
     igualdad observacional
         (∀f1,f2: fila)(f1 =obs f2 ⟺ (
             (∀p: persona)(
-                Esperando(p, f1) =obs Esperando(p, f2)
-                ∧L (Esperando(p, f1) ⟹L Posición(p, f1) =obs Posición(p, f2))
+                esperando(p, f1) =obs esperando(p, f2)
+                ∧L (esperando(p, f1) ⟹L posición(p, f1) =obs posición(p, f2))
             )
         ))
     géneros fila
     exporta fila, generadores, observadores
     usa Nat, Bool
     observadores básicos
-        Posición: persona p × fila f → nat {Esperando(p, f)}
-        Esperando: persona × fila → bool
+        posición: persona p × fila f → nat {esperando(p, f)}
+        esperando: persona × fila → bool
     generadores
-        AbrirVentanilla: → fila
-        Llegar: persona p × fila f → fila {¬Esperando(p, f)}
-        Atender: fila f → fila {¬Vacía(f)}
+        abrirVentanilla: → fila
+        llegar: persona p × fila f → fila {¬esperando(p, f)}
+        atender: fila f → fila {¬vacía(f)}
     otras operaciones
-        Longitud: fila → nat
-        Vacía: fila → bool
+        longitud: fila → nat
+        vacía: fila → bool
     axiomas
         ∀f: fila, ∀p,q,r: persona
 
-        // Posición(p, AbrirVentanilla()) ≡ No va a cumplir la restricción, no se axiomatiza.
-        Esperando(p, AbrirVentanilla()) ≡ false
-        Longitud(AbrirVentanilla()) ≡ 0
-        Vacía(AbrirVentanilla()) ≡ true
+        // posición(p, abrirVentanilla()) ≡ No va a cumplir la restricción, no se axiomatiza.
+        posición(p, atender(f)) ≡ posición(p, f) - 1
+        posición(q, llegar(p, f)) ≡ if q =obs p then longitud(f) + 1 else posición(q, f) fi
 
-        Posición(q, Llegar(p, f)) ≡ if q =obs p then Longitud(f) + 1 else Posición(q, f) fi
-        Esperando(q, Llegar(p, f)) ≡ q =obs p ∨ Esperando(q, f)
-        Longitud(Llegar(p, f)) ≡ Longitud(f) + 1
-        Vacía(Llegar(p, f)) ≡ false
+        esperando(p, abrirVentanilla()) ≡ false
+        esperando(q, llegar(p, f)) ≡ q =obs p ∨ esperando(q, f)
+        esperando(p, atender(f)) ≡ esperando(p, f) ∧L posición(p, f) > 1
 
-        Posición(p, Atender(f)) ≡ Posición(p, f) - 1
-        Esperando(p, Atender(f)) ≡ Esperando(p, f) ∧L Posición(p, f) > 1
-        Longitud(Atender(f)) ≡ Longitud(f) - 1
-        Vacía(Atender(f)) ≡ Longitud(f) =obs 1
+        longitud(abrirVentanilla()) ≡ 0
+        longitud(llegar(p, f)) ≡ longitud(f) + 1
+        longitud(atender(f)) ≡ longitud(f) - 1
 
-        // Otra forma más fácil de axiomatizar Vacía usando una instancia genérica de una fila.
-        // Vacía(f) ≡ Longitud(f) =obs 0
+        vacía(abrirVentanilla()) ≡ true
+        vacía(llegar(p, f)) ≡ false
+        vacía(atender(f)) ≡ longitud(f) =obs 1
+
+        // Otra forma más fácil de axiomatizar vacía usando una instancia genérica de una fila.
+        // vacía(f) ≡ longitud(f) =obs 0
 Fin TAD
 
 // Identifico a las personas por nombre.

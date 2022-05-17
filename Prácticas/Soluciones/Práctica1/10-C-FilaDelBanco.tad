@@ -4,75 +4,76 @@ TAD Fila
     igualdad observacional
         (∀f1,f2: fila)(f1 =obs f2 ⟺ (
             (∀p: persona)(
-                Esperando(p, f1) =obs Esperando(p, f2)
-                ∧L (Esperando(p, f1) ⟹L (
-                    Posición(p, f1) =obs Posición(p, f2)
-                    ∧ SeColó(p, f1) =obs SeColó(p, f2)
+                esperando(p, f1) =obs esperando(p, f2)
+                ∧L (esperando(p, f1) ⟹L (
+                    posición(p, f1) =obs posición(p, f2)
+                    ∧ seColó(p, f1) =obs seColó(p, f2)
                 ))
-                ∧ Entro?(p, f1) =obs Entro?(p, f2)
-                ∧ FueAtendido?(p, f1) =obs FueAtendido?(p, f2)
+                ∧ entró?(p, f1) =obs entró?(p, f2)
+                ∧ fueAtendido?(p, f1) =obs fueAtendido?(p, f2)
             )
         ))
     géneros fila
     exporta fila, generadores, observadores
     usa Nat, Bool
     observadores básicos
-        Esperando: persona × fila → bool
-        Posición: persona p × fila f → nat {Esperando(p, f)}
-        SeColó?: persona p × fila f → bool {Esperando(p, f)}
-        Entro?: persona × fila → bool
-        FueAtendido?: persona × fila → bool
+        esperando: persona × fila → bool
+        posición: persona p × fila f → nat {esperando(p, f)}
+        seColó?: persona p × fila f → bool {esperando(p, f)}
+        entró?: persona × fila → bool
+        fueAtendido?: persona × fila → bool
     generadores
-        AbrirVentanilla: → fila
-        Llegar: persona p × fila f → fila {¬Esperando(p, f)}
-        Atender: fila f → fila {¬Vacía(f)}
-        ColarseAdelanteDe: persona p × persona q × fila f → fila {¬Esperando(p, f) ∧ Esperando(q, f)}
-        Retirarse: persona p × fila f → fila {Esperando(p, f)}
+        abrirVentanilla: → fila
+        llegar: persona p × fila f → fila {¬esperando(p, f)}
+        atender: fila f → fila {¬vacía(f)}
+        colarseAdelanteDe: persona p × persona q × fila f → fila {¬esperando(p, f) ∧ esperando(q, f)}
+        retirarse: persona p × fila f → fila {esperando(p, f)}
     otras operaciones
-        Longitud: fila → nat
-        Vacía: fila → bool
+        longitud: fila → nat
+        vacía: fila → bool
     axiomas
         ∀f: fila, ∀p,q,r: persona
 
-        Esperando(p, AbrirVentanilla()) ≡ false
-        Entro?(p, AbrirVentanilla()) ≡ false
-        FueAtendido?(p, AbrirVentanilla()) ≡ false
-        Longitud(AbrirVentanilla()) ≡ 0
+        esperando(p, abrirVentanilla()) ≡ false
+        esperando(q, llegar(p, f)) ≡ q =obs p ∨ esperando(q, f)
+        esperando(p, atender(f)) ≡ esperando(p, f) ∧L posición(p, f) > 1
+        esperando(r, colarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ esperando(r, f)
+        esperando(q, retirarse(p, f)) ≡ q ≠obs p ∧ esperando(q, f)
 
-        Esperando(q, Llegar(p, f)) ≡ q =obs p ∨ Esperando(q, f)
-        Posición(q, Llegar(p, f)) ≡ if q =obs p then Longitud(f) + 1 else Posición(q, f) fi
-        SeColó(q, Llegar(p, f)) ≡ q ≠obs p ∧ SeColó(q, f)
-        Entro?(q, Llegar(p, f)) ≡ q =obs p ∨ Entro?(q, f)
-        FueAtendido?(q, Llegar(p, f)) ≡ FueAtendido?(q, f)
-        Longitud(Llegar(p, f)) ≡ Longitud(f) + 1
-
-        Esperando(p, Atender(f)) ≡ Esperando(p, f) ∧L Posición(p, f) > 1
-        Posición(p, Atender(f)) ≡ Posición(p, f) - 1
-        SeColó(p, Atender(f)) ≡ SeColó(p, f)
-        Entro?(q, Atender(f)) ≡ Entro?(q, f)
-        FueAtendido?(q, Atender(f)) ≡ (Esperando(q, f) ∧L Posición(q, f) =obs 1) ∨ FueAtendido?(q, f)
-        Longitud(Atender(f)) ≡ Longitud(f) - 1
-
-        Esperando(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ Esperando(r, f)
-        Posición(r, ColarseAdelanteDe(p, q, f)) ≡
+        posición(q, llegar(p, f)) ≡ if q =obs p then longitud(f) + 1 else posición(q, f) fi
+        posición(p, atender(f)) ≡ posición(p, f) - 1
+        posición(r, colarseAdelanteDe(p, q, f)) ≡
             if r =obs p then
-                Posición(q, f)
+                posición(q, f)
             else
-                Posición(r, f) + β(Posición(q, f) ≤ Posición(r, f))
+                posición(r, f) + β(posición(q, f) ≤ posición(r, f))
             fi
-        SeColó(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ SeColó(r, f)
-        Entro?(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs q ∨ Entro?(r, f)
-        FueAtendido?(r, ColarseAdelanteDe(p, q, f)) ≡ FueAtendido?(r, f)
-        Longitud(ColarseAdelanteDe(p, q, f)) ≡ Longitud(f) + 1
+        posición(q, retirarse(p, f)) ≡ posición(q, f) - β(posición(p, f) < posición(q, f))
 
-        Esperando(q, Retirarse(p, f)) ≡ q ≠obs p ∧ Esperando(q, f)
-        Posición(q, Retirarse(p, f)) ≡ Posición(q, f) - β(Posición(p, f) < Posición(q, f))
-        SeColó(q, Retirarse(p, f)) ≡ SeColó(q, f)
-        Entro?(q, Retirarse(p, f)) ≡ Entro?(q, f)
-        FueAtendido?(q, Retirarse(p, f)) ≡ FueAtendido?(q, f)
-        Longitud(Retirarse(p, f)) ≡ Longitud(f) - 1
+        seColó(q, llegar(p, f)) ≡ q ≠obs p ∧ seColó(q, f)
+        seColó(p, atender(f)) ≡ seColó(p, f)
+        seColó(r, colarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ seColó(r, f)
+        seColó(q, retirarse(p, f)) ≡ seColó(q, f)
 
-        Vacía(f) ≡ Longitud(f) =obs 0
+        entró?(p, abrirVentanilla()) ≡ false
+        entró?(q, llegar(p, f)) ≡ q =obs p ∨ entró?(q, f)
+        entró?(q, atender(f)) ≡ entró?(q, f)
+        entró?(r, colarseAdelanteDe(p, q, f)) ≡ r =obs q ∨ entró?(r, f)
+        entró?(q, retirarse(p, f)) ≡ entró?(q, f)
+
+        fueAtendido?(p, abrirVentanilla()) ≡ false
+        fueAtendido?(q, llegar(p, f)) ≡ fueAtendido?(q, f)
+        fueAtendido?(q, atender(f)) ≡ (esperando(q, f) ∧L posición(q, f) =obs 1) ∨ fueAtendido?(q, f)
+        fueAtendido?(r, colarseAdelanteDe(p, q, f)) ≡ fueAtendido?(r, f)
+        fueAtendido?(q, retirarse(p, f)) ≡ fueAtendido?(q, f)
+
+        longitud(abrirVentanilla()) ≡ 0
+        longitud(llegar(p, f)) ≡ longitud(f) + 1
+        longitud(atender(f)) ≡ longitud(f) - 1
+        longitud(colarseAdelanteDe(p, q, f)) ≡ longitud(f) + 1
+        longitud(retirarse(p, f)) ≡ longitud(f) - 1
+
+        vacía(f) ≡ longitud(f) =obs 0
 Fin TAD
 
 // Identifico a las personas por nombre.

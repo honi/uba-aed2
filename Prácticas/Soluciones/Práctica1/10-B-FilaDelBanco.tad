@@ -4,10 +4,10 @@ TAD Fila
     igualdad observacional
         (∀f1,f2: fila)(f1 =obs f2 ⟺ (
             (∀p: persona)(
-                Esperando(p, f1) =obs Esperando(p, f2)
-                ∧L (Esperando(p, f1) ⟹L (
-                    Posición(p, f1) =obs Posición(p, f2)
-                    ∧ SeColó(p, f1) =obs SeColó(p, f2)
+                esperando(p, f1) =obs esperando(p, f2)
+                ∧L (esperando(p, f1) ⟹L (
+                    posición(p, f1) =obs posición(p, f2)
+                    ∧ seColó(p, f1) =obs seColó(p, f2)
                 ))
             )
         ))
@@ -15,50 +15,49 @@ TAD Fila
     exporta fila, generadores, observadores
     usa Nat, Bool
     observadores básicos
-        Esperando: persona × fila → bool
-        Posición: persona p × fila f → nat {Esperando(p, f)}
-        SeColó?: persona p × fila f → bool {Esperando(p, f)}
+        esperando: persona × fila → bool
+        posición: persona p × fila f → nat {esperando(p, f)}
+        seColó?: persona p × fila f → bool {esperando(p, f)}
     generadores
-        AbrirVentanilla: → fila
-        Llegar: persona p × fila f → fila {¬Esperando(p, f)}
-        Atender: fila f → fila {¬Vacía(f)}
-        ColarseAdelanteDe: persona p × persona q × fila f → fila {¬Esperando(p, f) ∧ Esperando(q, f)}
-        Retirarse: persona p × fila f → fila {Esperando(p, f)}
+        abrirVentanilla: → fila
+        llegar: persona p × fila f → fila {¬esperando(p, f)}
+        atender: fila f → fila {¬vacía(f)}
+        colarseAdelanteDe: persona p × persona q × fila f → fila {¬esperando(p, f) ∧ esperando(q, f)}
+        retirarse: persona p × fila f → fila {esperando(p, f)}
     otras operaciones
-        Longitud: fila → nat
-        Vacía: fila → bool
+        longitud: fila → nat
+        vacía: fila → bool
     axiomas
         ∀f: fila, ∀p,q,r: persona
 
-        Esperando(p, AbrirVentanilla()) ≡ false
-        Longitud(AbrirVentanilla()) ≡ 0
+        esperando(p, abrirVentanilla()) ≡ false
+        esperando(q, llegar(p, f)) ≡ q =obs p ∨ esperando(q, f)
+        esperando(p, atender(f)) ≡ esperando(p, f) ∧L posición(p, f) > 1
+        esperando(r, colarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ esperando(r, f)
+        esperando(q, retirarse(p, f)) ≡ q ≠obs p ∧ esperando(q, f)
 
-        Esperando(q, Llegar(p, f)) ≡ q =obs p ∨ Esperando(q, f)
-        Posición(q, Llegar(p, f)) ≡ if q =obs p then Longitud(f) + 1 else Posición(q, f) fi
-        SeColó(q, Llegar(p, f)) ≡ q ≠obs p ∧ SeColó(q, f)
-        Longitud(Llegar(p, f)) ≡ Longitud(f) + 1
-
-        Esperando(p, Atender(f)) ≡ Esperando(p, f) ∧L Posición(p, f) > 1
-        Posición(p, Atender(f)) ≡ Posición(p, f) - 1
-        SeColó(p, Atender(f)) ≡ SeColó(p, f)
-        Longitud(Atender(f)) ≡ Longitud(f) - 1
-
-        Esperando(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ Esperando(r, f)
-        Posición(r, ColarseAdelanteDe(p, q, f)) ≡
+        posición(q, llegar(p, f)) ≡ if q =obs p then longitud(f) + 1 else posición(q, f) fi
+        posición(p, atender(f)) ≡ posición(p, f) - 1
+        posición(r, colarseAdelanteDe(p, q, f)) ≡
             if r =obs p then
-                Posición(q, f)
+                posición(q, f)
             else
-                Posición(r, f) + β(Posición(q, f) ≤ Posición(r, f))
+                posición(r, f) + β(posición(q, f) ≤ posición(r, f))
             fi
-        SeColó(r, ColarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ SeColó(r, f)
-        Longitud(ColarseAdelanteDe(p, q, f)) ≡ Longitud(f) + 1
+        posición(q, retirarse(p, f)) ≡ posición(q, f) - β(posición(p, f) < posición(q, f))
 
-        Esperando(q, Retirarse(p, f)) ≡ q ≠obs p ∧ Esperando(q, f)
-        Posición(q, Retirarse(p, f)) ≡ Posición(q, f) - β(Posición(p, f) < Posición(q, f))
-        SeColó(q, Retirarse(p, f)) ≡ SeColó(q, f)
-        Longitud(Retirarse(p, f)) ≡ Longitud(f) - 1
+        seColó(q, llegar(p, f)) ≡ q ≠obs p ∧ seColó(q, f)
+        seColó(p, atender(f)) ≡ seColó(p, f)
+        seColó(r, colarseAdelanteDe(p, q, f)) ≡ r =obs p ∨ seColó(r, f)
+        seColó(q, retirarse(p, f)) ≡ seColó(q, f)
 
-        Vacía(f) ≡ Longitud(f) =obs 0
+        longitud(abrirVentanilla()) ≡ 0
+        longitud(llegar(p, f)) ≡ longitud(f) + 1
+        longitud(atender(f)) ≡ longitud(f) - 1
+        longitud(colarseAdelanteDe(p, q, f)) ≡ longitud(f) + 1
+        longitud(retirarse(p, f)) ≡ longitud(f) - 1
+
+        vacía(f) ≡ longitud(f) =obs 0
 Fin TAD
 
 // Identifico a las personas por nombre.
