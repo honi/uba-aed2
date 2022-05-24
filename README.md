@@ -8,7 +8,10 @@ Cursada: 1er cuatrimestre 2022
 - Prácticas
 
   - Práctica 1: [enunciado](Prácticas/Enunciados/Práctica1.pdf), [soluciones](Prácticas/Soluciones/Práctica1)
-  - Práctica 2: [enunciado](Prácticas/Enunciados/Práctica2.pdf), [soluciones](Prácticas/Soluciones/Práctica2.md)
+  - Práctica 2: [enunciado](Prácticas/Enunciados/Práctica2.pdf), [soluciones](Prácticas/Soluciones/Práctica2.md) (incompleto)
+  - Práctica 3: [enunciado](Prácticas/Enunciados/Práctica3.pdf), [soluciones](Prácticas/Soluciones/Práctica3) (incompleto)
+  - Práctica 4: [enunciado](Prácticas/Enunciados/Práctica4.pdf), [soluciones](Prácticas/Soluciones/Práctica4) (incompleto)
+  - Práctica 5: [enunciado](Prácticas/Enunciados/Práctica5.pdf), [soluciones](Prácticas/Soluciones/Práctica5) (en curso)
 
 - Laboratorios
 
