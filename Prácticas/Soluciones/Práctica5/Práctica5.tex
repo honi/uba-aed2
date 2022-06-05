@@ -27,12 +27,12 @@ Nos conviene usar algún algoritmo de ordenamiento que tenga como invariante que
 \begin{algorithmic}[1]
     \State res $\gets$ CrearArreglo(k) \Comment{$O(k)$}
     \State max $\gets$ BuscarMax(A) \Comment{$O(n)$}
-    \For{i = 1 \textbf{to} k} \Comment{$O(k)$}
+    \For{i $\gets$ 1 \textbf{to} k} \Comment{$O(k)$}
         \State res[i] $\gets$ max
     \EndFor
-    \For{i = 1 \textbf{to} k} \Comment{$O(k)$}
-        \For{j = 1 \textbf{to} n} \Comment{$O(n)$}
-            \If{A[j] $<$ res[i] $\land$ (i = 1 $\lor_L$ A[j] $>$ res[i-1])}
+    \For{i $\gets$ 1 \textbf{to} k} \Comment{$O(k)$}
+        \For{j $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+            \If{A[j] $<$ res[i] $\land$ (i = 1 $\oLuego$ A[j] $>$ res[i-1])}
                 \State res[i] $\gets$ A[j]
             \EndIf
         \EndFor
@@ -95,7 +95,7 @@ Por lo tanto, la complejidad total está dada por $O(m log(n))$, ya que vamos a 
     \While{i $<$ n} \Comment{$O(n)$}
         \State c $\gets$ 1
         \State j $\gets$ i + 1
-        \While{j $<$ n $\land_L$ A[j] = A[i]}
+        \While{j $<$ n $\yLuego$ A[j] = A[i]}
             \State c $\gets$ c + 1
             \State j $\gets$ j + 1
         \EndWhile
@@ -113,7 +113,7 @@ Por lo tanto, la complejidad total está dada por $O(m log(n))$, ya que vamos a 
 }
 \begin{algorithmic}[1]
     \State B: lista(nat) $\gets$ CrearLista() \Comment{$O(1)$}
-    \For{i = 0 \textbf{to} tam(A)} \Comment{$O(tam(A))$}
+    \For{i $\gets$ 0 \textbf{to} tam(A)} \Comment{$O(tam(A))$}
         \State j $\gets$ A[i][1]
         \While{j $>$ 0} \Comment{$O(r)$ donde r son las repeticiones del elemento A[i][1]}
             \State AgregarAtras(B, A[i][0]) \Comment{$O(1)$}
@@ -177,7 +177,7 @@ Se asume que todos los arreglos se indexan desde 1.
     \State i $\gets$ 1
     \While{i $\leq$ n} \Comment{$O(n)$}
         \State j $\gets$ i
-        \While{j $<$ n $\land_L$ A[j + 1] = A[j] + 1} \Comment{$O(n - i)$}
+        \While{j $<$ n $\yLuego$ A[j + 1] = A[j] + 1} \Comment{$O(n - i)$}
             \State j $\gets$ j + 1
         \EndWhile
         \State AgregarAtras(B, $\langle$ i, j $\rangle$) \Comment{$O(1)$}
@@ -195,8 +195,8 @@ Se asume que todos los arreglos se indexan desde 1.
 \begin{algorithmic}[1]
     \State C: arreglo(nat) $\gets$ Copiar(A) \Comment{$O(n)$}
     \State k $\gets$ 1
-    \For{i = 1 \textbf{to} tam(B)} \Comment{$O(n)$}
-        \For{j = B[i][0] \textbf{to} B[i][1]}
+    \For{i $\gets$ 1 \textbf{to} tam(B)} \Comment{$O(n)$}
+        \For{j $\gets$ B[i][0] \textbf{to} B[i][1]}
             \State A[k] $\gets$ C[j]
             \State k $\gets$ k + 1
         \EndFor
@@ -312,7 +312,7 @@ De esta forma la complejidad resultante del algoritmo es $O(nl + n) = O(nl)$ en 
 \begin{algorithmic}[1]
     \State MergeSort(A) \Comment{$O(n log(n))$}
     \State Ak: arreglo(arreglo(nat)) $\gets$ CrearArreglo(k) \Comment{$O(k)$}
-    \For{i = 1 \textbf{to} k} \Comment{$O(k)$}
+    \For{i $\gets$ 1 \textbf{to} k} \Comment{$O(k)$}
         \State Ak[i] $\gets$ MultiplicarTodos(A, i) \Comment{$O(n)$}
     \EndFor
     \State res $\gets$ UnirOrdenados(Ak) \Comment{$O(nk log(k)) = O(nk log(n))$}
@@ -327,7 +327,7 @@ De esta forma la complejidad resultante del algoritmo es $O(nl + n) = O(nl)$ en 
 \begin{algorithmic}[1]
     \State n $\gets$ tam(A)
     \State res: arreglo(nat) $\gets$ CrearArreglo(n) \Comment{$O(n)$}
-    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
         \State res[i] $\gets$ A[i] * k
     \EndFor
 \end{algorithmic}
@@ -351,7 +351,7 @@ Primero ordenamos el arreglo de entrada A. Luego creamos $k$ arreglos en Ak, don
     \Else
         \State C: arreglo(bool) $\gets$ CrearArreglo(n) \Comment{$O(n)$, elementos inicializados en false}
         \State r $\gets$ 0
-        \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+        \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
             \State j $\gets$ A[i] - min + 1
             \If{C[j] = true}
                 \State r $\gets$ r + 1
@@ -373,11 +373,53 @@ Para contar los repetidos hacemos algo parecido a la parte de counting de un Cou
 
 \section{Ejercicio 16: raroSort}
 
-Pendiente.
+\begin{algorithm}[H]
+\caption{
+    \textbf{RaroSort}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State m $\gets$ BuscarMax(A) \Comment{$O(n)$}
+    \State d $\gets$ log(m) \Comment{Cantidad máxima de dígitos en base 2}
+    \For{i $\gets$ 0 \textbf{to} d} \Comment{$O(d) = O(log(m))$}
+        \State CountingSort(A, m, i) \Comment{$O(n+m)$, ordenamos por el i-ésimo dígito en base 2}
+    \EndFor
+\end{algorithmic}
+\Complexity{$O((n+m) log(m))$} \\
+Para revisar porque el enunciado pide $O(n log(m))$. No se si vale decir que $O(n+m) = O(n)$ en este contexto.
+\end{algorithm}
 
 \section{Ejercicio 17: i elementos más chicos}
 
-Pendiente.
+La clave es entender bien la precondición del arreglo que da el enunciado. En esencia, cada posición i-ésima puede estar desordenada a lo sumo 1 sola posición, y por lo tanto vamos a poder ordenarla con un solo swap. Esto es lo que va a permitir implementar un algoritmo que tenga complejidad $O(n)$, ya que podemos recorrer una sola vez el arreglo, y si el elemento está fuera de lugar, lo acomodamos con un solo swap y avanzamos al siguiente.
+
+También es relevante que el arreglo se indexa desde 1, porque si fuese desde 0, los únicos arreglos que cumplen con la precondición son los que ya están ordenados.
+
+La precondición de la entrada se puede escribir de esta forma:
+
+\textbf{Pre} $\equiv \text{noHayRepetidos}(A) \land (\forall i: nat)(1 \leq i \leq n \implicaLuego \text{contarMenores}(A, A[i]) \leq i)$
+
+\textbf{Ejemplos de entradas válidas}
+
+\begin{lstlisting}
+A $\equiv$ [1, 2, 3, 4, 5]
+A $\equiv$ [2, 1, 4, 3, 5]
+A $\equiv$ [1, 5, 4, 7, 6]
+\end{lstlisting}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarConSwaps}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \For{i $\gets$ 1 \textbf{to} n - 1} \Comment{$O(n)$}
+        \If{A[i] $>$ A[i + 1]}
+            \State Swap(A[i], A[i+1])
+        \EndIf
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
 
 \section{Ejercicio 18: radix encubierto}
 
@@ -402,12 +444,12 @@ Pendiente.
 \begin{algorithmic}[1]
     \State n $\gets$ tam(A)
     \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ CrearArreglo(n) \Comment{$O(n)$}
-    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
         \State B[i] $\gets$ $\langle$ A[i] mod n, A[i] div n $\rangle$
     \EndFor
     \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: primera componente de la tupla}
     \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: segunda componente de la tupla}
-    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
         \State A[i] $\gets$ B[i][1] * n + B[i][0]
     \EndFor
 \end{algorithmic}
@@ -433,17 +475,17 @@ A $\equiv$ [12, 13, 25, 29, 40, 50, 67, 76, 83, 99]
 \begin{algorithmic}[1]
     \State n $\gets$ tam(A)
     \State B: arreglo($\langle$ nat, $\dots$, nat $\rangle_k$) $\gets$ CrearArreglo(n) \Comment{$O(n)$, arreglo con tuplas de $k$ elementos}
-    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
-        \For{j = 0 \textbf{to} k-1} \Comment{$O(k)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+        \For{j $\gets$ 0 \textbf{to} k-1} \Comment{$O(k)$}
             \State B[i][j] $\gets$ (A[i] div n$^j$) mod n
         \EndFor
     \EndFor
-    \For{i = 0 \textbf{to} k} \Comment{$O(k)$}
+    \For{i $\gets$ 0 \textbf{to} k} \Comment{$O(k)$}
         \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: i-ésima componente de la tupla}
     \EndFor
-    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
         \State A[i] $\gets$ 0
-        \For{j = 0 \textbf{to} k-1} \Comment{$O(k)$}
+        \For{j $\gets$ 0 \textbf{to} k-1} \Comment{$O(k)$}
             \State A[i] $\gets$ A[i] + B[i][j] * n$^j$
         \EndFor
     \EndFor

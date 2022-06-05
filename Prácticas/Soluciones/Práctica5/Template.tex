@@ -2,6 +2,7 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel} % Agregar es-nodecimaldot si hay problemas con el separador de decimales y de miles
+\usepackage{noto-mono} % Tipografía "Noto Sans Mono" para monospace
 \usepackage{amsmath, amsbsy, amssymb} % Agregar cuando se necesiten: amscd, amssymb, amsthm, latexsym
 \usepackage{enumerate}
 \usepackage{graphicx}
@@ -12,7 +13,6 @@
 \usepackage{algpseudocode}
 \usepackage{caption}
 \usepackage{etoolbox}
-\usepackage{noto-mono} % Tipografía "Noto Sans Mono" para monospace
 
 % Tamaño de hoja y márgenes
 \usepackage[a4paper,top=1cm,bottom=2cm,left=1cm,right=1cm]{geometry}
@@ -61,6 +61,11 @@
 % Otros alias
 \newcommand{\xor}{\oplus}
 \newcommand{\nor}{\downarrow}
+\newcommand{\opsub}[2]{\ensuremath{#1_{\mathrm{#2}}}}
+\newcommand{\yLuego}{\opsub{\land}{\scriptscriptstyle{L}}}
+\newcommand{\oLuego}{\opsub{\lor}{\scriptscriptstyle{L}}}
+\newcommand{\implicaLuego}{\opsub{\implies}{\scriptscriptstyle{L}}}
+\renewcommand{\implies}{\Rightarrow}
 
 % Columna "x" tiene fondo amarillo
 \usepackage{colortbl}
