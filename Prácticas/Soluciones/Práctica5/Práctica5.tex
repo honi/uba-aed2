@@ -1,0 +1,460 @@
+\input{Template}
+
+\title{Algoritmos y Estructuras de Datos 2}
+\author{Práctica 5: Ordenamiento}
+\date{1er cuatrimestre 2022}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+\section{Ejercicio 1}
+
+Pendiente.
+
+\section{Ejercicio 2: una parte ya ordenada}
+
+Nos conviene usar algún algoritmo de ordenamiento que tenga como invariante que en la iteración i-ésima, ya ordenamos la secuencia hasta la posición i-ésima. De esta manera podemos comenzar a ordenar $s$ desde la posición $i=tam(s')$. Por ejemplo, podríamos usar InsertionSort.
+
+\section{Ejercicio 3: k más chicos}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{BuscarMinimos}(\textbf{in} A: arreglo(nat), \textbf{in} k: nat) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State res $\gets$ CrearArreglo(k) \Comment{$O(k)$}
+    \State max $\gets$ BuscarMax(A) \Comment{$O(n)$}
+    \For{i = 1 \textbf{to} k} \Comment{$O(k)$}
+        \State res[i] $\gets$ max
+    \EndFor
+    \For{i = 1 \textbf{to} k} \Comment{$O(k)$}
+        \For{j = 1 \textbf{to} n} \Comment{$O(n)$}
+            \If{A[j] $<$ res[i] $\land$ (i = 1 $\lor_L$ A[j] $>$ res[i-1])}
+                \State res[i] $\gets$ A[j]
+            \EndIf
+        \EndFor
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(kn)$}
+\end{algorithm}
+
+Cuando $k > log(n)$ conviene primero ordenar el arreglo, por ejemplo con MergeSort que tiene complejidad $O(n log(n))$, y luego simplemente copiar en res los primeros $k$ elementos que tiene complejidad $O(k)$.
+
+\section{Ejercicio 4: n secuencias ordenadas}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{UnirOrdenados}(\textbf{in} A: arreglo(arreglo(nat))) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \If {tam(A) = 1}
+        \State res $\gets$ A[1]
+    \Else
+        \State res $\gets$ Merge(
+        \State \;\; UnirOrdenados(PrimeraMitad(A)),
+        \State \;\; UnirOrdenados(SegundaMitad(A))
+        \State )
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(m log(n))$ donde m es la cantidad total de elementos en todas las n secuencias.}
+\end{algorithm}
+
+Inicialmente hay $n$ secuencias en A, y en cada paso recursivo dividimos A en 2 partes iguales y resolvemos esos 2 subproblemas de forma recursiva. El caso base es cuando $n = 1$. Si llamamos $i$ al total de pasos recursivos, $n / 2^i = 1 \iff i = log(n)$. Es decir, vamos a hacer en total $log(n)$ pasos recursivos.
+
+El costo del Merge es $O(m)$ donde $m$ es la cantidad total de elementos en todas las $n$ secuencias. En cada paso recursivo siempre tenemos que iterar el total de $m$ elementos para poder hacer el Merge entre las secuencias de ese nivel de la recursión (si bien hay cada vez menos secuencias que mergear, la cantidad total de elementos es constante).
+
+Por lo tanto, la complejidad total está dada por $O(m log(n))$, ya que vamos a hacer un Merge entre $m$ elementos, $log(n)$ de veces.
+
+\section{Ejercicio 5: frecuencia}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarPorFrecuencia}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State MergeSort(A) \Comment{$O(n log(n))$}
+    \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ Compactar(A) \Comment{$O(n)$, porque A ya está ordenado}
+    \State MergeSort(B) \Comment{$O(n log(n))$, clave de ordenamiento: segunda componente (repeticiones), decreciente}
+    \State A $\gets$ Expandir(B) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Compactar}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: arreglo($\langle$ nat, nat $\rangle$)
+}
+\Pre{estáOrdenado(A)}
+\begin{algorithmic}[1]
+    \State B: lista($\langle$ nat, nat $\rangle$) $\gets$ CrearLista() \Comment{$O(1)$}
+    \State n $\gets$ tam(A)
+    \State i $\gets$ 0
+    \While{i $<$ n} \Comment{$O(n)$}
+        \State c $\gets$ 1
+        \State j $\gets$ i + 1
+        \While{j $<$ n $\land_L$ A[j] = A[i]}
+            \State c $\gets$ c + 1
+            \State j $\gets$ j + 1
+        \EndWhile
+        \State AgregarAtras($\langle$ A[i], c $\rangle$) \Comment{$O(1)$}
+        \State i $\gets$ j
+    \EndWhile
+    \State res $\gets$ ListaToArreglo(B) \Comment{$O(tam(B)) = O(n)$}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Expandir}(\textbf{in} A: arreglo($\langle$ nat, nat $\rangle$)) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State B: lista(nat) $\gets$ CrearLista() \Comment{$O(1)$}
+    \For{i = 0 \textbf{to} tam(A)} \Comment{$O(tam(A))$}
+        \State j $\gets$ A[i][1]
+        \While{j $>$ 0} \Comment{$O(r)$ donde r son las repeticiones del elemento A[i][1]}
+            \State AgregarAtras(B, A[i][0]) \Comment{$O(1)$}
+            \State j $\gets$ j - 1
+        \EndWhile
+    \EndFor
+    \State res $\gets$ ListaToArreglo(B) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+A $\equiv$ [1, 3, 1, 7, 2, 7, 1, 7, 3]
+A $\equiv$ [1, 1, 1, 2, 3, 3, 7, 7, 7]
+B $\equiv$ [(1, 3), (2, 1), (3, 2), (7, 3)]
+B $\equiv$ [(1, 3), (7, 3), (3, 2), (2, 1)]
+A $\equiv$ [1, 1, 1, 7, 7, 7, 3, 3, 2]
+\end{lstlisting}
+
+\section{Ejercicio 6: escaleras}
+
+Hacemos una primera iteración por el arreglo formando tuplas con las posiciones de inicio y fin de cada escalera.
+
+El peor caso es que tengamos todas escaleras de un solo elemento. En este caso, el arreglo de tuplas tendrá exactamente el mismo tamaño que el arreglo original, y todas las tuplas tendrán la misma posición de inicio y fin.
+
+Luego, ordenamos el arreglo de tuplas 2 veces utilizando algún algoritmo estable:
+
+\begin{enumerate}
+    \item Ordenamos las tuplas según el primer elemento de la escalera. Para obtener el primer elemento de la escalera, indexamos el arreglo original con el elemento en la primer posición de la tupla (el inicio de la escalera).
+    \item Ordenamos las tuplas según el tamaño de la escalera. Para obtener el tamaño de la escalera, restamos el segundo elemento de la tupla con el primero y sumamos 1 porque los índices son inclusivos (posición de fin de la escalera - posición de inicio + 1).
+\end{enumerate}
+
+Finalmente, para poder acomodar el arreglo según lo pedido, necesitamos primero copiar el arreglo original en otro arreglo copia para poder indexarlo en las posiciones calculadas (si intentamos indexar sobre el arreglo original mientras vamos cambiando los elementos, eventualmente vamos a obtener un elemento equivocado). Entonces iteramos por las tuplas, y por cada tupla, iteramos por las posiciones entre inicio y fin (inclusives) de la escalera para ir copiando los elementos en esas posiciones del arreglo copia hacia la posición actual en el arreglo original. Cada vez que copiamos un elemento incrementamos la posición actual en 1.
+
+Al terminar de iterar por todas las tuplas, habremos copiado todos los elementos del arreglo copia en el original, pero en sus posiciones correctas.
+
+Se asume que todos los arreglos se indexan desde 1.
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarEscaleras}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ ObtenerEscaleras(A) \Comment {$O(n)$}
+    \State MergeSort(B, A) \Comment{$O(n log(n))$, clave de ordenamiento: A[B[i][0]]}
+    \State MergeSort(B) \Comment{$O(n log(n))$, clave de ordenamiento: B[i][1] - B[i][0] + 1, decreciente}
+    \State CopiarEscaleras(A, B) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{ObtenerEscaleras}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: arreglo($\langle$ nat, nat $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State B: list($\langle$ nat, nat $\rangle$) $\gets$ CrearLista() \Comment{$O(1)$}
+    \State n $\gets$ tam(A)
+    \State i $\gets$ 1
+    \While{i $\leq$ n} \Comment{$O(n)$}
+        \State j $\gets$ i
+        \While{j $<$ n $\land_L$ A[j + 1] = A[j] + 1} \Comment{$O(n - i)$}
+            \State j $\gets$ j + 1
+        \EndWhile
+        \State AgregarAtras(B, $\langle$ i, j $\rangle$) \Comment{$O(1)$}
+        \State i $\gets$ j + 1
+    \EndWhile
+    \State res $\gets$ ListaToArreglo(B) \Comment{O(tam(B)) = O(n)}
+\end{algorithmic}
+\Complexity{$O(n)$ \\ Al incrementar $i$ de esta forma, en efecto nos salteamos en el while exterior los elementos que ya recorrimos en el while interior.}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{CopiarEscaleras}(\textbf{in/out} A: arreglo(nat), \textbf{in} B: arreglo($\langle$ nat, nat $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State C: arreglo(nat) $\gets$ Copiar(A) \Comment{$O(n)$}
+    \State k $\gets$ 1
+    \For{i = 1 \textbf{to} tam(B)} \Comment{$O(n)$}
+        \For{j = B[i][0] \textbf{to} B[i][1]}
+            \State A[k] $\gets$ C[j]
+            \State k $\gets$ k + 1
+        \EndFor
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+La complejidad de los ciclos de CopiarEscaleras es $O(n)$ por lo siguiente:
+
+Si todas las escaleras son de un solo elemento, entonces $tam(B) = tam(A)$, $B[i][0] = B[i][1] \forall i$, y por lo tanto el while interior hace una única iteración y tiene complejidad $O(1)$. El while exterior haría $tam(B) = tam(A) = n$ iteraciones y por lo tanto la complejidad de ambos ciclos sería $O(n) * O(1) = O(n)$.
+
+En el extremo opuesto, si todo el arreglo original A ya era una escalera, en B tendríamos una única tupla $\langle 1, tam(A) \rangle$, el while exterior haría una única iteración pero el while interior haría $B[i][1] - B[i][0] + 1 = tam(A) - 1 + 1 = tam(A) = n$ iteraciones. En efecto, la complejidad de ambos ciclos sería $O(1) * O(n) = O(n)$.
+
+Partiendo del caso donde son todas escaleras de un solo elemento, por cada elemento que en realidad es parte de una escalera, vamos a tener una tupla menos, y alguna otra tupla va a tener un rango incrementado en 1. En efecto, el while exterior haría una iteración menos pero el while interior haría una iteración más, y la complejidad final seguirá siendo $O(n)$.
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+A $\equiv$ [5, 6, 8, 9, 10, 7, 8, 9, 20, 15]
+B $\equiv$ [(1, 2), (3, 5), (6, 8), (9, 9), (10, 10)]
+B $\equiv$ [(1, 2), (6, 8), (3, 5), (10, 10), (9, 9)]
+B $\equiv$ [(6, 8), (3, 5), (1, 2), (10, 10), (9, 9)]
+A $\equiv$ [7, 8, 9, 8, 9, 10, 5, 6, 15, 20]
+\end{lstlisting}
+
+\section{Ejercicio 7: AVL Sort}
+
+Pendiente.
+
+\section{Ejercicio 8: números repetidos continuos}
+
+Pendiente.
+
+\section{Ejercicio 9: alumnos}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarPlanilla}(\textbf{in/out} P: arreglo(alumno))
+}
+\begin{algorithmic}[1]
+    \State CountingSort(P) \Comment{$O(n)$, clave de ordenamiento: alumno.puntaje, orden creciente}
+    \State CountingSort(P) \Comment{$O(n)$, clave de ordenamiento: alumno.genero, orden decreciente}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\subsection{}
+
+Igual que la solución anterior ya que si los géneros están acotados, podemos hacer CountingSort ordenando por alumno.genero en tiempo lineal $O(n)$ donde $n$ es la cantidad de alumnos en la planilla.
+
+\subsection{}
+
+El lower bound $\Omega(n log(n))$ solo aplica a algoritmos de ordenamiento basadas en comparaciones. No estamos contradiciendo ese lower bound porque el algoritmo de ordenamiento utilizado, CountingSort, no se basa en comparaciones.
+
+\section{Ejercicio 10: casiSort}
+
+Pendiente.
+
+\section{Ejercicio 11: en rango}
+
+Pendiente.
+
+\section{Ejercicio 12: sensor industrial}
+
+Pendiente.
+
+\section{Ejercicio 13: tuplas nat $\times$ string}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Ordenar}(\textbf{in/out} A: arreglo($\langle$ c$_1$: nat × c$_2$: string[$l$] $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State RadixSort(A) \Comment {$O(n l)$, clave de ordenamiento: c$_2$}
+    \State MergeSort(A) \Comment {$O(n log(n))$, clave de ordenamiento: c$_1$}
+\end{algorithmic}
+\Complexity{$O(nl + log(n))$}
+\end{algorithm}
+
+Primero ordenamos el arreglo A por la segunda componente, el string de longitud máxima $l$, utilizando RadixSort que tiene complejidad $O(l(n + k))$, donde $l$ es el largo máximo del string, $n$ la cantidad de elementos en A, y $k$ la cantidad máxima posible de caracteres para cada posición del string. Considerando que el string contiene únicamente caracteres ascii, $k=256$ y es una constante. Además, utilizamos CountingSort como algoritmo estable de ordenamiento para cada posición i-ésima del string, y por lo tanto su complejidad resulta $O(n)$ (pues $k$ es constante). Finalmente, todo el RadixSort tiene complejidad $O(nl)$ ya que debemos repetir el CountingSort por cada posición del string de largo máximo $l$ (no podemos asumir que $l$ es una constante).
+
+Luego ordenamos el arreglo A por la primer componente de la tupla, el número natural, utilizando MergeSort. Este algoritmo tiene complejidad $O(n log(n))$ y es estable (necesitamos que sea estable para mantener el orden previo realizado por RadixSort).
+
+De esta forma la complejidad resultante del algoritmo es $O(nl + n log(n))$ en el peor caso.
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Ordenar}(\textbf{in/out} A: arreglo($\langle$ c$_1$: nat × c$_2$: string[$l$] $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State RadixSort(A) \Comment {Ordena por c$_2$: $O(n l)$}
+    \State CountingSort(A) \Comment {Ordena por c$_1$: $O(n)$}
+\end{algorithmic}
+\end{algorithm}
+
+Al saber que la primer componente de las tuplas son naturales acotados por una constante, podemos utilizar CountingSort (que también es estable) para realizar el segundo ordenamiento en $O(n)$.
+
+De esta forma la complejidad resultante del algoritmo es $O(nl + n) = O(nl)$ en el peor caso.
+
+\section{Ejercicio 14: múltiplos}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarMultiplos}(\textbf{in} A: arreglo(nat), \textbf{in} k: nat) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State MergeSort(A) \Comment{$O(n log(n))$}
+    \State Ak: arreglo(arreglo(nat)) $\gets$ CrearArreglo(k) \Comment{$O(k)$}
+    \For{i = 1 \textbf{to} k} \Comment{$O(k)$}
+        \State Ak[i] $\gets$ MultiplicarTodos(A, i) \Comment{$O(n)$}
+    \EndFor
+    \State res $\gets$ UnirOrdenados(Ak) \Comment{$O(nk log(k)) = O(nk log(n))$}
+\end{algorithmic}
+\Complexity{$O(nk log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{MultiplicarTodos}(\textbf{in} A: arreglo(nat), \textbf{in} k: nat) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State res: arreglo(nat) $\gets$ CrearArreglo(n) \Comment{$O(n)$}
+    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+        \State res[i] $\gets$ A[i] * k
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+Primero ordenamos el arreglo de entrada A. Luego creamos $k$ arreglos en Ak, donde el arreglo en la posición i-ésima Ak[i] es el arreglo de entrada A con todos sus elementos multiplicados por $i$. A partir de este punto estamos en las mismas condiciones del ejercicio 4, tenemos un conjunto de arreglos ordenados, todos de tamaño $n$, y queremos unirlos de forma ordenada. Así que aprovechamos esa solución y simplemente usamos la función UnirOrdenados.
+
+\section{Ejercicio 15: tiene agujero}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{TieneAgujero}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: bool
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A) \Comment{$O(1)$}
+    \State min $\gets$ BuscarMin(A) \Comment{$O(n)$}
+    \State max $\gets$ BuscarMax(A) \Comment{$O(n)$}
+    \If{max - min + 1 $>$ n}
+        \State res $\gets$ true
+    \Else
+        \State C: arreglo(bool) $\gets$ CrearArreglo(n) \Comment{$O(n)$, elementos inicializados en false}
+        \State r $\gets$ 0
+        \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+            \State j $\gets$ A[i] - min + 1
+            \If{C[j] = true}
+                \State r $\gets$ r + 1
+            \Else
+                \State C[j] $\gets$ true
+            \EndIf
+        \EndFor
+        \State res $\gets$ max - min + 1 + r $\neq$ n
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+Que no haya agujeros en esencia es que el arreglo tenga todos números consecutivos.
+
+Sabiendo el mínimo y el máximo del arreglo podemos calcular la cantidad de números consecutivos sin repetidos: $max - min + 1$. Sea $r$ la cantidad de elementos repetidos (sin contar su aparición inicial), sabemos que hay agujeros si se cumple $max - min + 1 + r \neq n$.
+
+Para contar los repetidos hacemos algo parecido a la parte de counting de un CountingSort, en donde recorremos una vez el arreglo de entrada y vamos contando cada vez que encontramos un número repetido.
+
+\section{Ejercicio 16: raroSort}
+
+Pendiente.
+
+\section{Ejercicio 17: i elementos más chicos}
+
+Pendiente.
+
+\section{Ejercicio 18: radix encubierto}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarHastaN}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State CountingSort(A) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarHastaN$^2$}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ CrearArreglo(n) \Comment{$O(n)$}
+    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+        \State B[i] $\gets$ $\langle$ A[i] mod n, A[i] div n $\rangle$
+    \EndFor
+    \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: primera componente de la tupla}
+    \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: segunda componente de la tupla}
+    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+        \State A[i] $\gets$ B[i][1] * n + B[i][0]
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+A $\equiv$ [40, 25, 29, 83, 12, 50, 67, 13, 99, 76]
+B $\equiv$ [(0, 4), (5, 2), (9, 2), (3, 8), (2, 1), (0, 5), (7, 6), (3, 1), (9, 9), (6, 7)]
+B $\equiv$ [(0, 4), (0, 5), (2, 1), (3, 8), (3, 1), (5, 2), (6, 7), (7, 6), (9, 2), (9, 9)]
+B $\equiv$ [(2, 1), (3, 1), (5, 2), (9, 2), (0, 4), (0, 5), (7, 6), (6, 7), (3, 8), (9, 9)]
+A $\equiv$ [12, 13, 25, 29, 40, 50, 67, 76, 83, 99]
+\end{lstlisting}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarHastaN$^k$}(\textbf{in/out} A: arreglo(nat), \textbf{in} k: nat)
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State B: arreglo($\langle$ nat, $\dots$, nat $\rangle_k$) $\gets$ CrearArreglo(n) \Comment{$O(n)$, arreglo con tuplas de $k$ elementos}
+    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+        \For{j = 0 \textbf{to} k-1} \Comment{$O(k)$}
+            \State B[i][j] $\gets$ (A[i] div n$^j$) mod n
+        \EndFor
+    \EndFor
+    \For{i = 0 \textbf{to} k} \Comment{$O(k)$}
+        \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: i-ésima componente de la tupla}
+    \EndFor
+    \For{i = 1 \textbf{to} n} \Comment{$O(n)$}
+        \State A[i] $\gets$ 0
+        \For{j = 0 \textbf{to} k-1} \Comment{$O(k)$}
+            \State A[i] $\gets$ A[i] + B[i][j] * n$^j$
+        \EndFor
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(nk)$}
+\end{algorithm}
+
+Lo que estamos haciendo para ordenar es básicamente un RadixSort si interpretamos los números del arreglo de entrada en base $n$. En el arreglo B descomponemos el número original para obtener sus dígitos en base $n$. Como nos dicen que todos los números son positivos menores que $n^k$, la cantidad máxima de dígitos será $log_n(n^k) = k$. Luego ordenamos por el dígito menos significativo con un algoritmo estable como el CountingSort, y luego por el siguiente dígito, y así hasta el dígito k-ésimo, el más significativo.
+
+\subsection{}
+
+Si se generaliza la idea para arreglos no acotados de tamaño $n$, se podría buscar $m$ el máximo del arreglo, luego buscar el mínimo $k$ tal que $m \leq n^k$, y realizar el mismo algoritmo. Esto sólo conviene mientras $k \leq log(n)$, pues si $k > log(n)$ será más eficiente hacer un MergeSort sobre el arreglo original de entrada ya que tiene complejidad $O(n log(n))$ sin importar cuál es el máximo del arreglo.
+
+\end{document}
