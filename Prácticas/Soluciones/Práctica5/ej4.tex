@@ -1,0 +1,24 @@
+\section{Ejercicio 4: n secuencias ordenadas}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{UnirOrdenados}(\textbf{in} A: arreglo(arreglo(nat))) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \If {tam(A) = 1}
+        \State res $\gets$ A[1]
+    \Else
+        \State res $\gets$ Merge(
+        \State \;\; UnirOrdenados(PrimeraMitad(A)),
+        \State \;\; UnirOrdenados(SegundaMitad(A))
+        \State )
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(m log(n))$ donde m es la cantidad total de elementos en todas las n secuencias.}
+\end{algorithm}
+
+Inicialmente hay $n$ secuencias en A, y en cada paso recursivo dividimos A en 2 partes iguales y resolvemos esos 2 subproblemas de forma recursiva. El caso base es cuando $n = 1$. Si llamamos $i$ al total de pasos recursivos, $n / 2^i = 1 \iff i = log(n)$. Es decir, vamos a hacer en total $log(n)$ pasos recursivos.
+
+El costo del Merge es $O(m)$ donde $m$ es la cantidad total de elementos en todas las $n$ secuencias. En cada paso recursivo siempre tenemos que iterar el total de $m$ elementos para poder hacer el Merge entre las secuencias de ese nivel de la recursión (si bien hay cada vez menos secuencias que mergear, la cantidad total de elementos es constante).
+
+Por lo tanto, la complejidad total está dada por $O(m log(n))$, ya que vamos a hacer un Merge entre $m$ elementos, $log(n)$ de veces.

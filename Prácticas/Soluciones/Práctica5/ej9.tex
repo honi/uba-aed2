@@ -1,0 +1,22 @@
+\section{Ejercicio 9: alumnos}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarPlanilla}(\textbf{in/out} P: arreglo(alumno))
+}
+\begin{algorithmic}[1]
+    \State CountingSort(P) \Comment{$O(n)$, clave de ordenamiento: alumno.puntaje, orden creciente}
+    \State CountingSort(P) \Comment{$O(n)$, clave de ordenamiento: alumno.genero, orden decreciente}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\subsection{}
+
+Igual que la solución anterior ya que si los géneros están acotados, podemos hacer CountingSort ordenando por alumno.genero en tiempo lineal $O(n)$ donde $n$ es la cantidad de alumnos en la planilla.
+
+\subsection{}
+
+El lower bound $\Omega(n log(n))$ solo aplica a algoritmos de ordenamiento basadas en comparaciones. No estamos contradiciendo ese lower bound porque el algoritmo de ordenamiento utilizado, CountingSort, no se basa en comparaciones.

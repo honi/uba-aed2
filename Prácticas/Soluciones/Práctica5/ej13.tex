@@ -1,0 +1,36 @@
+\section{Ejercicio 13: tuplas (nat, string)}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Ordenar}(\textbf{in/out} A: arreglo($\langle$ c$_1$: nat × c$_2$: string[$l$] $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State RadixSort(A) \Comment {$O(n l)$, clave de ordenamiento: c$_2$}
+    \State MergeSort(A) \Comment {$O(n log(n))$, clave de ordenamiento: c$_1$}
+\end{algorithmic}
+\Complexity{$O(nl + log(n))$}
+\end{algorithm}
+
+Primero ordenamos el arreglo A por la segunda componente, el string de longitud máxima $l$, utilizando RadixSort que tiene complejidad $O(l(n + k))$, donde $l$ es el largo máximo del string, $n$ la cantidad de elementos en A, y $k$ la cantidad máxima posible de caracteres para cada posición del string. Considerando que el string contiene únicamente caracteres ascii, $k=256$ y es una constante. Además, utilizamos CountingSort como algoritmo estable de ordenamiento para cada posición i-ésima del string, y por lo tanto su complejidad resulta $O(n)$ (pues $k$ es constante). Finalmente, todo el RadixSort tiene complejidad $O(nl)$ ya que debemos repetir el CountingSort por cada posición del string de largo máximo $l$ (no podemos asumir que $l$ es una constante).
+
+Luego ordenamos el arreglo A por la primer componente de la tupla, el número natural, utilizando MergeSort. Este algoritmo tiene complejidad $O(n log(n))$ y es estable (necesitamos que sea estable para mantener el orden previo realizado por RadixSort).
+
+De esta forma la complejidad resultante del algoritmo es $O(nl + n log(n))$ en el peor caso.
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Ordenar}(\textbf{in/out} A: arreglo($\langle$ c$_1$: nat × c$_2$: string[$l$] $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State RadixSort(A) \Comment {Ordena por c$_2$: $O(n l)$}
+    \State CountingSort(A) \Comment {Ordena por c$_1$: $O(n)$}
+\end{algorithmic}
+\end{algorithm}
+
+Al saber que la primer componente de las tuplas son naturales acotados por una constante, podemos utilizar CountingSort (que también es estable) para realizar el segundo ordenamiento en $O(n)$.
+
+De esta forma la complejidad resultante del algoritmo es $O(nl + n) = O(nl)$ en el peor caso.

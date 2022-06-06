@@ -1,0 +1,46 @@
+\section{Ejercicio 17: i elementos mas chicos}
+
+La clave es entender bien la precondición del arreglo que da el enunciado. Lo podemos escribir de esta forma:
+
+\textbf{Pre} $\equiv \text{noHayRepetidos}(A) \land (\forall i: nat)(1 \leq i \leq n \implicaLuego \text{contarMenores}(A, A[i]) \leq i)$
+
+Supongamos que tenemos un arreglo A ordenado de 5 elementos distintos. Sean $a_1, \dots, a_5$ los elementos de A que están en las posiciones $1, \dots, 5$. Es decir, $A \equiv a_1, a_2, a_3, a_4, a_5$.
+
+Si quisiéramos desordenar el arreglo para que cumpla con la pre, veamos cuántas posiciones son válidas para cada elemento. Es decir, en cuántos lugares podemos meter cada $a_i$ de forma tal que valga la pre. Notemos que como A está ordenada, se cumple que $a_1 \leq \dots \leq a_5$, y por lo tanto sabemos qué devuelve contarMenores para cada elemento (no importa qué elementos son exactamente). A partir de esta información podemos determinar el rango de posiciones que serían válidas para cada $a_i$ de forma tal que se cumpla la pre.
+
+\begin{itemize}
+    \item $\text{contarMenores}(A, a_1) = 0 \leq [1, 2, 3, 4, 5]$
+    \item $\text{contarMenores}(A, a_2) = 1 \leq [1, 2, 3, 4, 5]$
+    \item $\text{contarMenores}(A, a_3) = 2 \leq [2, 3, 4, 5]$
+    \item $\text{contarMenores}(A, a_4) = 3 \leq [3, 4, 5]$
+    \item $\text{contarMenores}(A, a_5) = 4 \leq [4, 5]$
+\end{itemize}
+
+Comenzamos a desordenar los elementos de atrás hacia adelante. Observemos que $a_5$ tiene dos posiciones válidas. Fijada la posición de $a_5$, ahora $a_4$ solo tiene dos posiciones válidas, pues una la ocupamos con $a_5$. Por la misma razón, $a_3$ y $a_2$ también tienen solo dos posiciones válidas, y finalmente $a_1$ le queda una única posición libre para ubicarse y que se mantenga la pre.
+
+Para ordenar, basta recorrer el arreglo de atrás hacia adelante e ir comparando cada elemento adyacente, y si están desordenados, ordenarlos con un swap.
+
+\textbf{Ejemplos de entradas válidas}
+
+\begin{lstlisting}
+A = [1, 2, 3, 4, 5]
+A = [2, 1, 4, 3, 5]
+A = [1, 5, 4, 7, 6]
+A = [1, 3, 4, 2, 7]
+A = [1, 2, 3, 5, 4]
+\end{lstlisting}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarConSwaps}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \For{i $\gets$ n \textbf{downto} 2} \Comment{$O(n)$}
+        \If{A[i] $<$ A[i - 1]}
+            \State Swap(A[i], A[i - 1])
+        \EndIf
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}

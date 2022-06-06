@@ -1,0 +1,24 @@
+\section{Ejercicio 3: k más chicos}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{BuscarMinimos}(\textbf{in} A: arreglo(nat), \textbf{in} k: nat) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State res $\gets$ CrearArreglo(k) \Comment{$O(k)$}
+    \State max $\gets$ BuscarMax(A) \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} k} \Comment{$O(k)$}
+        \State res[i] $\gets$ max
+    \EndFor
+    \For{i $\gets$ 1 \textbf{to} k} \Comment{$O(k)$}
+        \For{j $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+            \If{A[j] $<$ res[i] $\land$ (i = 1 $\oLuego$ A[j] $>$ res[i-1])}
+                \State res[i] $\gets$ A[j]
+            \EndIf
+        \EndFor
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(kn)$}
+\end{algorithm}
+
+Cuando $k > log(n)$ conviene primero ordenar el arreglo, por ejemplo con MergeSort que tiene complejidad $O(n log(n))$, y luego simplemente copiar en res los primeros $k$ elementos que tiene complejidad $O(k)$.

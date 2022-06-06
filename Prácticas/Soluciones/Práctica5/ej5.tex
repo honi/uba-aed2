@@ -1,0 +1,66 @@
+\section{Ejercicio 5: frecuencia}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarPorFrecuencia}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State MergeSort(A) \Comment{$O(n log(n))$}
+    \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ Compactar(A) \Comment{$O(n)$, porque A ya está ordenado}
+    \State MergeSort(B) \Comment{$O(n log(n))$, clave de ordenamiento: segunda componente (repeticiones), decreciente}
+    \State A $\gets$ Expandir(B) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Compactar}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: arreglo($\langle$ nat, nat $\rangle$)
+}
+\Pre{estáOrdenado(A)}
+\begin{algorithmic}[1]
+    \State B: lista($\langle$ nat, nat $\rangle$) $\gets$ CrearLista() \Comment{$O(1)$}
+    \State n $\gets$ tam(A)
+    \State i $\gets$ 0
+    \While{i $<$ n} \Comment{$O(n)$}
+        \State c $\gets$ 1
+        \State j $\gets$ i + 1
+        \While{j $<$ n $\yLuego$ A[j] = A[i]}
+            \State c $\gets$ c + 1
+            \State j $\gets$ j + 1
+        \EndWhile
+        \State AgregarAtras($\langle$ A[i], c $\rangle$) \Comment{$O(1)$}
+        \State i $\gets$ j
+    \EndWhile
+    \State res $\gets$ ListaToArreglo(B) \Comment{$O(tam(B)) = O(n)$}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Expandir}(\textbf{in} A: arreglo($\langle$ nat, nat $\rangle$)) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State B: lista(nat) $\gets$ CrearLista() \Comment{$O(1)$}
+    \For{i $\gets$ 0 \textbf{to} tam(A)} \Comment{$O(tam(A))$}
+        \State j $\gets$ A[i][1]
+        \While{j $>$ 0} \Comment{$O(r)$ donde r son las repeticiones del elemento A[i][1]}
+            \State AgregarAtras(B, A[i][0]) \Comment{$O(1)$}
+            \State j $\gets$ j - 1
+        \EndWhile
+    \EndFor
+    \State res $\gets$ ListaToArreglo(B) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+A = [1, 3, 1, 7, 2, 7, 1, 7, 3]
+A = [1, 1, 1, 2, 3, 3, 7, 7, 7]
+B = [(1, 3), (2, 1), (3, 2), (7, 3)]
+B = [(1, 3), (7, 3), (3, 2), (2, 1)]
+A = [1, 1, 1, 7, 7, 7, 3, 3, 2]
+\end{lstlisting}

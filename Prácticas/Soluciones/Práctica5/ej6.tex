@@ -1,0 +1,87 @@
+\section{Ejercicio 6: escaleras}
+
+Hacemos una primera iteración por el arreglo formando tuplas con las posiciones de inicio y fin de cada escalera.
+
+El peor caso es que tengamos todas escaleras de un solo elemento. En este caso, el arreglo de tuplas tendrá exactamente el mismo tamaño que el arreglo original, y todas las tuplas tendrán la misma posición de inicio y fin.
+
+Luego, ordenamos el arreglo de tuplas 2 veces utilizando algún algoritmo estable:
+
+\begin{enumerate}
+    \item Ordenamos las tuplas según el primer elemento de la escalera. Para obtener el primer elemento de la escalera, indexamos el arreglo original con el elemento en la primer posición de la tupla (el inicio de la escalera).
+    \item Ordenamos las tuplas según el tamaño de la escalera. Para obtener el tamaño de la escalera, restamos el segundo elemento de la tupla con el primero y sumamos 1 porque los índices son inclusivos (posición de fin de la escalera - posición de inicio + 1).
+\end{enumerate}
+
+Finalmente, para poder acomodar el arreglo según lo pedido, necesitamos primero copiar el arreglo original en otro arreglo copia para poder indexarlo en las posiciones calculadas (si intentamos indexar sobre el arreglo original mientras vamos cambiando los elementos, eventualmente vamos a obtener un elemento equivocado). Entonces iteramos por las tuplas, y por cada tupla, iteramos por las posiciones entre inicio y fin (inclusives) de la escalera para ir copiando los elementos en esas posiciones del arreglo copia hacia la posición actual en el arreglo original. Cada vez que copiamos un elemento incrementamos la posición actual en 1.
+
+Al terminar de iterar por todas las tuplas, habremos copiado todos los elementos del arreglo copia en el original, pero en sus posiciones correctas.
+
+Se asume que todos los arreglos se indexan desde 1.
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarEscaleras}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ ObtenerEscaleras(A) \Comment {$O(n)$}
+    \State MergeSort(B, A) \Comment{$O(n log(n))$, clave de ordenamiento: A[B[i][0]]}
+    \State MergeSort(B) \Comment{$O(n log(n))$, clave de ordenamiento: B[i][1] - B[i][0] + 1, decreciente}
+    \State CopiarEscaleras(A, B) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{ObtenerEscaleras}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: arreglo($\langle$ nat, nat $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State B: list($\langle$ nat, nat $\rangle$) $\gets$ CrearLista() \Comment{$O(1)$}
+    \State n $\gets$ tam(A)
+    \State i $\gets$ 1
+    \While{i $\leq$ n} \Comment{$O(n)$}
+        \State j $\gets$ i
+        \While{j $<$ n $\yLuego$ A[j + 1] = A[j] + 1} \Comment{$O(n - i)$}
+            \State j $\gets$ j + 1
+        \EndWhile
+        \State AgregarAtras(B, $\langle$ i, j $\rangle$) \Comment{$O(1)$}
+        \State i $\gets$ j + 1
+    \EndWhile
+    \State res $\gets$ ListaToArreglo(B) \Comment{O(tam(B)) = O(n)}
+\end{algorithmic}
+\Complexity{$O(n)$ \\ Al incrementar $i$ de esta forma, en efecto nos salteamos en el while exterior los elementos que ya recorrimos en el while interior.}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{CopiarEscaleras}(\textbf{in/out} A: arreglo(nat), \textbf{in} B: arreglo($\langle$ nat, nat $\rangle$))
+}
+\begin{algorithmic}[1]
+    \State C: arreglo(nat) $\gets$ Copiar(A) \Comment{$O(n)$}
+    \State k $\gets$ 1
+    \For{i $\gets$ 1 \textbf{to} tam(B)} \Comment{$O(n)$}
+        \For{j $\gets$ B[i][0] \textbf{to} B[i][1]}
+            \State A[k] $\gets$ C[j]
+            \State k $\gets$ k + 1
+        \EndFor
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+La complejidad de los ciclos de CopiarEscaleras es $O(n)$ por lo siguiente:
+
+Si todas las escaleras son de un solo elemento, entonces $tam(B) = tam(A)$, $B[i][0] = B[i][1] \forall i$, y por lo tanto el while interior hace una única iteración y tiene complejidad $O(1)$. El while exterior haría $tam(B) = tam(A) = n$ iteraciones y por lo tanto la complejidad de ambos ciclos sería $O(n) * O(1) = O(n)$.
+
+En el extremo opuesto, si todo el arreglo original A ya era una escalera, en B tendríamos una única tupla $\langle 1, tam(A) \rangle$, el while exterior haría una única iteración pero el while interior haría $B[i][1] - B[i][0] + 1 = tam(A) - 1 + 1 = tam(A) = n$ iteraciones. En efecto, la complejidad de ambos ciclos sería $O(1) * O(n) = O(n)$.
+
+Partiendo del caso donde son todas escaleras de un solo elemento, por cada elemento que en realidad es parte de una escalera, vamos a tener una tupla menos, y alguna otra tupla va a tener un rango incrementado en 1. En efecto, el while exterior haría una iteración menos pero el while interior haría una iteración más, y la complejidad final seguirá siendo $O(n)$.
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+A = [5, 6, 8, 9, 10, 7, 8, 9, 20, 15]
+B = [(1, 2), (3, 5), (6, 8), (9, 9), (10, 10)]
+B = [(1, 2), (6, 8), (3, 5), (10, 10), (9, 9)]
+B = [(6, 8), (3, 5), (1, 2), (10, 10), (9, 9)]
+A = [7, 8, 9, 8, 9, 10, 5, 6, 15, 20]
+\end{lstlisting}

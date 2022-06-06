@@ -1,0 +1,32 @@
+\section{Ejercicio 14: múltiplos}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarMultiplos}(\textbf{in} A: arreglo(nat), \textbf{in} k: nat) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State MergeSort(A) \Comment{$O(n log(n))$}
+    \State Ak: arreglo(arreglo(nat)) $\gets$ CrearArreglo(k) \Comment{$O(k)$}
+    \For{i $\gets$ 1 \textbf{to} k} \Comment{$O(k)$}
+        \State Ak[i] $\gets$ MultiplicarTodos(A, i) \Comment{$O(n)$}
+    \EndFor
+    \State res $\gets$ UnirOrdenados(Ak) \Comment{$O(nk log(k)) = O(nk log(n))$}
+\end{algorithmic}
+\Complexity{$O(nk log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{MultiplicarTodos}(\textbf{in} A: arreglo(nat), \textbf{in} k: nat) $\to$ \textbf{out} res: arreglo(nat)
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State res: arreglo(nat) $\gets$ CrearArreglo(n) \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+        \State res[i] $\gets$ A[i] * k
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+Primero ordenamos el arreglo de entrada A. Luego creamos $k$ arreglos en Ak, donde el arreglo en la posición i-ésima Ak[i] es el arreglo de entrada A con todos sus elementos multiplicados por $i$. A partir de este punto estamos en las mismas condiciones del ejercicio 4, tenemos un conjunto de arreglos ordenados, todos de tamaño $n$, y queremos unirlos de forma ordenada. Así que aprovechamos esa solución y simplemente usamos la función UnirOrdenados.

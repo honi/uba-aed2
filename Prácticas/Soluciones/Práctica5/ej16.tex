@@ -1,0 +1,16 @@
+\section{Ejercicio 16: raroSort}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{RaroSort}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State m $\gets$ BuscarMax(A) \Comment{$O(n)$}
+    \State d $\gets$ log(m) \Comment{Cantidad máxima de dígitos en base 2}
+    \For{i $\gets$ 0 \textbf{to} d} \Comment{$O(d) = O(log(m))$}
+        \State CountingSort(A, m, i) \Comment{$O(n+m)$, ordenamos por el i-ésimo dígito en base 2}
+    \EndFor
+\end{algorithmic}
+\Complexity{$O((n+m) log(m))$} \\
+Para revisar porque el enunciado pide $O(n log(m))$. No se si vale decir que $O(n+m) = O(n)$ en este contexto.
+\end{algorithm}

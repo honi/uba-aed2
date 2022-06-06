@@ -1,0 +1,34 @@
+\section{Ejercicio 15: tiene agujero}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{TieneAgujero}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: bool
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A) \Comment{$O(1)$}
+    \State min $\gets$ BuscarMin(A) \Comment{$O(n)$}
+    \State max $\gets$ BuscarMax(A) \Comment{$O(n)$}
+    \If{max - min + 1 $>$ n}
+        \State res $\gets$ true
+    \Else
+        \State C: arreglo(bool) $\gets$ CrearArreglo(n) \Comment{$O(n)$, elementos inicializados en false}
+        \State r $\gets$ 0
+        \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+            \State j $\gets$ A[i] - min + 1
+            \If{C[j] = true}
+                \State r $\gets$ r + 1
+            \Else
+                \State C[j] $\gets$ true
+            \EndIf
+        \EndFor
+        \State res $\gets$ max - min + 1 + r $\neq$ n
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+Que no haya agujeros en esencia es que el arreglo tenga todos números consecutivos.
+
+Sabiendo el mínimo y el máximo del arreglo podemos calcular la cantidad de números consecutivos sin repetidos: $max - min + 1$. Sea $r$ la cantidad de elementos repetidos (sin contar su aparición inicial), sabemos que hay agujeros si se cumple $max - min + 1 + r \neq n$.
+
+Para contar los repetidos hacemos algo parecido a la parte de counting de un CountingSort, en donde recorremos una vez el arreglo de entrada y vamos contando cada vez que encontramos un número repetido.

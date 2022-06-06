@@ -1,0 +1,77 @@
+\section{Ejercicio 18: radix encubierto}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarHastaN}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State CountingSort(A) \Comment{$O(n)$}
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarHastaN$^2$}(\textbf{in/out} A: arreglo(nat))
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State B: arreglo($\langle$ nat, nat $\rangle$) $\gets$ CrearArreglo(n) \Comment{$O(n)$}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+        \State B[i] $\gets$ $\langle$ A[i] mod n, A[i] div n $\rangle$
+    \EndFor
+    \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: primera componente de la tupla}
+    \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: segunda componente de la tupla}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+        \State A[i] $\gets$ B[i][1] * n + B[i][0]
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+A = [40, 25, 29, 83, 12, 50, 67, 13, 99, 76]
+B = [(0, 4), (5, 2), (9, 2), (3, 8), (2, 1), (0, 5), (7, 6), (3, 1), (9, 9), (6, 7)]
+B = [(0, 4), (0, 5), (2, 1), (3, 8), (3, 1), (5, 2), (6, 7), (7, 6), (9, 2), (9, 9)]
+B = [(2, 1), (3, 1), (5, 2), (9, 2), (0, 4), (0, 5), (7, 6), (6, 7), (3, 8), (9, 9)]
+A = [12, 13, 25, 29, 40, 50, 67, 76, 83, 99]
+\end{lstlisting}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OrdenarHastaN$^k$}(\textbf{in/out} A: arreglo(nat), \textbf{in} k: nat)
+}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State B: arreglo($\langle$ nat, $\dots$, nat $\rangle_k$) $\gets$ CrearArreglo(n) \Comment{$O(n)$, arreglo con tuplas de $k$ elementos}
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+        \For{j $\gets$ 0 \textbf{to} k-1} \Comment{$O(k)$}
+            \State B[i][j] $\gets$ (A[i] div n$^j$) mod n
+        \EndFor
+    \EndFor
+    \For{i $\gets$ 0 \textbf{to} k} \Comment{$O(k)$}
+        \State OrdenarHastaN(B) \Comment{$O(n)$, clave de ordenamiento: i-ésima componente de la tupla}
+    \EndFor
+    \For{i $\gets$ 1 \textbf{to} n} \Comment{$O(n)$}
+        \State A[i] $\gets$ 0
+        \For{j $\gets$ 0 \textbf{to} k-1} \Comment{$O(k)$}
+            \State A[i] $\gets$ A[i] + B[i][j] * n$^j$
+        \EndFor
+    \EndFor
+\end{algorithmic}
+\Complexity{$O(nk)$}
+\end{algorithm}
+
+Lo que estamos haciendo para ordenar es básicamente un RadixSort si interpretamos los números del arreglo de entrada en base $n$. En el arreglo B descomponemos el número original para obtener sus dígitos en base $n$. Como nos dicen que todos los números son positivos menores que $n^k$, la cantidad máxima de dígitos será $log_n(n^k) = k$. Luego ordenamos por el dígito menos significativo con un algoritmo estable como el CountingSort, y luego por el siguiente dígito, y así hasta el dígito k-ésimo, el más significativo.
+
+\subsection{}
+
+Si se generaliza la idea para arreglos no acotados de tamaño $n$, se podría buscar $m$ el máximo del arreglo, luego buscar el mínimo $k$ tal que $m \leq n^k$, y realizar el mismo algoritmo. Esto sólo conviene mientras $k \leq log(n)$, pues si $k > log(n)$ será más eficiente hacer un MergeSort sobre el arreglo original de entrada ya que tiene complejidad $O(n log(n))$ sin importar cuál es el máximo del arreglo.
