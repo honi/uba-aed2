@@ -21,3 +21,4 @@ if __name__ == "__main__":
     runTestCase([1, 5, 4, 7, 6])
     runTestCase([1, 3, 4, 2, 7])
     runTestCase([1, 2, 3, 5, 4])
+    runTestCase([1, 2, 4, 5, 3])

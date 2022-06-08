@@ -6,7 +6,7 @@ La clave es entender bien la precondición del arreglo que da el enunciado. Lo p
 
 Supongamos que tenemos un arreglo A ordenado de 5 elementos distintos. Sean $a_1, \dots, a_5$ los elementos de A que están en las posiciones $1, \dots, 5$. Es decir, $A \equiv a_1, a_2, a_3, a_4, a_5$.
 
-Si quisiéramos desordenar el arreglo para que cumpla con la pre, veamos cuántas posiciones son válidas para cada elemento. Es decir, en cuántos lugares podemos meter cada $a_i$ de forma tal que valga la pre. Notemos que como A está ordenada, se cumple que $a_1 \leq \dots \leq a_5$, y por lo tanto sabemos qué devuelve contarMenores para cada elemento (no importa qué elementos son exactamente). A partir de esta información podemos determinar el rango de posiciones que serían válidas para cada $a_i$ de forma tal que se cumpla la pre.
+Si quisiéramos desordenar el arreglo para que cumpla con la pre, veamos cuántas posiciones son válidas para cada elemento. Es decir, en cuántos lugares podemos meter cada $a_i$ de forma tal que valga la pre. Notemos que como A está ordenada, se cumple que $a_1 < \dots < a_5$, y por lo tanto sabemos qué devuelve contarMenores para cada elemento (no importa qué elementos son exactamente). A partir de esta información podemos determinar el rango de posiciones que serían válidas para cada $a_i$ de forma tal que se cumpla la pre.
 
 \begin{itemize}
     \item $\text{contarMenores}(A, a_1) = 0 \leq [1, 2, 3, 4, 5]$
@@ -18,7 +18,7 @@ Si quisiéramos desordenar el arreglo para que cumpla con la pre, veamos cuánta
 
 Comenzamos a desordenar los elementos de atrás hacia adelante. Observemos que $a_5$ tiene dos posiciones válidas. Fijada la posición de $a_5$, ahora $a_4$ solo tiene dos posiciones válidas, pues una la ocupamos con $a_5$. Por la misma razón, $a_3$ y $a_2$ también tienen solo dos posiciones válidas, y finalmente $a_1$ le queda una única posición libre para ubicarse y que se mantenga la pre.
 
-Para ordenar, basta recorrer el arreglo de atrás hacia adelante e ir comparando cada elemento adyacente, y si están desordenados, ordenarlos con un swap.
+Para ordenar, basta recorrer el arreglo de atrás hacia adelante e ir comparando cada elemento adyacente, y si están desordenados, ordenarlos con un swap. De esta forma vamos dejando los elementos más grandes ya ordenados y así reduciendo las posibles posiciones para los elementos más chicos.
 
 \textbf{Ejemplos de entradas válidas}
 
