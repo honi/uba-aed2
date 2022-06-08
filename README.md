@@ -8,10 +8,11 @@ Cursada: 1er cuatrimestre 2022
 - Prácticas
 
   - Práctica 1: [enunciado](Prácticas/Enunciados/Práctica1.pdf), [soluciones](Prácticas/Soluciones/Práctica1)
-  - Práctica 2: [enunciado](Prácticas/Enunciados/Práctica2.pdf), [soluciones](Prácticas/Soluciones/Práctica2.md) (incompleto)
-  - Práctica 3: [enunciado](Prácticas/Enunciados/Práctica3.pdf), [soluciones](Prácticas/Soluciones/Práctica3) (incompleto)
-  - Práctica 4: [enunciado](Prácticas/Enunciados/Práctica4.pdf), [soluciones](Prácticas/Soluciones/Práctica4) (incompleto)
-  - Práctica 5: [enunciado](Prácticas/Enunciados/Práctica5.pdf), [soluciones](Prácticas/Soluciones/Práctica5) (en curso)
+  - Práctica 2: [enunciado](Prácticas/Enunciados/Práctica2.pdf)
+  - Práctica 3: [enunciado](Prácticas/Enunciados/Práctica3.pdf)
+  - Práctica 4: [enunciado](Prácticas/Enunciados/Práctica4.pdf)
+  - Práctica 5: [enunciado](Prácticas/Enunciados/Práctica5.pdf), [soluciones](Prácticas/Soluciones/Práctica5/Práctica5.pdf), [python](Prácticas/Soluciones/Práctica5/python)
+  - Práctica 6: [enunciado](Prácticas/Enunciados/Práctica6.pdf), [soluciones](Prácticas/Soluciones/Práctica6/Práctica6.pdf), [python](Prácticas/Soluciones/Práctica6/python)
 
 - Laboratorios
 
@@ -23,6 +24,7 @@ Cursada: 1er cuatrimestre 2022
   - [Laboratorio 6](Laboratorios/labo06): Templates
   - [Laboratorio 6.2](Laboratorios/labo06.2): Iteradores
   - Laboratorio 7: Árboles ABB (taller entregable, lo subo al final del cuatrimestre)
+  - Laboratorio 8: Trie (taller entregable, lo subo al final del cuatrimestre)
 
 - Extra
 
