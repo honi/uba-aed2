@@ -1,6 +1,9 @@
 # C++
 cmake-build-debug
 
+# Python
+__pycache__
+
 # LaTeX
 *.synctex*
 *.aux
