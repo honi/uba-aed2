@@ -1,0 +1,23 @@
+\section{Ejercicio 3: potencia}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Potencia}(\textbf{in} a: nat, \textbf{in} b: nat) $\to$ \textbf{out} res: nat
+}
+\begin{algorithmic}[1]
+    \If{b = 0}
+        \State res $\gets$ 1
+    \ElsIf{b mod 2 = 0}
+        \State c $\gets$ Potencia(a, b / 2)
+        \State res $\gets$ c * c
+    \Else
+        \State c $\gets$ Potencia(a, (b - 1) / 2)
+        \State res $\gets$ c * c * a
+    \EndIf
+\end{algorithmic}
+\Complexity{} \\
+$T(b) = T(b/2) + cte$ \\
+Sea $a=1$, $c=2$, $f(b) = cte \in O(1)$ \\
+$f(b) \in \Theta(n^{log_c(a)}) = \Theta(n^{log_2(1)}) = \Theta(n^0) = \Theta(1)$ \\
+$\implies T(b) = \Theta(n^{log_c(a)} log(b)) = \Theta(log(b))$
+\end{algorithm}

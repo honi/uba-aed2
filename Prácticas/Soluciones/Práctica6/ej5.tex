@@ -1,0 +1,17 @@
+\section{Ejercicio 5: suma de potencias}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{SumaDePotencias}(\textbf{in} A: arreglo(arreglo(nat)), \textbf{in} n: nat) $\to$ \textbf{out} res: arreglo(arreglo(nat))
+}
+\Pre{n = $2^k$ para algún k: nat $\geq$ 1}
+\begin{algorithmic}[1]
+    \If{n = 1}
+        \State res $\gets$ A
+    \Else
+        \State res $\gets$ A + A * SumaDePotencias(A, n - 1)
+    \EndIf
+\end{algorithmic}
+\Complexity{O(n)} \\
+No usamos la función potencia. Este ejercicio es muy tramposo o lo hice mal.
+\end{algorithm}

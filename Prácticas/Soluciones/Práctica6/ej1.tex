@@ -1,0 +1,30 @@
+\section{Ejercicio 1: más a la izquierda}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{MasALaIzquierda}(\textbf{in} A: arreglo(nat)) $\to$ \textbf{out} res: bool
+}
+\Pre{tam(A) = $2^k$ para algún k: nat}
+\begin{algorithmic}[1]
+    \State n $\gets$ tam(A)
+    \State m $\gets$ n div 2
+    \State izq $\gets$ SubArreglo(A, 1, m) \Comment{$O(1)$}
+    \State der $\gets$ SubArreglo(A, m + 1, n) \Comment{$O(1)$}
+    \State sumaIzq $\gets$ Sumar(izq) \Comment{$O(n/2)$}
+    \State sumaDer $\gets$ Sumar(der) \Comment{$O(n/2)$}
+    \If{sumaIzq $>$ sumaDer}
+        \If{n = 2}
+            \State res $\gets$ true
+        \Else
+            \State res $\gets$ MasALaIzquierda(izq) $\land$ MasALaIzquierda(der)
+        \EndIf
+    \Else
+        \State res $\gets$ false
+    \EndIf
+\end{algorithmic}
+\Complexity{} \\
+$T(n) = 2 T(n/2) + n$ \\
+Sea $a=2$, $b=2$, $f(n) = n$ \\
+$f(n) \in \Theta(n^{log_b(a)}) = \Theta(n^{log_2(2)}) = \Theta(n)$ \\
+$\implies T(n) = \Theta(n^{log_b(a)} log(n)) = \Theta(n log(n))$
+\end{algorithm}
