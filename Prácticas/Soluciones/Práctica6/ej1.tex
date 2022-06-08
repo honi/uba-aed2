@@ -22,9 +22,10 @@
         \State res $\gets$ false
     \EndIf
 \end{algorithmic}
-\Complexity{} \\
+\Complexity{ \\
 $T(n) = 2 T(n/2) + n$ \\
 Sea $a=2$, $b=2$, $f(n) = n$ \\
 $f(n) \in \Theta(n^{log_b(a)}) = \Theta(n^{log_2(2)}) = \Theta(n)$ \\
 $\implies T(n) = \Theta(n^{log_b(a)} log(n)) = \Theta(n log(n))$
+}
 \end{algorithm}

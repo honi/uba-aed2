@@ -15,9 +15,10 @@
         \State res $\gets$ c * c * a
     \EndIf
 \end{algorithmic}
-\Complexity{} \\
+\Complexity{ \\
 $T(b) = T(b/2) + cte$ \\
 Sea $a=1$, $c=2$, $f(b) = cte \in O(1)$ \\
 $f(b) \in \Theta(n^{log_c(a)}) = \Theta(n^{log_2(1)}) = \Theta(n^0) = \Theta(1)$ \\
 $\implies T(b) = \Theta(n^{log_c(a)} log(b)) = \Theta(log(b))$
+}
 \end{algorithm}
