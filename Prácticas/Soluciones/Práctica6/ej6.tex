@@ -1,3 +1,36 @@
 \section{Ejercicio 6}
 
-Pendiente.
+ab es tupla $\langle$ izq: ab, der: ab $\rangle$
+
+mdr es tupla $\langle$ maxDistancia: nat, altura: nat $\rangle$
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{MaxDistancia}(\textbf{in} nodo: ab) $\to$ \textbf{out} res: nat
+}
+\begin{algorithmic}[1]
+    \State res $\gets$ MaxDistanciaAux(nodo).maxDistancia
+\end{algorithmic}
+\Complexity{}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{MaxDistanciaAux}(\textbf{in} nodo: ab) $\to$ \textbf{out} res: mdr
+}
+\begin{algorithmic}[1]
+    \If{nodo = nil}
+        \State res $\gets$ $\langle$ maxDistancia: 0, altura: 0 $\rangle$
+    \Else
+        \State resIzq $\gets$ MaxDistanciaAux(nodo.izq)
+        \State resDer $\gets$ MaxDistanciaAux(nodo.der)
+        \State res $\gets$ $\langle$
+        \State \;\; maxDistancia: max(resIzq.maxDistancia, resDer.maxDistancia, resIzq.altura + resDer.altura + 1),
+        \State \;\; altura: max(resIzq.altura, resDer.altura) + 1
+        \State $\rangle$
+    \EndIf
+\end{algorithmic}
+\Complexity{}
+\end{algorithm}
+
+Revisar porque este algoritmo cuenta la cantidad de nodos en vez de ejes.
