@@ -1,0 +1,82 @@
+\documentclass{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel} % Agregar es-nodecimaldot si hay problemas con el separador de decimales y de miles
+% \usepackage{noto-mono} % Tipografía "Noto Sans Mono" para monospace
+\usepackage{amsmath, amsbsy, amssymb} % Agregar cuando se necesiten: amscd, amssymb, amsthm, latexsym
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{multicol}
+\usepackage{svg}
+\usepackage{tabularx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{caption}
+\usepackage{etoolbox}
+
+% Tamaño de hoja y márgenes
+\usepackage[a4paper,top=1cm,bottom=2cm,left=1cm,right=1cm]{geometry}
+\setlength{\parindent}{0em}
+\setlength{\parskip}{1em}
+\setlength{\intextsep}{1em}
+\setlength{\abovedisplayskip}{1em}
+\setlength{\belowdisplayskip}{1em}
+\setlength{\abovedisplayshortskip}{1em}
+\setlength{\belowdisplayshortskip}{1em}
+
+% Numeración de las secciones y el índice
+\setcounter{tocdepth}{1}
+\renewcommand{\thesubsection}{\thesection.\alph{subsection}}
+
+% Color de los links externos
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=black, urlcolor=blue}
+
+% Permite math mode adentro de listings (bloques de "código")
+\usepackage{listings}
+\lstset{
+    inputencoding=utf8,
+    extendedchars=\true,
+    basicstyle=\ttfamily\small,
+    mathescape,
+    literate=%
+        {á}{{\'a}}1
+        {é}{{\'e}}1
+        {í}{{\'i}}1
+        {ó}{{\'o}}1
+        {ú}{{\'u}}1
+        {Á}{{\'A}}1
+        {É}{{\'E}}1
+        {Í}{{\'I}}1
+        {Ó}{{\'O}}1
+        {Ú}{{\'U}}1
+        {ñ}{{\~n}}1
+        {Ñ}{{\~N}}1
+}
+
+% Alias para íconos/símbolos
+\usepackage{pifont}
+\newcommand{\xmark}{\color{purple}\ding{54}}
+
+% Otros alias
+\newcommand{\xor}{\oplus}
+\newcommand{\nor}{\downarrow}
+\newcommand{\opsub}[2]{\ensuremath{#1_{\mathrm{#2}}}}
+\newcommand{\yLuego}{\opsub{\land}{\scriptscriptstyle{L}}}
+\newcommand{\oLuego}{\opsub{\lor}{\scriptscriptstyle{L}}}
+\newcommand{\implicaLuego}{\opsub{\implies}{\scriptscriptstyle{L}}}
+\renewcommand{\implies}{\Rightarrow}
+
+% Columna "x" tiene fondo amarillo
+\usepackage{colortbl}
+\newcolumntype{x}{>{\columncolor[HTML]{FFF2CC}}c}
+
+% Tipografía para los algoritmos
+\AtBeginEnvironment{algorithmic}{\small}
+
+% Saca sufijo "Algorithm X"
+\captionsetup[algorithm]{labelformat=empty}
+
+% Alias para algoritmos
+\newcommand{\Complexity}[1]{\textbf{Complejidad}: #1}
+\newcommand{\Pre}[1]{\textbf{Pre} $\equiv$ \{#1\}}
