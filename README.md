@@ -26,6 +26,11 @@ Cursada: 1er cuatrimestre 2022
   - Laboratorio 7: Árboles ABB (taller entregable, lo subo al final del cuatrimestre)
   - Laboratorio 8: Trie (taller entregable, lo subo al final del cuatrimestre)
 
+- Parciales
+
+  - 1er Parcial (2022-04-29): [enunciado + solución](Parciales/AED2-P1-2022-04-29.pdf)
+  - 2do Parcial (2022-06-10): [enunciado + solución](Parciales/AED2-P1-2022-06-10.pdf)
+
 - Extra
 
   - [Valgrind + MacOS](Laboratorios/valgrind-mac)
