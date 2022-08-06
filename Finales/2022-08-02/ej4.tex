@@ -1,0 +1,25 @@
+\section{Ejercicio 4}
+
+¿Qué pasa si en hashing doble $h_1$ es una constante o si $h_2$ es una constante?
+
+Hashing doble es una forma de direccionamiento abierto, en donde todas las claves van a parar adentro de la hash table $T$, obteniendo la posición de la siguiente forma:
+
+$h(k, i) = (h_1(k) + i h_2(k)) \text{ mod } |T|$
+
+Partiendo de una tabla $T$ vacía, al insertar la primer clave la función de hash se ejecuta con $i=0$, y en efecto solo utilizamos la función de hash $h_1$ para determinar la posición de esa clave en $T$.
+
+\textbf{$h_1$ constante}
+
+$h(k, i) = (c + i h_2(k)) \text{ mod } |T|$
+
+Cualquier otra clave que insertemos produce una colisión cuando $i=0$ ya que $c = h_1$ es una constante (no depende de la clave siendo insertada). Por lo tanto, la posición resultante en $T$ estará dada exclusivamente por la función de hash $h_2$ multiplicada por $i$ (el número de iteración del barrido).
+
+\textbf{$h_2$ constante}
+
+$h(k, i) = (h_1(k) + ic) \text{ mod } |T|$
+
+Cuando insertamos una nueva clave, si en el primer barrido con $i=0$ tenemos una colisión, los siguientes barridos con $i>0$ van a generar un barrido lineal ya que $c = h_2$ es una constante. El valor de $c$ determinará el salto producido entre cada barrido.
+
+\textbf{Conclusión}
+
+Si utilizamos una constante para $h_1$ o $h_2$ en una función de hashing doble, en esencia lo que sucede es que degradamos la función a un hashing simple. En el caso $h_1$ constante el barrido no necesariamente será lineal (depende de la función $h_1$), mientras que en el caso $h_2$ constante sí podemos asegurar que el barrido será lineal, aunque el salto entre barridos puede ser distinto de $1$ (estará determinado por la constante $h_2$ y el número de barrido $i$).

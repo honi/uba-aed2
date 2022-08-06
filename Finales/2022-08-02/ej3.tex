@@ -1,0 +1,37 @@
+\section{Ejercicio 3}
+
+Implementar el algoritmo Floyd usando la técnica Divide \& Conquer. Dado un árbol completo $T$, se debe retornar un árbol $H$ con los mismos elementos que $T$, pero que cumpla el invariante heap. Se puede asumir que ya tiene implementados \lstinline{SiftDown} y \lstinline{SiftUp} con la complejidad adecuada. Dar la complejidad y justificar.
+
+Planteamos el algoritmo para un max heap. El caso para min heap es análogo.
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{BuildMaxHeap}(\textbf{in} T: árbol) $\to$ \textbf{out} H: árbol
+}
+\begin{algorithmic}[1]
+    \If{T.size $\leq$ 1}
+        \State H $\gets$ T \Comment{Un árbol de un solo nodo (o ninguno) ya es un heap}
+    \Else
+        \State H.root $\gets$ T.root
+        \State H.left $\gets$ BuildMaxHeap(T.left)
+        \State H.right $\gets$ BuildMaxHeap(T.right)
+        \State SiftDown(H) \Comment{O(log(n))}
+    \EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\textbf{Complejidad}
+
+Utilizamos el teorema maestro para calcular la complejidad.
+
+$T(n) = 2T(n/2) + f(n)$
+
+Sea $a=2$, $b=2$, $f(n) = \text{SiftDown}(n) = O(log(n))$.
+
+Veamos si $f(n) = O(n^{log_b(a) - \epsilon})$ para algún $\epsilon > 0$.
+
+Tomando $\epsilon = 0.5 \implies O(n^{log_b(a) - \epsilon}) = O(n^{log_2(2) - 0.5}) = O(n^{0.5}) = O(\sqrt{n})$.
+
+Como $f(n) = O(log(n)) \subset O(\sqrt{n}) \implies T(n) = \Theta(n^{log_b(a)}) = \Theta(n)$ por el caso 1 del teorema maestro.
+
+La complejidad de BuildMaxHeap resulta $\Theta(n)$.

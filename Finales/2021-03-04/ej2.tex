@@ -1,0 +1,47 @@
+\section{Ejercicio 2}
+
+operacion es tupla $\langle$ diaCompra: nat, diaVenta: nat $\rangle$
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OptimizarOperación}(\textbf{in} s: arreglo(nat)) $\to$ \textbf{out} res: operacion
+}
+\begin{algorithmic}[1]
+    \State res $\gets$ OptimizarOperaciónAux(s, 1, tam(s))
+\end{algorithmic}
+\Complexity{$O(n log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{OptimizarOperaciónAux}(\textbf{in} s: arreglo(nat), \textbf{in} low: nat, \textbf{in} high: nat) $\to$ \textbf{out} res: operacion
+}
+\begin{algorithmic}[1]
+    \If{high - low = 0}
+        \State res $\gets$ $\langle$ diaCompra: low, diaVenta: low $\rangle$
+    \Else
+        \State mid $\gets$ (low + high) / 2
+        \State opIzq $\gets$ OptimizarOperaciónAux(s, low, mid)
+        \State opDer $\gets$ OptimizarOperaciónAux(s, mid + 1, high)
+        \State opMid $\gets$ $\langle$ diaCompra: BuscarMinPrecio(s, low, mid), diaVenta: BuscarMaxPrecio(s, mid+1, high) $\rangle$
+        \If{Ganancia(s, opIzq) $>$ Ganancia(s, opMid) $\land$ Ganancia(s, opIzq) $>$ Ganancia(s, opDer)}
+            \State res $\gets$ opIzq
+        \ElsIf{Ganancia(s, opMid) $>$ Ganancia(s, opDer)}
+            \State res $\gets$ opMid
+        \Else
+            \State res $\gets$ opDer
+        \EndIf
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(n log(n))$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{Ganancia}(\textbf{in} s: arreglo(nat), \textbf{in} o: operacion) $\to$ \textbf{out} res: nat
+}
+\begin{algorithmic}[1]
+    \State res $\gets$ s[o.diaVenta] - s[o.diaCompra]
+\end{algorithmic}
+\Complexity{$O(1)$}
+\end{algorithm}

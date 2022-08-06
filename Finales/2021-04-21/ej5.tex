@@ -1,0 +1,37 @@
+\section{Ejercicio 5}
+
+\subsection{}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{CalcularMínimos}(\textbf{in} a: ABB(nat)) $\to$ \textbf{out} res: lista(tupla $\langle$ nat, nat $\rangle$ )
+}
+\begin{algorithmic}[1]
+    \State res $\gets$ CrearLista() \Comment{$O(1)$}
+    \If{a $\neq$ nil}
+        \State CalcularMínimosAux(a, res) \Comment{$O(n)$}
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(n)$}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{CalcularMínimosAux}(\textbf{in} a: ABB(nat), \textbf{in/out} res: lista(tupla $\langle$ nat, nat $\rangle$ )) $\to$ \textbf{out} minNodo: nat
+}
+\begin{algorithmic}[1]
+    \State minNodo $\gets$ a.clave
+    \If{a.izq $\neq$ nil}
+        \State minNodo $\gets$ CalcularMínimosAux(a.izq, res)
+    \EndIf
+    \State AgregarAtras(res, $\langle$ a.clave, minNodo $\rangle$)
+    \If{a.der $\neq$ nil}
+        \State CalcularMínimosAux(a.der, res)
+    \EndIf
+\end{algorithmic}
+\Complexity{$O(n)$ pues se visita exactamente 1 vez cada nodo del árbol.}
+\end{algorithm}
+
+\subsection{}
+
+Si el árbol estuviese balanceado (por ejemplo es un AVL), la complejidad sería la misma ya que sigue siendo necesario visitar 1 vez cada nodo para calcular el mínimo de ese subárbol.

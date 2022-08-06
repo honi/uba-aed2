@@ -1,0 +1,72 @@
+\section{Ejercicio 1}
+
+\subsection{}
+
+\begin{itemize}
+    \item \textbf{Los productos comprados son válidos}: Todos los productos de todas las compras son claves definidas del diccionario \lstinline{productos1} (los productos comprados se identifican por código). La vuelta no es necesaria porque es válido tener productos definidos que jamas fueron vendidos.
+    \item \textbf{Las cantidades compradas son válidas}: Todas las cantidades de todas las compras deben ser mayor o igual a 1.
+    \item \textbf{La cantidad total de ventas por producto se corresponde con las ventas registradas}: La cantidad total de ventas de un producto en particular es la suma de la cantidad vendida de ese producto entre todas las compras de todas las personas. A su vez debe valer la vuelta, todos los productos vendidos deben estar definidos en el diccionario \lstinline{ventas_por_prod}.
+    \item \textbf{El mapeo entre el código del producto y su nombre es biyectivo}: El diccionario \lstinline{productos1} debe ser el inverso de \lstinline{productos2} (las claves pasan a ser significados). Necesitamos que todos los códigos mapeen a su nombre y que todos los nombres mapeen a su código.
+\end{itemize}
+
+\begin{lstlisting}
+Rep: estr $\rightarrow$ bool
+Rep(e) $\equiv$ true $\iff$ (
+    ComprasVálidasYContabilizadas(e)
+    $\land$ VentasPorProductoVálidas(e)
+    $\land$ e.productos1 =obs InvertirDicc(e.productos2)
+)
+
+ComprasVálidasYContabilizadas: estr $\rightarrow$ bool
+ComprasVálidasYContabilizadas(e) $\equiv$ true $\iff$ (
+    ($\forall$p: persona)(p $\in$ claves(e.compras) $\implies$ (
+        ($\forall$c: compra)(c $\in$ obtener(p, e.compras) $\implies$ (
+            c.cant $\geq$ 1
+            $\land$ def?(c.cod_prod, e.productos1)
+            $\land$ def?(c.cod_prod, e.ventas_por_prod)
+        ))
+    ))
+)
+
+VentasPorProductoVálidas: estr $\rightarrow$ bool
+VentasPorProductoVálidas(e) $\equiv$ true $\iff$ (
+    ($\forall$cp: cod_prod)(cp $\in$ claves(e.ventas_por_prod) $\implies$ (
+        obtener(cp, e.ventas_por_prod) = ContarVentas(cp, e.compras)
+    ))
+)
+
+ContarVentas: cod_prod $\times$ dicc(persona $\rightarrow$ conj(compra)) $\rightarrow$ nat
+Sea p = dameUno(claves(d))
+Sea cs = obtener(p, d)
+ContarVentas(cp, d) $\equiv$
+    if vacío?(claves(d)) then
+        0
+    else
+        ContarVentasAux(cp, cs) + ContarVentas(cp, borrar(p, d))
+    fi
+
+ContarVentasAux: cod_prod $\times$ conj(compra) $\rightarrow$ nat
+Sea c = dameUno(cs)
+ContarVentasAux(cp, cs) $\equiv$
+    if vacío?(cs) then
+        0
+    else
+        if c.cod_prod = cp then c.cant else 0 fi + ContarVentasAux(cp, sinUno(cs))
+    fi
+
+InvertirDicc: dicc(K $\rightarrow$ V) $\rightarrow$ dicc(V $\rightarrow$ K)
+Sea k = dameUno(claves(d))
+Sea v = obtener(k, d)
+InvertirDicc(d) $\equiv$
+    if vacío?(claves(d)) then
+        vacío
+    else
+        definir(v, k, InvertirDicc(borrar(k, d)))
+    fi
+\end{lstlisting}
+
+\subsection{}
+
+El diccionario \lstinline{productos1} mapea el código de producto a su nombre. Los códigos seguramente tengan una cota ya que no hay infinitos productos en un supermercado. Por lo tanto se podría representar el diccionario con un HashTable para que las operaciones sean $O(1)$. Si la cota resulta demasiado grande y los códigos no son densos (hay muchos códigos sin usar), pero se determina que un porcentaje alto de ellos sí son densos y tienen una cota más chica, se podría representar el diccionario con 2 estructuras: un HashTable para los códigos densos el cuál se usa únicamente si el código es inferior a la cota, y caso contrario el resto de los códigos se colocan en un árbol AVL donde las operaciones resultan $O(log(m))$ donde $m$ es la cantidad de productos que tienen un código que supera la cota.
+
+El diccionario \lstinline{productos2} mapea el nombre del producto a su código. En este caso podríamos representar el diccionario con un Trie ya que esta estructura es eficiente para operar con claves de tipo string. En el peor caso, las operaciones tendrían una complejidad de $O(log(k))$ donde $k$ es el nombre de producto más largo.

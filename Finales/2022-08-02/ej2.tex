@@ -1,0 +1,34 @@
+\section{Ejercicio 2}
+
+Explicar qué algoritmos de sorting pueden pararse en medio de un ordenamiento y tienen resultados parciales ordenados.
+
+\textbf{SelectionSort}
+
+Después de procesar $x$ elementos, efectivamente tenemos los primeros $x$ elementos ya en su posición final en el arreglo ordenado. Si miramos el inviarante de este algoritmo se puede ver fácilmente que vale la propiedad, pues el invariante justamente nos dice que en la iteración i-ésima, el arreglo está ordenado desde su inicio hasta la posición i-ésima.
+
+\textbf{InsertionSort}
+
+Este caso es similar al SelectionSort, excepto que si frenamos después de procesar $x$ elementos, solo podemos garantizar que esos elementos están ordenados relativamente entre sí. No necesariamente corresponden a los primeros $x$ elementos del arreglo ordenado, ya que en futuras iteraciones podemos encontrar algún elemento el cual es swapeado hasta el inicio del arreglo si resulta que es menor que todos los $x$ elementos ya ordenados.
+
+\textbf{HeapSort}
+
+Si se frena el algoritmo durante la etapa inicial de armado del heap a partir del arreglo de entrada, no podemos garantizar nada. Una vez armado el heap, podemos dar ciertas garantías dependiendo del tipo de HeapSort. Suponiendo que frenamos después de procesar $x$ elementos:
+
+\begin{itemize}
+    \item HeapSort ``in place'' (memoria constante), orden ascendente: Los $x$ elementos más \textbf{grandes} van a estar en sus posiciones correctas en el final del arreglo.
+    \item HeapSort ``in place'' (memoria constante), orden descendente: Los $x$ elementos más \textbf{chicos} van a estar en sus posiciones correctas en el final del arreglo.
+    \item HeapSort con memoria adicional, orden ascendente: Los $x$ elementos más \textbf{chicos} van a estar en sus posiciones correctas en el comienzo del arreglo secundario donde se arma el resultado.
+    \item HeapSort con memoria adicional, orden descendente: Los $x$ elementos más \textbf{grandes} van a estar en sus posiciones correctas en el comienzo del arreglo secundario donde se arma el resultado.
+\end{itemize}
+
+\textbf{MergeSort}
+
+No podemos obtener un resultado parcial si frenamos en el medio.
+
+\textbf{QuickSort}
+
+No podemos obtener un resultado parcial si frenamos en el medio.
+
+\textbf{CountingSort}
+
+Si frenamos durante la etapa de counting, no podemos garantizar nada. Pero si frenamos durante la etapa de armado del resultado final, después de procesar $x$ elementos efectivamente vamos a tener los primeros $x$ elementos ordenados.

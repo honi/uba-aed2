@@ -1,0 +1,43 @@
+\section{Ejercicio 1}
+
+Explicar cómo afecta en el diseño que un TAD sea inconsistente, sobreespecificado y subespecificado.
+
+\textbf{Inconsistente}
+
+Un TAD es inconsistente cuando la axiomatización de alguna operación produce distintos resultados para la misma entrada. Recordemos que las axiomatizaciones no se ``evalúan'' en orden. Es decir, valen todos los axiomas al mismo tiempo para todas las posibles combinaciones de argumentos de entrada (no existe una evaluación secuencial top-down de los axiomas).
+
+Por ejemplo, esta axiomatización produce una inconsistencia ya que la secuencia de entrada \lstinline{3 $\bullet$ S} es evaluada en ambos axiomas, pero uno devuelve 21 y el otro 3.
+
+\begin{lstlisting}
+operacion(3 $\bullet$ S) $\equiv$ 21
+operacion(a $\bullet$ S) $\equiv$ a
+\end{lstlisting}
+
+Es por esto que conviene axiomatizar las operaciones de forma tal que los conjuntos de entradas para cada axioma sean disjuntos (si se axiomatiza sobre los generadores y son minimales, ésto sucede automáticamente). Si un TAD es inconsistente, entonces es imposible diseñar sus algoritmos ya que no sabemos cuál es el resultado correcto para la operación que generó la inconsistencia.
+
+\textbf{Sobreespecificado}
+
+Un TAD está sobreespecificado si tenemos varias formas de obtener el resultado de una operación para una determinada entrada. Es decir, tenemos axiomas ``de más''. Esto es legal siempre y cuando el TAD sea consistente (llegamos al mismo resultado utilizando cualquier combinación de axiomas).
+
+Por ejemplo, esta axiomatización está sobreespecificada pero es consistente. Con solo el segundo axioma sería suficiente.
+
+\begin{lstlisting}
+operacion(3 $\bullet$ S) $\equiv$ 3
+operacion(a $\bullet$ S) $\equiv$ a
+\end{lstlisting}
+
+El problema principal de sobreespecificar es que el TAD puede resultar confuso. Siempre conviene mantener los axiomas lo más minimal posible, y que haya una única forma inequívoca de aplicar los axiomas para obtener el resultado de alguna operación.
+
+También sobreespecificamos cuando en nuestro TAD utilizamos algún otro tipo de dato que tiene ciertos comportamientos no relevantes para nuestro problema. Por ejemplo, si estamos modelando un carrito de supermercado que contiene productos, éstos podrían ser una secuencia o un conjunto. ¿Cuál conviene usar? Si usamos una secuencia estamos dándole un orden a los productos, pero si no importa el orden conviene usar un conjunto para permitir en el etapa de diseño más opciones de estructuras.
+
+\textbf{Subespecificado}
+
+Existen varias formas de subespecificar. La más común sucede cuando restringimos el dominio de alguna operación. Por definición de un TAD, todas las operaciones son totales (están definidas en todo su dominio). No obstante, es común que ciertas operaciones simplemente no tengan sentido para un subconjunto del dominio, ya sea porque es imposible determinar el resultado (por ejemplo dividir por 0) o porque no son casos relevantes en el contexto de uso (por ejemplo una operación que recibe como argumento un monto de dinero podría solo tener sentido si el monto es $\geq 0$).
+
+Cuando aplicamos una restricción sobre el dominio de una operación, lo que estamos haciendo es recortar el dominio a los valores relevantes para nuestro problema, y solo considerar esos valores en los axiomas, sin decir qué pasa con los valores restringidos. Esto simplifica la axiomatización. Durante la etapa de diseño, se debe decidir qué hacer al recibir una entrada restringida. Se podría simplemente no hacer nada si la operación se puede realizar de todas formas, o se fuerza cierto valor válido (si el monto era $< 0$ lo consideramos como 0), o podemos implementar programación defensiva y chequear si la entrada está restringida y en ese caso devolver un error.
+
+Similar al caso anterior, otra forma de subespecificar es no axiomatizar para ciertas entradas pero sin poner una restricción. Esto es un problema porque no sabemos cuál es el resultado para esas operaciones, y por lo tanto sería imposible diseñar los algoritmos del TAD.
+
+Hay otra forma de subespecificar que es más sutil pero muy útil. Sirve para posponer la definición de algunos aspectos funcionales de las operaciones hasta la etapa de diseño e implementación. Cuando estamos escribiendo un TAD, hay partes del problema que quizás no tenemos definición aún, pero que tampoco son indispensables para modelar el comportamiento.
+
+Por ejemplo, supongamos que estamos modelando un examen final de AED2 el cual se toma de forma oral, y tenemos una operación para llamar al siguiente alumno al aula. Durante el modelado no sabemos aún qué criterio se va a utilizar para llamar a los alumnos. Podría ser alfabético, por DNI, por LU, etc. Si en la axiomatización de llamar al siguiente alumno hacemos algo así: \lstinline{prim(ordenarAlfabeticamente(alumnosQueRinden))} estamos preescribiendo exactamente la forma en que se llaman a los alumnos. Pero aún no sabemos cuál es el criterio! Podemos entonces intencionalmente subespecificar el problema y decir \lstinline{dameUno(alumnosQueRinden)} para luego definir el criterio exacto durante la implementación.
