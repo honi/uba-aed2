@@ -1,0 +1,33 @@
+\section{Ejercicio 7: AVL Sort}
+
+Se usa el operador [] para buscar/obtener las claves (elementos de A) que están en el diccionario. Al acceder a una clave se devuelve su significado (repeticiones) si está definida. Caso contrario, se define automáticamente inicializando el significado en el valor default de su tipo de datos (en este caso al ser Nat, inicializamos en 0).
+
+Las operaciones sobre el AVL cuestan $O(log(d))$, con d = elementos únicos de A.
+
+El iterador del diccionario recorre el AVL \emph{inOrder} produciendo las claves ordenadas de menor a mayor en $O(d)$. La suma de todas las repeticiones es $n$.
+
+\begin{algorithm}[H]
+\caption{
+    \textbf{AVLSort}(
+        \textbf{in/out} A: arreglo(nat)
+    )
+}
+\begin{algorithmic}[1]
+    \State D: diccAVL(nat, nat) $\gets$ Vacio() \Comment{$O(1)$}
+    \For{i $\gets$ 1 \textbf{to} tam(A)} \Comment{$O(n log(d))$}
+        \State D[A[i]] $\gets$ D[A[i]] + 1 \Comment{$O(log(d))$}
+    \EndFor
+    \State i $\gets$ 1 \Comment{$O(1)$}
+    \State it $\gets$ CrearIt(D) \Comment{$O(1)$}
+    \While{HaySiguiente(it)} \Comment{$O(n)$}
+        \State e $\gets$ SiguienteClave(it) \Comment{$O(1)$}
+        \State r $\gets$ SiguienteSignificado(it) \Comment{$O(1)$}
+        \While{r $>$ 0} \Comment{$O(r)$}
+            \State A[i] $\gets$ e \Comment{$O(1)$}
+            \State i $\gets$ i + 1 \Comment{$O(1)$}
+            \State r $\gets$ r - 1 \Comment{$O(1)$}
+        \EndWhile
+    \EndWhile
+\end{algorithmic}
+\Complexity{$O(n log(d))$}
+\end{algorithm}

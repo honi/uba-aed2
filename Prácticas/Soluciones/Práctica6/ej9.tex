@@ -1,3 +1,72 @@
-\section{Ejercicio 9}
+\section{Ejercicio 9: i-ésimo merge}
 
-Pendiente.
+\begin{algorithm}[H]
+\caption{
+    \textbf{IesimoMerge}(
+        \textbf{in} A: arreglo(nat),
+        \textbf{in} B: arreglo(nat),
+        \textbf{in} i: nat
+    ) $\to$ \textbf{out} res: nat
+}
+\begin{algorithmic}[1]
+    \State izq $\gets$ 1
+    \State der $\gets$ tam(A)
+    \State res $\gets$ 0
+    \While{izq $<$ der $\land$ res $=$ 0}
+        \State mid $\gets$ izq + floor((der - izq) / 2)
+        \State posInsercion $\gets$ BuscarPosInsercion(B, A[mid])
+        \State iMerge $\gets$ mid + posInsercion
+        \If{iMerge = i}
+            \State res $\gets$ mid
+        \ElsIf{iMerge $<$ i}
+            \State der $\gets$ mid - 1
+        \Else
+            \State izq $\gets$ mid + 1
+        \EndIf
+    \EndWhile
+    \If{res $\neq$ 0}
+        \State res $\gets$ A[res]
+    \Else
+        \State res $\gets$ IesimoMerge(B, A, i)
+    \EndIf
+\end{algorithmic}
+\Complexity{}
+\end{algorithm}
+
+\begin{algorithm}[H]
+    \caption{
+        \textbf{BuscarPosInsercion}(
+            \textbf{in} A: arreglo(nat),
+            \textbf{in} e: nat
+        ) $\to$ \textbf{out} res: nat
+    }
+\begin{algorithmic}[1]
+    \State izq $\gets$ 1
+    \State der $\gets$ tam(A)
+    \While{izq $<$ der}
+        \State mid $\gets$ izq + floor((der - izq) / 2)
+        \If{e $<$ A[mid]}
+            \State der $\gets$ mid - 1
+        \Else
+            \State izq $\gets$ mid + 1
+        \EndIf
+    \EndWhile
+    \State res $\gets$ izq
+\end{algorithmic}
+\Complexity{}
+\end{algorithm}
+
+\textbf{Ejemplo de ejecución}
+
+\begin{lstlisting}
+IesimoMerge([1, 3, 5], [2, 4, 6], 5)
+    M = Merge([1, 3, 5], [2, 4, 6]) = [1, 2, 3, 4, 5, 6]
+    M[5] = 5
+IesimoMerge([1, 2, 3, 4, 5], [6, 7, 8, 9, 10], 2)
+    M = Merge([1, 2, 3, 4, 5], [6, 7, 8, 9, 10]) = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    M[2] = 2
+\end{lstlisting}
+
+i = 5
+[1, 2, 3, 4, 5]
+[6, 7, 8, 9, 10]
