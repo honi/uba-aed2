@@ -1,1 +1,11 @@
 \section*{Ejercicio 5}
+
+\begin{itemize}
+    \item Los axiomas del TAD Empresa están axiomatizados sobre sus propios generadores pero también sobre el generador del TAD Empleado. Esto rompe el encapsulamiento, lo correcto sería utilizar una instancia genérica \lstinline{e: Empleado} en los axiomas del TAD Empresa.
+    \item Faltan los observadores \lstinline{edad} y \lstinline{legajo} en el TAD Empleado. Sin ellos, es imposible de axiomatizar correctamente las operaciones \lstinline{suma_edades} y \lstinline{legajo} del TAD Empresa.
+    \item Al \lstinline{crear} una empresa no se indica el auto que tienen los empleados iniciales. El observador \lstinline{que_auto_tiene?} solo va a poder devolver el auto de los empleados que llegaron después de haber creado la empresa.
+    \item La operación \lstinline{legajo} en el TAD Empresa debería tener una restricción pidiendo que el empleado pertenezca a los empleados de la empresa.
+    \item Las operaciones \lstinline{suma_edades} y \lstinline{legajo} del TAD Empresa no son observadores básicos, deberían ser otras operaciones. Esta información ya se puede obtener con el observador \lstinline{empleados} pues éste devuelve un conjunto de instancias del TAD Empleado.
+    \item La axiomatización de \lstinline{empleados} sobre el generador \lstinline{llega_empleado} no está agregando el nuevo empleado al conjunto de empleados existentes.
+    \item En el TAD Empresa hay una inconsistencia con el nombre de la operación \lstinline{que_auto_trajo?} y \lstinline{que_auto_tiene?}. Claramente son la misma operación pero se debe respetar el mismo nombre.
+\end{itemize}

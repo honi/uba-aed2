@@ -1,1 +1,20 @@
 \section*{Ejercicio 3}
+
+La notación $O-\Omega-\Theta$ permite caracterizar la complejidad algorítmica asintótica en función del tamaño de la entrada. Esto es muy conveniente para comparar distintos algoritmos de forma justa en el contexto de una máquina ``ideal'', es decir, descartamos el impacto de performance de la máquina real en donde corren los algoritmos. A su vez, analizamos su performance en el límite cuando la entrada tiende hacia el infinito. No nos interesa caracterizar los algoritmos de forma general usando entradas pequeñas, ya que en esos casos el impacto de un algoritmo ineficiente es muchísimo menor, más aún con la performance de las computadoras modernas.
+
+Sea $f = n^2 + 2n + 8$. Para caracterizar la complejidad asintótica solo miramos el término de mayor grado.
+
+La notación $O$ (``Big O'') indica una cota superior para el comportamiento asintótico de una función. Es decir, la tasa de crecimiento de la función es igual o menor que la de la cota. Por ejemplo, podemos afirmar que $f$ es $O(n^2)$, como así también generalizarlo a que $f$ es $O(n^c)$ donde $c \geq 2$.
+
+La notación $\Omega$ indica una cota inferior para el comportamiento asintótico de una función. Es decir, la tasa de crecimiento de la función es igual o mayor que la de la cota. Por ejemplo, podemos afirmar que $f$ es $\Omega(n^2)$, como así también generalizarlo a que $f$ es $\Omega(n^c)$ donde $c \leq 2$.
+
+La notación $\Theta$ indica una cota ``exacta'' para el comportamiento asintótico de una función. Es decir, la tasa de crecimiento de la función está acotada por arriba y por abajo, $\pm$ una constante (pueden ser distintas). Sea $g(n)$ una función, si probamos que $f$ es $O(g(n))$ y $\Omega(g(n))$ entonces probamos que f es $\Theta(g(n))$. En el ejemplo planteado, como $f$ es $O(n^2)$ y $\Omega(n^2)$, podemos concluir que $f$ es $\Theta(n^2)$.
+
+Muchos algoritmos se comportan distinto según la entrada (no solo su tamaño, sino alguna otra característica). Simplemente por cómo funciona el algoritmo, a veces sucede que es más eficiente para cierto tipo de entradas. Es por esto que usualmente usamos estas notaciones aclarando si la entrada es el ``peor caso'', ``mejor caso'' o ``caso promedio'', los cuales se definen a partir de las particularidades de cada algoritmo.
+
+Ejemplos:
+
+\begin{itemize}
+    \item InsertionSort tiene complejidad $O(n^2)$ en el peor caso, el cual sucede cuando la entrada esta ordenada en reverso. Sin embargo, en el mejor caso, cuando la entrada ya está ordenada, la complejidad resulta $\Theta(n)$ pues el ciclo interno no realiza ningún trabajo y en efecto solo recorremos el arreglo de izquierda a derecha una sola vez con el ciclo externo. De forma general debemos caracterizar a este algoritmo como $O(n^2)$.
+    \item SelectionSort tiene complejidad $O(n^2)$ en el peor caso, pero también es $\Omega(n^2)$ en el mejor caso (por más que el elemento ya está en su lugar correcto, el algoritmo recorre hasta el final para ver si hay algún otro elemento menor), y por lo tanto concluimos que tiene complejidad $\Theta(n^2)$ en el caso promedio.
+\end{itemize}
