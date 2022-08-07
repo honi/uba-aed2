@@ -1,6 +1,6 @@
-\section{Ejercicio 1}
+\section*{Ejercicio 1}
 
-\subsection{}
+\subsection*{a)}
 
 \begin{itemize}
     \item \textbf{Los productos comprados son válidos}: Todos los productos de todas las compras son claves definidas del diccionario \lstinline{productos1} (los productos comprados se identifican por código). La vuelta no es necesaria porque es válido tener productos definidos que jamas fueron vendidos.
@@ -65,8 +65,10 @@ InvertirDicc(d) $\equiv$
     fi
 \end{lstlisting}
 
-\subsection{}
+\subsection*{b)}
 
-El diccionario \lstinline{productos1} mapea el código de producto a su nombre. Los códigos seguramente tengan una cota ya que no hay infinitos productos en un supermercado. Por lo tanto se podría representar el diccionario con un HashTable para que las operaciones sean $O(1)$. Si la cota resulta demasiado grande y los códigos no son densos (hay muchos códigos sin usar), pero se determina que un porcentaje alto de ellos sí son densos y tienen una cota más chica, se podría representar el diccionario con 2 estructuras: un HashTable para los códigos densos el cuál se usa únicamente si el código es inferior a la cota, y caso contrario el resto de los códigos se colocan en un árbol AVL donde las operaciones resultan $O(log(m))$ donde $m$ es la cantidad de productos que tienen un código que supera la cota.
+El diccionario \lstinline{productos1} mapea el código de producto a su nombre. Como el enunciado dice que la cantidad de productos no está acotada, podemos asumir que consecuentemente los códigos tampoco están acotados. Una primer opción podría ser representar este diccionario con un AVL donde las operaciones resultan $O(log(n))$ donde $n = |\text{productos1}|$.
 
-El diccionario \lstinline{productos2} mapea el nombre del producto a su código. En este caso podríamos representar el diccionario con un Trie ya que esta estructura es eficiente para operar con claves de tipo string. En el peor caso, las operaciones tendrían una complejidad de $O(log(k))$ donde $k$ es el nombre de producto más largo.
+Si logramos encontrar una cota $m$ para los códigos de producto tal que un porcentaje alto de ellos tienen un código $\leq m$ se podría representar el diccionario con 2 estructuras: un HashTable para los códigos $\leq m$ que permitiría realizar las operaciones clásicas en $O(1)$, y caso contrario el resto de los códigos se colocan en el AVL donde las operaciones resultan $O(log(n))$ donde $n$ es la cantidad de productos que tienen un código $> m$.
+
+El diccionario \lstinline{productos2} mapea el nombre del producto a su código. En este caso podríamos representar el diccionario con un Trie ya que esta estructura es eficiente para operar con claves de tipo string. En el peor caso, las operaciones tendrían una complejidad de $O(log(k))$ donde $k$ es el nombre de producto que estamos buscando, insertando o borrando.
