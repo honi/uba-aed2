@@ -1,0 +1,187 @@
+\subsection{Módulo Servidor}
+
+\begin{Interfaz}
+
+\textbf{se explica con}: \tadNombre{Servidor}
+
+\textbf{géneros}: \TipoVariable{servidor}
+
+{\textbf{\large Operaciones básicas}}
+
+\InterfazFuncion{NuevoServidor}{}{servidor}
+{$res \igobs nuevoServidor()$}
+[$O(1)$]
+[Crea un nuevo servidor sin ninguna ciudad.]
+
+\InterfazFuncion{NuevaCiudad}{\Inout{srv}{servidor}, \In{n}{Nombre}, \In{m}{mapa}}{}
+[$srv_0 = srv \land n \notin claves(ciudades(srv))$]
+{$srv \igobs nuevaCiudad(srv_0, n, m)$}
+[$O(|n|) + O(SimCity.NuevoSimCity)$]
+[Crea una nueva ciudad identificada por nombre en el servidor.]
+
+\InterfazFuncion{AvanzarTurno}{\Inout{srv}{servidor}, \In{n}{Nombre}, \In{cs}{dicc(pos, construccion)}}{}
+[$srv_0 = srv \\
+\tab \land n \in claves(ciudades(srv)) \\
+\tab \land \neg(\exists m: nombre)(n \in uniones(srv, m)) \\
+\tab \yluego construccionesValidas(obtener(n, ciudades(srv)), cs)$]
+{$srv \igobs avanzarTurno(srv_0, n, cs)$}
+[$O(|n|) + O(SimCity.AvanzarTurno)$]
+[Avanza el turno de la ciudad identificada por nombre construyendo las casas y comercios en sus posiciones indicadas en $cs$. Recordemos que $O(AvanzarTurno)$ del módulo SimCity tiene complejidad $O(1)$ cuando se construye una única casa o comercio ya que $\#claves(cs) = 1$. Por lo tanto, en ese caso, la complejidad de esta operación en el servidor resulta $O(|n|)$.]
+
+\InterfazFuncion{UnirCiudades}{\Inout{srv}{servidor}, \In{n1}{Nombre}, \In{n2}{Nombre}}{}
+[$srv_0 = srv \\
+\tab \land n1 \neq n2 \\
+\tab \land \{n1, n2\} \subseteq claves(ciudades(srv)) \\
+\tab \land \neg(\exists m: nombre)(n1 \in uniones(srv, m)) \\
+\tab \yluego unionValida(obtener(n1, ciudades(srv)), obtener(n2, ciudades(srv)))$]
+{$srv \igobs unirCiudades(srv_0, n1, n2)$}
+[$O(max\{|n1|, |n2|\}) + O(SimCity.Unir)$]
+[Une la ciudad identificada por n2 a la ciudad identificada por n1.]
+[La instancia identificada por n1 pasa a tener una referencia no modificable a la instancia identificada por n2.]
+
+\InterfazFuncion{Ciudades}{\In{srv}{servidor}}{conj(Nombre)}
+{$res \igobs claves(ciudades(srv))$}
+[$O(\#ciudades(srv))$]
+[Devuelve todos los nombres de las ciudades que están en el servidor.]
+
+\InterfazFuncion{Mapa}{\In{srv}{servidor}, \In{n}{Nombre}}{mapa}
+[$n \in claves(ciudades(srv))$]
+{$res \igobs mapa(obtener(n, ciudades(srv)))$}
+[$O(|n|) + O(SimCity.Mapa)$]
+[Devuelve el mapa de la ciudad identificada por nombre.]
+
+\InterfazFuncion{Casas}{\In{srv}{servidor}, \In{n}{Nombre}}{dicc(pos, nivel)}
+[$n \in claves(ciudades(srv))$]
+{$res \igobs casas(obtener(n, ciudades(srv)))$}
+[$O(|n|) + O(SimCity.Casas)$]
+[Devuelve las casas de la ciudad identificada por nombre.]
+
+\InterfazFuncion{Comercios}{\In{srv}{servidor}, \In{n}{Nombre}}{dicc(pos, nivel)}
+[$n \in claves(ciudades(srv))$]
+{$res \igobs comercios(obtener(n, ciudades(srv)))$}
+[$O(|n|) + O(SimCity.Comercios)$]
+[Devuelve los comercios de la ciudad identificada por nombre.]
+
+\InterfazFuncion{Popularidad}{\In{srv}{servidor}, \In{n}{Nombre}}{Nat}
+[$n \in claves(ciudades(srv))$]
+{$res \igobs popularidad(obtener(n, ciudades(srv)))$}
+[$O(|n|) + O(SimCity.Popularidad)$]
+[Devuelve la popularidad de la ciudad identificada por nombre.]
+
+\InterfazFuncion{Turnos}{\In{srv}{servidor}, \In{n}{Nombre}}{Nat}
+[$n \in claves(ciudades(srv))$]
+{$res \igobs turnos(obtener(n, ciudades(srv)))$}
+[$O(|n|) + O(SimCity.Turnos)$]
+[Devuelve el turno (antigüedad) de la ciudad identificada por nombre.]
+
+\end{Interfaz}
+
+\begin{Representacion}
+
+El servidor funciona como un 'proxy' a los SimCitys que contiene. Todas las operaciones de un SimCity son ejecutadas únicamente desde el servidor.
+
+Las ciudades que maneja el servidor son guardadas en un diccionario que mapea el nombre de la ciudad con su respectiva instancia SimCity. Este diccionario se implementa con la estructura de datos Trie para poder garantizar que todas las operaciones del diccionario (definir, obtener, pertenece, borrar, etc) tengan complejidad, en peor caso, $O(|nombre|)$, donde nombre es el nombre del SimCity más largo que contiene el servidor. A su vez, dado un nombre $n$ con el cual estamos realizando alguna de las operaciones del diccionario antes mencionadas, la complejidad exacta sería $\Theta(|n|)$.
+
+\begin{Estructura}{servidor}[estr]
+    \begin{Tupla}[estr]
+        \tupItem{ciudades}{diccTrie(nombre, simcity)}%
+    \end{Tupla}
+\end{Estructura}
+
+\Rep[estr]{true}
+
+~
+
+\Abs[estr]{servidor}[e]{s}{
+    e.ciudades \igobs ciudades(srv)
+}
+\end{Representacion}
+
+~
+
+\begin{Algoritmos}
+
+\begin{algorithm}[H]{\textbf{NuevoServidor}() $\to$ \Out{res}{servidor}}
+\begin{algorithmic}[1]
+    \State res.ciudades $\gets$ Vacio() \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(1)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{NuevaCiudad}(\Inout{srv}{servidor}, \In{n}{nombre}, \In{m}{mapa})}
+\begin{algorithmic}[1]
+    \State Definir(srv.ciudades, n, NuevoSimCity(m)) \Comment $O(|n|) + O(NuevoSimCity)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(NuevoSimCity)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{AvanzarTurno}(\Inout{srv}{servidor}, \In{n}{nombre}, \In{cs}{dicc(pos, construccion)})}
+\begin{algorithmic}[1]
+    \State s $\gets$ Significado(srv.ciudades, n) \Comment $O(|n|)$
+    \State AvanzarTurno(s, cs) \Comment $O(AvanzarTurno)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(AvanzarTurno)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{UnirCiudades}(\Inout{srv}{servidor}, \In{n1}{nombre}, \In{n2}{nombre})}
+\begin{algorithmic}[1]
+    \State s1 $\gets$ Significado(srv.ciudades, n1) \Comment $O(|n1|)$
+    \State s2 $\gets$ Significado(srv.ciudades, n2) \Comment $O(|n2|)$
+    \State Unir(s1, s2) \Comment $O(Unir)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n1| + |n2|) + O(Unir) = O(max\{|n1|, |n2|\}) + O(Unir)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Ciudades}(\In{srv}{servidor}) $\to$ \Out{res}{conj(nombre)}}
+\begin{algorithmic}[1]
+    \State res $\gets$ Vacio() \Comment $O(1)$
+    \State itCiudades $\gets$ CrearIt(srv.ciudades) \Comment $O(1)$
+    \While {HaySiguiente(itCiudades)} \Comment{O(\#srv.ciudades)}
+        \State nombre $\gets$ SiguienteClave(itCiudades) \Comment $O(1)$
+        \State AgregarRapido(res, nombre) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#srv.ciudades)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Mapa}(\In{srv}{servidor}, \In{n}{nombre}) $\to$ \Out{res}{mapa}}
+\begin{algorithmic}[1]
+    \State s $\gets$ Significado(srv.ciudades, n) \Comment $O(|n|)$
+    \State res $\gets$ Mapa(s) \Comment $O(Mapa)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(mapa)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Casas}(\In{srv}{servidor}, \In{n}{nombre}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\begin{algorithmic}[1]
+    \State s $\gets$ Significado(srv.ciudades, n) \Comment $O(|n|)$
+    \State res $\gets$ Casas(s) \Comment $O(Casas)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(Casas)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Comercios}(\In{srv}{servidor}, \In{n}{nombre}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\begin{algorithmic}[1]
+    \State s $\gets$ Significado(srv.ciudades, n) \Comment $O(|n|)$
+    \State res $\gets$ Comercios(s) \Comment $O(Comercios)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(Comercios)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Popularidad}(\In{srv}{servidor}, \In{n}{nombre}) $\to$ \Out{res}{nat}}
+\begin{algorithmic}[1]
+    \State s $\gets$ Significado(srv.ciudades, n) \Comment $O(|n|)$
+    \State res $\gets$ Popularidad(s) \Comment $O(Popularidad)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(Popularidad)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Turnos}(\In{srv}{servidor}, \In{n}{nombre}) $\to$ \Out{res}{nat}}
+\begin{algorithmic}[1]
+    \State s $\gets$ Significado(srv.ciudades, n) \Comment $O(|n|)$
+    \State res $\gets$ Turnos(s) \Comment $O(Turnos)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(|n|) + O(Turnos)$
+\end{algorithm}
+
+\end{Algoritmos}

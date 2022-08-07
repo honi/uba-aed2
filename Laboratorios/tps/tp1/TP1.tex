@@ -1,0 +1,50 @@
+\documentclass[]{aed2-tp}
+
+\usepackage[spanish]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{aed2-tad,aed2-itef,aed2-symb,aed2-diseno}
+\usepackage{algorithmicx,algpseudocode,algorithm}
+\usepackage{xcolor}
+\usepackage{multicol}
+\usepackage{minted}
+\usepackage{caratula}
+
+\setlength{\parindent}{0em}
+
+\begin{document}
+
+\titulo{Trabajo Práctico 1}
+\subtitulo{SimCity}
+\fecha{\today}
+\materia{Algoritmos y Estructuras de Datos 2}
+\integrante{Ivo Córdoba}{906/21}{cordobaivo33@gmail.com}
+\integrante{Ramiro Sanchez Posadas}{796/21}{rsanchezposadas2001@gmail.com}
+\integrante{Martino Simon}{374/21}{martinosimon@gmail.com}
+\integrante{Jonathan Bekenstein}{348/11}{jbekenstein@dc.uba.ar}
+
+\maketitle
+\tableofcontents
+
+\newpage
+
+\section{Especificación}
+\input{especificacion/renombres.tex}
+\input{especificacion/pos.tex}
+\input{especificacion/mapa.tex}
+\input{especificacion/simcity.tex}
+\input{especificacion/servidor.tex}
+
+\newpage
+
+\section{Módulos de referencia}
+\input{modulos/mapa.tex}
+\input{modulos/simcity.tex}
+\input{modulos/servidor.tex}
+
+\newpage
+
+\section{Notas}
+\input{notas.tex}
+
+\end{document}

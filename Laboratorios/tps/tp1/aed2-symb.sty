@@ -1,0 +1,110 @@
+% $Id: algo2symb.sty,v 1.1 2007-03-22 00:23:45 gsteren Exp $
+% Informacion sobre el package para el sistema
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aed2-symb}[2004/04/17 - Para componer simbolitos frecuentemente usados en AED2]
+
+% Imprimir un mensajito al procesar un .tex que use este package
+\typeout{Cargando package 'aed2-symb'}
+
+% Antes que nada, cargamos el paquete RCS.
+\RequirePackage{rcs}
+
+\RCSdate $Date: 2007-03-22 00:23:45 $
+\RCS $Revision: 1.1 $
+% La versión del documento.
+\newcommand{\version}{\RCSRevision\ }
+
+% Aseguremonos de cargar los packages de la AMS
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{xspace}% xspace sirve para no tener que poner \ al final de las macros.
+\RequirePackage{xargs}%multiples parametros opcionales.
+
+
+% Redefinimos \implies para que use la flecha corta
+\renewcommand\implies{\DOTSB \;\Rightarrow \;}
+% Algo parecido para el <=>
+\newcommand{\ssi}{\ensuremath{\Longleftrightarrow}\xspace}
+
+% Macro general para componer un operador con subindice sin cursiva
+\newcommand\opsub[2]{\ensuremath{#1_{\mathrm{#2}}}}
+
+% Constantes true y false.
+\newcommand{\true}{\ensuremath{\mathit{true}}}
+\newcommand{\false}{\ensuremath{\mathit{false}}}
+
+% Conectivos logicos con "luego"
+\newcommand\yluego{\opsub{\land}{\scriptscriptstyle{L}}}
+\newcommand\oluego{\opsub{\lor}{\scriptscriptstyle{L}}}
+\newcommand\impluego{\opsub{\Rightarrow}{\scriptscriptstyle{L}}}
+
+% Simbolos del TAD Secu
+\newcommand\secuvacia{\ensuremath{<>}}
+\newcommand\puntito{\ensuremath{\bullet}\xspace}
+\newcommand\circulito{\ensuremath{\circ}\xspace}
+
+% Para hacer una secuencia del tipo a * b * <>.
+% El parametro es la secuencia {a,b}
+\newcommandx{\secuencia}[2][2=\secuvacia]{%
+  \edef\@SinProcesar{#1}%
+  \whiledo{\not\equal{\@SinProcesar}{}}{%
+    \GetTokens[,]{@Elem}{@Resto}{\@SinProcesar}%
+    \@Elem\ \puntito%
+    \let\@SinProcesar=\@Resto%
+  }%
+  #2%\secuvacia%
+}
+
+% Complejidad
+\newcommand\Ode[1]{\ensuremath{O(#1)}}
+%\newcommand\ode[1]{\ensuremath{o(#1)}}
+%\newcommand\Omegade[1]{\ensuremath{\Omega(#1)}}
+%\newcommand\Thetade[1]{\ensuremath{\Theta(#1)}}
+
+% Para operador = con subindice que no debe ir en cursiva
+\newcommand\igsub[1]{\opsub{=}{#1}}
+
+% En particular, la igualdad observacional se usa mucho
+\newcommand\igobs{\igsub{obs}\xspace}
+
+% Para indicar la presencia de un argumento en notacion infija o sufija
+\newcommand\argumento{\ensuremath{\bullet}\xspace}
+
+% Macro para la flecha del dominio a la imagen de las funciones.
+\newcommand\en{\ensuremath{\rightarrow}\xspace}
+% Macro para la flecha de asignación, en pseudocódigo.
+\newcommand{\asig}{\ensuremath{\leftarrow}\xspace}
+
+% Macros para los if_then_else_fi.
+% \newcommand{\lif}{\textrm{\textbf{if}}\ }
+% \newcommand{\lthen}{\ \textrm{\textbf{then}}\ }
+% \newcommand{\lelse}{\ \textrm{\textbf{else}}\ }
+% \newcommand{\lfi}{\ \textrm{\textbf{fi}}\ }
+
+% Recuadro.
+% \newcommand{\recuadrar}[1]{\framebox{\parbox{0.9\textwidth}{#1}}}
+
+% Macro para los rotulitos de los axiomas.
+\newcommand{\ax}[1]{\ensuremath{\textrm{ax}_{\textrm{#1}}}}
+
+% Macro para "es equivalente por".
+\newcommand{\eqpor}[1]{\ensuremath{\ \underset{#1}{\equiv}}\ }
+
+% La 'N' de los naturales.
+% \newcommand{\N}{{\rm I\!N}\xspace} \mathbb{N}
+
+% Simbolito de "cuidado".
+\newcommand{\cuidado}{{\LARGE $\Delta$\!\!\!}{\small !}\ \xspace}
+
+% El sombrerito.
+% \newcommand{\sombrerito}{ \ensuremath{\widehat{ }} \xspace}
+
+% Macro para "alfa" que anda tanto en math mode como fuera de él
+% \newcommand\alfa{\ensuremath{\alpha}}
+
+% Macro para "de alfa" (incluyendo paréntesis)
+% \newcommand\dealfa{\ensuremath{(\alpha)}}
+
+% Macro para componer los "para todo" y "existe" en notación con dos puntos (sin paréntesis)
+\newcommand\paratodo[2]{$\forall #2$: #1}
+\newcommand\existe[2]{$\exists #2$: #1}

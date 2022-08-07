@@ -1,0 +1,100 @@
+\subsection{TAD Servidor}
+
+\begin{tad}{\tadNombre{Servidor}}
+\tadIgualdadObservacional{srv}{srv'}{servidor}{
+    ciudades(srv) \igobs ciudades(srv')
+}
+
+\tadGeneros{servidor}
+\tadExporta{servidor, generadores, observadores}
+\tadUsa{SimCity, Mapa, Pos, Nat, Bool, Construccion, nombre, Conjunto, Diccionario}
+
+\tadObservadores
+\tadAlinearFunciones{ciudades}{servidor}
+\tadOperacion{ciudades}{servidor}{dicc(nombre, simcity)}{}
+
+\tadGeneradores
+\tadAlinearFunciones{agregarComercio}{servidor/srv, nombre/n, dicc(pos, construccion)/cs}
+
+\tadOperacion{nuevoServidor}{}{servidor}{}
+\tadOperacion{nuevaCiudad}{servidor/srv, nombre/n, mapa/m}{servidor}{$\neg$ nombreEnUso(srv, n)}
+\tadOperacion{avanzarTurno}{servidor/srv, nombre/n, dicc(pos, construccion)/cs}{servidor}{
+    nombreEnUso(srv, n)
+    $\land$ $\neg$($\exists$ m: nombre)(n $\in$ uniones(srv, m)) \\
+    $\yluego$ construccionesValidas(dameCiudad(srv, n), cs)
+}
+\tadOperacion{unirCiudades}{servidor/srv, nombre/n1, nombre/n2}{servidor}{
+    nombreEnUso(srv, n1)
+    $\land$ nombreEnUso(srv, n2)
+    $\land$ n1 $\neq$ n2 \\
+    $\land$ n1 $\notin$ uniones(srv, n2)
+    $\land$ $\neg$($\exists$ m: nombre)(n1 $\in$ uniones(srv, m)) \\
+    $\yluego$ unionValida(dameCiudad(srv, n1), dameCiudad(srv, n2))
+}
+
+\tadOtrasOperaciones
+\tadAlinearFunciones{nombreEnUso}{servidor/srv, nombre/n}
+\tadOperacion{nombreEnUso}{servidor, nombre}{bool}{}
+\tadOperacion{dameCiudad}{servidor/srv, nombre/n}{simcity}{nombreEnUso(srv, n)}
+\tadOperacion{uniones}{servidor/srv, nombre/n}{conj(nombre)}{}
+
+\tadAxiomas
+    [\paratodo{servidor}{srv1, srv2},
+    \paratodo{nombre}{n, n1, n2},
+    \paratodo{mapa}{m},
+    \paratodo{pos}{p}]
+
+\tadAlinearAxiomas{ciudades(unirCiudades(srv, n1, n2))}
+\tadAxioma{ciudades(nuevoServidor())}{
+    vacio
+}
+\tadAxioma{ciudades(nuevaCiudad(srv, n, m))}{
+    definir(n, iniciar(m), ciudades(srv))
+}
+\tadAxioma{ciudades(avanzarTurno(srv, n, cs))}{
+    definir( \\
+        \tab n, \\
+        \tab avanzarTurno(dameCiudad(srv, n), cs), \\
+        \tab ciudades(srv) \\
+    )
+}
+\tadAxioma{ciudades(unirCiudades(srv, n1, n2))}{
+    definir( \\
+        \tab n1, \\
+        \tab unir(dameCiudad(srv, n1), dameCiudad(srv, n2)), \\
+        \tab ciudades(srv) \\
+    )
+}
+
+\vspace{1em}
+\tadAlinearAxiomas{nombreEnUso(srv, n)}
+\tadAxioma{nombreEnUso(srv, n)}{
+    n $\in$ claves(ciudades(srv))
+}
+\tadAxioma{dameCiudad(srv, n)}{
+    obtener(n, ciudades(srv))
+}
+
+\vspace{1em}
+\tadAlinearAxiomas{uniones(unirCiudades(srv, n1, n2), n)}
+\tadAxioma{uniones(nuevoServidor(), n)}{
+    $\emptyset$
+}
+\tadAxioma{uniones(nuevaCiudad(srv, n1, m), n)}{
+    uniones(srv, n)
+}
+\tadAxioma{uniones(avanzarTurno(srv, n1, cs), n)}{
+    uniones(srv, n)
+}
+\tadAxioma{uniones(unirCiudades(srv, n1, n2), n)}{
+    \IFV{
+        n $\igobs$ n1
+    }THEN{
+        Ag(n2, uniones(srv, n)) $\cup$ uniones(srv, n2)
+    }
+    ELSE{
+        uniones(srv, n)
+    }FI
+}
+
+\end{tad}

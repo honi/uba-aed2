@@ -1,0 +1,517 @@
+% **************************************************************************
+%
+%  Package TAD --- versión LaTeX ---  Algoritmos y Estructuras de Datos II
+%
+% **************************************************************************
+%
+% Paquete de TADs, completamente reescrito de TeX a LaTeX.  A pesar de ser
+% mas ineficiente, es mucho mas facil de mantener por los docentes de la
+% Catedra que en general conocemos bastante de LaTeX y poco de Tex.  Ademas
+% hay muchos paquetes de LaTeX que simplifican bastante la vida.
+%
+% Usar en compañía de aed2-itef para los if then else fi.
+% **************************************************************************
+
+
+% Información sobre el package para el sistema
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{aed2-tad}[2011/04/04 - Para especificar TADs en formato AED2]
+\RequirePackage{ifthen}% ifthenelse.
+\RequirePackage{calc}% cuentas faciles
+\RequirePackage{aed2-tokenizer}% GetTokens (ver package Tokenizer y leer comentarios en el paquete aed2-tokenizer)
+\RequirePackage{xargs}%multiples parametros opcionales.
+\RequirePackage{xspace}%espacios al final de comandos
+
+% Imprimir un mensajito al procesar un .tex que use este package
+\PackageInfo{aed2-tad}{Cargando package 'tad' (04/04/2011)}
+
+% **************************************************************************
+%   Parámetros y comandos que permiten ajustar el aspecto final de los TADs
+% **************************************************************************
+
+% Margen para el TAD. Todos los títulos y encabezados,
+% excepto el primero y el último, llevan esta sangría.
+\newlength{\tadMargen}\setlength{\tadMargen}{2em}
+
+% Margen secundario. Las funciones y axiomas llevan esta sangría,
+% es decir que estan a \tadMargen + \tadSubMargen del borde izq.
+% Si esto vale cero, las funcs y axiomas quedan al mismo nivel
+% que los títulos en negrita del TAD.
+%\newdimen\tadSubMargen\tadSubMargen=1em
+\newlength{\tadSubMargen}\setlength{\tadSubMargen}{1em}
+
+% El ancho del encabezado más largo, donde 'encabezado' se refiere
+% a los títulos usa, exporta, generos, etc.  Esto sirve para que el
+% texto a la derecha de estos encabezados quede alineado.
+\newlength{\tadAnchoEncabezados}\setlength{\tadAnchoEncabezados}{6em}
+
+% Espacio vertical extra antes de cada título o encabezado.
+% Este skip se adiciona al parskip standard. Afecta a todos
+% los títulos y encabezados, pero no a las funcs ni axiomas.
+\newlength{\tadSeparacionTitulos}\setlength{\tadSeparacionTitulos}{4pt}
+
+% Separación antes y después de la flechita y del : (en las funcs)
+\newlength{\tadSeparacionFunciones}\setlength{\tadSeparacionFunciones}{6pt}
+
+% Cantidad de espacio reservado para el nombre de una función (es decir, el
+% máximo ancho que tendrá la función de nombre más largo). Esto permite que
+% los símbolos ':' queden alineados. Si es cero (default), no alinear.
+\newlength{\tadAnchoNombreFunciones}\setlength{\tadAnchoNombreFunciones}{0cm}
+
+% Cantidad de espacio reservado para el tipo de una función (en particu-
+% lar, entiendase aquí 'tipo' como los argumentos que recibe la función,
+% por ejemplo 'persona x nat a x nat b'). Esto permite que las flechitas
+% queden alineadas. Si es cero (default), no alinear.
+\newlength{\tadAnchoTipoFunciones}\setlength{\tadAnchoTipoFunciones}{0cm}
+
+% Separación antes y después del equivalente (en axiomas)
+\newlength{\tadSeparacionAxiomas}\setlength{\tadSeparacionAxiomas}{6pt}
+
+% Tipo de flechita a usar
+\newcommand{\tadFlecha}{\ensuremath{\longrightarrow}}
+
+% Cantidad de espacio reservado para la parte izquierda de los axiomas.
+% Este valor tiene dos propositos.  Primero, permite alinear los signos 
+% de equivalencia. Segundo, si la parte izquierda de un axioma es mas
+% larga que este valor, entonces se escribe la axiomatizacion en el siguiente
+% reglon, alineada de acuerdo a este valor.
+% Si este valor es cero (default), no se intentará ninguna alineacion.
+%
+\newlength{\tadAnchoIzquierdaAxioma}\setlength{\tadAnchoIzquierdaAxioma}{0pt}
+
+% \tadAlinearFunciones{<NombreLargo>}{<MuchosMuchosArgumentos>}
+%    Esta macro permite setear rápidamente los valores de
+%    \tadAnchoNombreFunciones y \tadAnchoTipoFunciones
+%    usando texto en lugar de medidas numéricas.
+%
+\newcommand{\tadAlinearFunciones}[2]{%
+    \settominwidth{\tadAnchoNombreFunciones}{#1}%
+    \settominwidth{\tadAnchoTipoFunciones}{\tadTipoFuncion{#2}}%
+}
+
+\newcommand{\tadNoAlinearFunciones}{%
+    \setlength{\tadAnchoNombreFunciones}{0cm}%
+    \setlength{\tadAnchoTipoFunciones}{0cm}%
+}
+% \tadAlinearFunciones{<ladoIzquierdoLargo>}
+%    Esta macro permite setear rápidamente el valor de \tadAnchoIzquierdaAxioma
+%    usando texto en lugar de medidas numéricas.
+%
+\newcommand{\tadAlinearAxiomas}[1]{%
+  \settominwidth{\tadAnchoIzquierdaAxioma}{#1~~}%
+}
+
+% **************************************************************************
+%   Comandos para escribir en el texto
+% **************************************************************************
+
+% \tadNombre{x} escribe x como el nombre de un TAD
+\newcommand{\tadNombre}[1]{%
+  \textsc{#1}%
+}
+
+% \tadNombreFuncion{x} escribe x en el texto como si fuera el nombre de una funcion
+\newcommand{\tadNombreFuncion}[1]{%
+  \textit{#1}\xspace%
+}
+
+
+% **************************************************************************
+%   Comandos auxiliares utiles
+% **************************************************************************
+
+\newcommand{\tad@titskip}{\vspace*{\tadSeparacionTitulos}}
+\newcommand{\tad@funcskip}{\hspace*{\tadSeparacionFunciones}}
+\newcommand{\tad@axiskip}{\hspace*{\tadSeparacionAxiomas}}
+
+%indica si estamos dentro del environment TAD.  Esto sirve para agergar los
+%margenes y submargenes
+\newboolean{tad@TADenvironment}\setboolean{tad@TADenvironment}{false}
+
+\newcommand{\ifthen}[2]{\ifthenelse{#1}{#2}{}}
+
+%guarda el parindent viejo para reestablecerlo.  No usar mas de una vez.
+\newlength{\tad@oldparindent}
+\newcommand{\tad@parindent}[1]{%
+    \setlength{\tad@oldparindent}{\parindent}%
+    \setlength{\parindent}{#1}%
+}
+
+% \settominwidth[<ancho maximo>]{<dimension>}{<Texto \\ con varias lineas>}
+%     Como el settowidth, pero que funciona tambien con \\.
+%     El parametro opcional permite definir un ancho maximo.
+%     Esta funcion esta pensada para ser usada solamente en modo texto
+%
+% TODO: tratar de usar el paquete pbox
+%
+\newcommand{\settominwidth}[3][0cm]{%
+    %el tabular con @{} permite eliminar todos el espacio adicional.
+    \settowidth{#2}{\begin{tabular}{@{}l@{}}#3\end{tabular}}%
+    \ifthen{\lengthtest{0pt<#1}\and\lengthtest{#1<#2}}{\setlength{#2}{#1}}%
+}
+
+% \pbox[ctb][<ancho maximo>]{<texto>}
+%     Crea un \parbox[c] cuyo tamaño se ajusta al contenido del texto.
+%     El parametro <ancho maximo> permite especificar un tamaño maximo.
+%     A diferencia de \parbox, \pbox funciona en modo matematico, saliendo
+%     del modo matematico y escribiendo el <texto>.
+%
+% TODO: tratar de usar el paquete pbox
+%
+\newlength{\pbox@len}%
+\newcommandx{\pbox}[3][1=c, 2=0cm]{%
+    \def\pbox@Text##1{##1}%
+    \ifmmode%
+        \def\pbox@Text##1{\text{##1}}%
+    \fi%
+    \pbox@Text{%
+        \settominwidth[#2]{\pbox@len}{#3}%
+        \parbox[#1]{\pbox@len}{#3}%
+    }%
+}
+
+% \tad@ifFitsElse{<texto>}{<dimension>}{<iftrue>}{<iffalse>}
+%     Revisa si <texto> entra en una caja de ancho <dimension>.  En caso afirmativo,
+%     escribe <iftrue>; caso constrario escribe <iffalse>.
+%
+\newlength{\tad@ifFitsElse@largo}
+\newcommand{\tad@ifFitsElse}[4]{%
+    \settominwidth{\tad@ifFitsElse@largo}{#1}%
+    \ifthenelse{\lengthtest{#2>\tad@ifFitsElse@largo}}{#3}{#4}%
+}
+
+% \tad@ifFitsElse{<texto>}{<dimension>}{<iftrue>} 
+%     es renombre de \tad@ifFitsElse{<texto>}{<dimension>}{<iftrue>}{}
+\newcommand{\tad@ifFits}[3]{%
+    \tad@ifFitsElse{#1}{#2}{#3}{}%
+}
+
+
+% **************************************************************************
+%   Macros que implementan las distintas componentes del TAD
+% **************************************************************************
+
+% ------- Apertura del TAD -------------------------------------------------
+% \tad@comienzo[<preambulo>]{<nombre TAD>}
+%     Compone el título "TAD <nombre TAD>". El <preambulo> puede utilizarse para realizar
+%     inicializaciones que afecten sólo al entorno del TAD, sin afectar los
+%     otros entornos.  Por ejemplo, \tad@comienzo[\small]{pepe} permite obtener 
+%     un TAD donde el tamaño de la fuente es \small.
+%
+\newcommand{\tad@comienzo}[2][]{%
+    \setboolean{tad@TADenvironment}{true}
+    #1% preambulo
+    \tad@titskip%
+    \par%
+    \noindent \textbf{TAD} #2%
+    \par%
+    \tad@parindent{\tadMargen}% margen exterior
+}
+
+
+% ------- Clausura del TAD -------------------------------------------------
+% \tad@fin
+%     Compone el título "Fin TAD" y restaura los parametros globales que fueron
+%    tocados.
+%
+\newcommand{\tad@fin}{%
+    \setboolean{tad@TADenvironment}{false}
+    \tad@titskip%
+    \par%
+    \noindent \textbf{Fin TAD}\hfil%
+    \par%  
+    \tad@titskip%
+    \setlength{\parindent}{\tad@oldparindent}%restauro el parindent
+}
+
+
+% ------- Encabezado (con texto a derecha) ---------------------------------
+% \tadEncabezadoInline{<título>}{<texto>}
+%     Compone un <título> en negrita con cierta cantidad de <texto> (que puede
+%     ocupar varias líneas) a su derecha. Para usa, exporta, generos, etc.
+%     Si el <titulo> ocupa mas que \tadAnchoEncabezados, entonces se escribe
+%     el <titulo> en una linea y el <texto> en la siguiente, dejando el ancho 
+%     de alineacion.
+%
+\newcommand{\tadEncabezadoInline}[2]{%
+    \tad@titskip%
+    \setlength{\hangindent}{\tadAnchoEncabezados + \parindent}%
+    \tad@ifFitsElse{#1}{\tadAnchoEncabezados}{%
+        \parbox{\tadAnchoEncabezados}{\textbf{#1}}#2%
+    }{%
+        \textbf{#1}\\#2%
+    }%
+}
+
+% \tadEncabezado{<titulo>}{<texto>}
+%     idem \tadEncabezadoinline, pero en un nuevo parrafo.
+\newcommand{\tadEncabezado}[2]{%
+    \par\tadEncabezadoInline{#1}{#2}\par%
+}
+
+% ------- La igualdad observacional -----------------------------------------------
+% \tadIgualdadObservacional{<n>}{<m>}{<género>}{<condiciones de igualdad>}
+%     Escribe el encabezado "igualdad observacional" y luego escribe la igualdad
+%     observacional.  Este comando debe usarse cuando la igualdad se define paratodo
+%     <n> <m> de tipo <genero>.  
+%     Las variables <n> y <m> se escribiran en modo matematico, mientras
+%     que <genero> y las <condiciones de igualdad> se escriben en modo texto.
+%
+
+\newlength{\igualobs@pre} %cuanto ocupa la parte del ``para todo n, m: genero, etc''
+\newlength{\igualobs@max} %cuanto es el maximo espacio para las condiciones de igualdad
+\newcommand{\tadIgualdadObservacional}[4]{%
+    %cargamos las variables de longitud
+    \settominwidth{\igualobs@pre}{$(\forall #1, #2: \text{#3})~(~#1 \igobs #2 \ssi~~~~~~~~~~$}%
+    \setlength{\igualobs@max}{\textwidth - \tadAnchoEncabezados - \parindent - \igualobs@pre}%
+    %escribimos la igualdad.
+    \tadEncabezado{igualdad observacional}{%
+        $(\forall #1, #2: \text{#3})~\left(%
+           #1 \igobs #2 \ssi%
+           \left(\pbox[c][\igualobs@max]{#4}\right)%
+        \right)$%
+    }%
+}
+
+%
+% \tadIgualdadObservacionalSimple{<condiciones de igualdad>}
+%     Escribe el encabezado "igualdad observacional" y luego escribe la igualdad
+%     observacional.  Este comando debe usarse cuando la igualdad se decribe por
+%     extension, como para bool.
+%     Las variables <n> y <m> se escribiran en modo matematico, mientras
+%     que <genero> y las <condiciones de igualdad> se escriben en modo texto.
+%
+\newlength{\igualobssimple@max} %cuanto es el maximo espacio para las condiciones de igualdad
+\newcommand{\tadIgualdadObservacionalSimple}[1]{%
+  \setlength{\igualobssimple@max}{\textwidth - \tadAnchoEncabezados - \parindent}%
+  \tadEncabezado{igualdad observacional}{$\left(\pbox[c][\igualobssimple@max]{#1}\right)$}%
+}
+
+% ------- Los tres encabezados standard ------------------------------------
+%
+% \tadUsa{<tipos usados>}, \tadExporta{<funciones exportadas>}, \tadGeneros{<nuevos generos>}, etc.
+%
+\newcommand{\tadUsa}[1]{\tadEncabezado{usa}{#1}}
+\newcommand{\tadExporta}[1]{\tadEncabezado{exporta}{#1}}
+\newcommand{\tadGeneros}[1]{\tadEncabezado{g\'eneros}{#1}}
+
+% ------- Títulos adicionales ------------------------------------
+%
+% \tadExtiende{<tipo extendido>}, \tadParametrosFormales{<params>}
+%
+\newcommand{\tadExtiende}[1]{\tadEncabezado{extiende}{#1}}
+\newcommand{\tadParametrosFormales}[1]{\tadEncabezado{par\'ametros formales}{#1}}
+
+
+% ------- El título para 'axiomas' -----------------------------------------
+%
+% \tadAxiomas[<cuantificación de las variables>]
+%
+\newcommand{\tadAxiomas}[1][]{\tadEncabezado{axiomas}{#1}}
+
+
+% ------- título simple ----------------------------------------------------
+%
+% \tad@titulo{<título>}
+%     Compone un título simple en negrita sin nada a su derecha. Esto es para
+%     implementar títulos como 'observadores básicos', 'generadores', etc.
+%
+\newcommand{\tadTitulo}[1]{\vspace*{\tadSeparacionTitulos}\par{\textbf{#1}}\par}
+
+
+% ------- Los tres títulos standard ----------------------------------------
+	% \tadObservadores, \tadGeneradores, \tadOtrasOperaciones
+%
+\newcommand{\tadObservadores}{\tadTitulo{observadores b\'asicos}{}}
+\newcommand{\tadGeneradores}{\tadTitulo{generadores}{}}
+\newcommand{\tadOtrasOperaciones}{\tadTitulo{otras operaciones}{}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ------- MACROS PARA LAS FUNCIONES ----------------------------------------
+
+
+% ------- Parseo de aridades (listas de argumentos) de funciones -----------
+%
+% \tadTipoFuncion{<descripcion tipo>}
+%     Formatea el tipo de la funcion de acuerdo a la <descripcion tipo>. El 
+%     parametro <descripcion tipo> tiene el siguiente formato:
+%         <tipo1>[/<valor1>],<tipo2>[/<valor2>],...,<tipoN>[/>valorN>].
+%     Este comando, transforma <descripcion tipo> en el siguiente texto:
+%         <tipo1> [$<valor1>$] $\times$ <tipo2> [$<valor2>$] $times$ ... <tipoN> [$<valorN>$].
+%    
+%     Por ejemplo, si el input es {fulano/f,nat,bool/b}, entonces el output
+%     del comando es 'fulano $f$ x nat x bool $b$'.
+%
+%     Importante: no debe haber comas dentro de <tipoI>, <valorI> para ningun 1 <= I <= N, ya que
+%                 se reemplazan por $\times$.
+%                 De ser necesaria la inclusion de comas, estas deberian guardarse en un bloque.
+%                 Por ejemplo, si se escribe tupla(a, b), se obtienen tupla(a \times b), mientras
+%                 que si se escribe tupla(a{,} b) o {tupla(a, b)}, se obtiene tupla(a, b).
+%
+%     El proposito del comando es formar tipos, como {banco b, banco c},
+%     donde la cant. de params es arbitrariamente larga. El tipo de cada param
+%     es obligatorio, pero el nombre de la instancia es opcional.
+%
+\newcommand{\tadTipoFuncion}[1]{%
+    \@trimSpaces{\@SinProcesar}{ #1}% el espacio aca es para que trim spaces no haga cambie la agrupacion de #1!!!
+    \whiledo{\not\equal{\@SinProcesar}{}}{%
+        \GetTokens[,]{@Param}{@Cola}{\@SinProcesar}%
+        \GetTokens[/]{@Tipo}{@Valor}{\@Param}%
+        %
+        \@Tipo%
+        \ifthen{\not\equal{\@Valor}{}}{\ \ensuremath{\@Valor}}%
+        \ifthen{\not\equal{\@Cola}{}}{\ $\times$\ }%
+        \let\@SinProcesar=\@Cola%
+    }%
+}
+
+%
+% \@trimSpaces#1#2
+%
+% define en el macro #1 el valor que se obtiene de quitar los espacios de #2.
+\def\@trimSpaces#1#2{%
+  \edef\@Temp{#2}
+  \edef#1{}%
+  %este es el comando que se encarga de borrar los espacios.
+  \def\@@trimSpaces##1 ##2\@empty{%
+    \edef#1{#1##1}%
+    \ifthen{\not\equal{##2}{}}{\expandafter\@@trimSpaces##2\@empty}%
+  }%
+  \expandafter\@@trimSpaces\@Temp{} \@empty%
+}
+
+% ------- Macro para componer la signatura de una función ---------------------
+% \tadOperacionInline{<nombre>}{<tipo entrada>}{<tipo retorno>}
+%     Escribe la funcion <nombre> : <tipo entrada> -> <tipo retorno>.
+%     Este comando escribe la funcion en el modo horizontal en el que se
+%     encuentre.  Es decir, no genera un nuevo parrafo.  
+%     El formato para el tipo es el descrito en el comando \tadTipoFuncion.
+%
+\newcommand{\tadOperacionInline}[3]{%
+    \ifthenelse{\lengthtest{\tadAnchoNombreFunciones>0pt}}{%
+        \parbox[t]{\tadAnchoNombreFunciones}{#1}%
+    }{%
+        \pbox[t]{#1}%
+    }%
+    \tad@funcskip:\tad@funcskip%
+    \ifthenelse{\lengthtest{\tadAnchoTipoFunciones>0pt}}{%
+        \parbox[t]{\tadAnchoTipoFunciones}{\tadTipoFuncion{#2}~}%
+    }{%
+        \pbox[t]{\tadTipoFuncion{#2}}%
+    }%
+    \ifthen{\not\equal{#2}{}\or\lengthtest{\tadAnchoTipoFunciones>0pt}}{\tad@funcskip}%
+    \tadFlecha\tad@funcskip%
+    \pbox[t]{#3}%
+}
+
+% ------- Macro para componer una función completa -------------------------
+% \tadOperacion{<nombre>}{<tipo entrada>}{<tipo retorno>}{<restriccion>}
+%     Escribe la signatura de la funcion completa, con restriccion y todo.
+%     Si <restriccion> entra en el espacio que queda a la derecha de la 
+%     declaración, se la coloca allí, alineada contra el borde derecho de
+%     la página o del entorno en el que estemos. Si NO entra por ser demasiado 
+%     larga, entonces se la coloca en el renglón siguiente. La restricción 
+%     puede ser larga, en cuyo caso se la compone en varias líneas, todas
+%     alineadas contra el margen derecho.
+%
+% TODO: actualizar descripcion de la funcion
+%
+\newsavebox{\@Signatura}
+\newlength{\tadOperacion@textwidth}%
+\newcommand{\tadOperacion}[4]{%
+    \par%
+    \ifthen{\boolean{tad@TADenvironment}}{%
+        \hspace*{\tadSubMargen}%
+        \setlength{\hangindent}{\tadMargen + \tadSubMargen}%
+    }%
+    \sbox{\@Signatura}{\tadOperacionInline{#1}{#2}{#3}}%
+    \usebox{\@Signatura}%
+    \hfill%
+    \ifthenelse{\boolean{tad@TADenvironment}}{%
+        \setlength{\tadOperacion@textwidth}{\linewidth - \tadMargen - \tadSubMargen}%
+        %\setlength{\tadOperacion@textwidth}{\textwidth - \tadMargen - \tadSubMargen}%
+    }{%
+        \setlength{\tadOperacion@textwidth}{\linewidth}%
+    }%
+    \ifthen{\not\equal{#4}{}}{%
+        \tad@ifFitsElse{\usebox{\@Signatura}\hspace*{1.5em}\{#4\}}{\tadOperacion@textwidth}{%
+            \pbox[t]{\{#4\}}%
+        }{%
+            %le damos un poco mas de margen a la restriccion
+            \addtolength{\tadOperacion@textwidth}{-2cm}%
+            %el phantom es para que alinee a derecha.  Hay que poner algo antes del hfill.
+            \\\phantom{a}\hfill%
+            $\left\{\text{\pbox[c][\tadOperacion@textwidth]{#4}}\right\}$%
+        }%       
+    }%
+    \par%
+}
+
+% ------- Composición de un axioma completo --------------------------------
+%
+% Uso:  \tadAxioma{lado izquierdo}{lado derecho}
+%
+% Si aximaxizq es mayor que cero, reservamos esa cant. de espacio usando
+% un hbox. Si es cero, usamos la longitud 'natural' del texto izquierdo y
+% los equivalentes no quedan alineados.
+%
+% TODO: actualizar descripcion de la funcion
+%
+\newlength{\tadAxioma@lenEquiv}%espacio que ocupa el equivalente.
+\newlength{\tadAxioma@lenDerecha}%espacio para el parbox de #2
+\newcommand{\tadAxioma}[2]{%
+    \par%
+    %ocupacion del axioma y del equivalente.
+    \settowidth{\tadAxioma@lenEquiv}{\ensuremath{\equiv}}%
+    %indentacion en los reglones sucesivos.
+    \ifthenelse{\lengthtest{\tadAnchoIzquierdaAxioma>0pt}}{%
+        \setlength{\tadAxioma@lenDerecha}{\tadAnchoIzquierdaAxioma}%
+    }{%
+        \settominwidth{\tadAxioma@lenDerecha}{#1}%
+    }%
+    \ifthenelse{\boolean{tad@TADenvironment}}{%
+        \setlength{\tadAxioma@lenDerecha}{\linewidth - \tadMargen - \tadSubMargen - \tadAxioma@lenEquiv - 2\tadSeparacionAxiomas - \tadAxioma@lenDerecha}%
+        %\setlength{\tadAxioma@lenDerecha}{\textwidth - \tadMargen - \tadSubMargen - \tadAxioma@lenEquiv - 2\tadSeparacionAxiomas - \tadAxioma@lenDerecha}%
+    }{%
+        \setlength{\tadAxioma@lenDerecha}{\linewidth - \tadAxioma@lenEquiv - 2\tadSeparacionAxiomas - \tadAxioma@lenDerecha}%
+    }%
+    % escritura del axioma. Sea i = \tadAxioma@lenIzquierdo y m = \tadAnchoIzquierdaAxioma.
+    % hay tres posibilidades: m = 0, 0 < i <= m, 0 < m < i.
+    \ifthen{\boolean{tad@TADenvironment}}{%
+        \hspace*{\tadSubMargen}%
+    }%        
+    \ifthenelse{\lengthtest{\tadAnchoIzquierdaAxioma=0pt}}{%
+        #1%
+        \tad@axiskip\ensuremath{\equiv}\tad@axiskip%
+    }{%
+        \tad@ifFitsElse{#1}{\tadAnchoIzquierdaAxioma}{%
+            \parbox[t]{\tadAnchoIzquierdaAxioma}{#1}%
+            \tad@axiskip\ensuremath{\equiv}\tad@axiskip%
+        }{%
+            #1%
+            \tad@axiskip\ensuremath{\equiv}\tad@axiskip%
+            \\%
+        }%
+    }%
+    \parbox[t]{\tadAxioma@lenDerecha}{#2}%
+    \par%
+}
+
+
+% ------- DECLARACIÓN DEL ENTORNO 'tad' ------------------------------------
+%
+% Uso:  \begin{tad}{nombre del TAD}                    (Requiere LaTeX)
+%          ...
+%       \end{tad}
+%
+% Para agregar un preámbulo, usar
+%
+%       \begin{tadx}{nombre del TAD}{preámbulo}
+%          ...
+%       \end{tadx}
+%
+\newenvironment{tad}[1]{\tad@comienzo{#1}}{\tad@fin}
+\newenvironment{tadx}[2]{\tad@comienzo[#2]{#1}}{\tad@fin}
+
+

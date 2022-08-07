@@ -1,0 +1,120 @@
+% Copyright 2003 Sascha Herpers
+%
+% This file can be redistributed and/or modified under the terms
+% of the LaTeX Project Public License Distributed from CTAN
+% archives in directory macros/latex/base/lppl.txt; either
+% version 1 of the License, or any later version.
+%
+%
+% 2003-05-22
+% Sascha Herpers
+% herpers@wiso.uni-koeln.de
+%
+% 2010-03-12
+% modifications by Francisco Soulignac
+% fsoulign@dc.uba.ar
+%------------------------------------------------------------------------------
+% History
+% (mm/dd/yy) change
+% -----------------------------------------------------------------------------
+%  05/26/03  + added new options trim and notrim
+%              If 'trim' is set, each first token is stripped from leading and
+%              trailing spaces. 'notrim' is the default and leaves the token as
+%              is.
+%            + added new public command \TrimSpaces{<Token>}
+%------------------------------------------------------------------------------
+%  03/12/10  + added an optional parameter to \GetTokens so that the user can
+%              select the separator to be used. (Francisco Soulignac)
+%            - removed the \TrimSpaces (there is now a package for this)
+ \ProvidesPackage{aed2-tokenizer}[2010/03/12]
+ \RequirePackage{ifthen}
+
+%
+% local variables
+%------------------------------------------------------------------------------
+\def\SH@true{true}                       % used with trim/notrim
+\def\SH@false{false}                     % used with trim/notrim
+
+
+%
+% \SH@GetTokens{<Separartor}{<Source>}
+%     Splits a <Source> of the form <Token1><Separator><Token2>, and stores
+%     <Token1> and <Token2> in 
+%     \SH@FirstArgName and \SH@SecondArgName, respectively.
+%------------------------------------------------------------------------------
+\def\SH@GetTokens#1#2%
+    {%
+        % \SH@GetTokens#1<Token1>#1<Token2>
+        %     This new command, when executed, saves <Token1> and <Token2> in 
+        %    \SH@FirstArgName and \SH@SecondArgName, respectively.
+        \expandafter\def\csname SH@GetTokens#1\endcsname##1#1##2\@empty{%
+            %original code by SH
+            \SH@DefineCommand{\SH@FirstArgName}{##1}%
+            \SH@DefineCommand{\SH@SecondArgName}{##2}%
+        }%
+        % make this command easy to call
+        \expandafter\let\expandafter\SH@TokensGetter\expandafter=\csname SH@GetTokens#1\endcsname%
+        % split the source string
+        \expandafter\SH@TokensGetter#2\@empty%
+    }
+
+%
+%  \SH@CheckTokenSep{<Separator>}{<Source>}
+%      Checks whether <Source> contains <Separator> as a substring.
+%      If true, then \SH@TokenValid is set to true, otherwise it is set to false.
+%------------------------------------------------------------------------------
+\def\SH@CheckTokenSep#1#2%
+    {%
+        %  SH@CheckTokenSep#1<Token1>#1<Token2>
+        %     The purpose of this command is to check whether <Source> has a <Separator>
+        %     insider or not.  
+        %     If true, then \SH@TokenValid is set to true, otherwise it is set to false.
+        %     It must be called with a trailing <Separator>!
+        \expandafter\def\csname SH@CheckTokenSep#1\endcsname##1#1##2\@empty{%
+            % original code by SH
+            \def\SH@CTSArgTwo{##2}%
+            \ifx\SH@CTSArgTwo\@empty%
+                \edef\SH@TokenValid{\SH@false}%
+            \else%
+                \edef\SH@TokenValid{\SH@true}%
+            \fi%
+        }%
+        % make this command easy to call
+        \expandafter\let\expandafter\SH@TokenSepChecker\expandafter=\csname SH@CheckTokenSep#1\endcsname%
+        % check for the token separator
+        \expandafter\SH@TokenSepChecker#2#1\@empty%
+    }
+
+%
+% \GetTokens[<separator>]{<Target1>}{<Target2>}{<Source>}
+%     Splits <Source> into two tokens at the first encounter of separator.
+%     The first token is saved in a newly created command with the name passed
+%     as <Target1> and the second token likewise.
+%------------------------------------------------------------------------------
+\newcommand\GetTokens[4][,]%
+    {%
+        % save the names of the commands to receive the separated tokens
+        \def\SH@FirstArgName{#2}%
+        \def\SH@SecondArgName{#3}%
+        % check for the token separator
+        \SH@CheckTokenSep{#1}{#4}%
+        \ifx\SH@TokenValid\SH@true%
+            % separator found.
+            \SH@GetTokens{#1}{#4{}}%
+            %WORKARROUND: the group at the end is for not loosing the groups of #4 when #4 is of the form xxx#1{yyy}.  
+        \else%
+            % there was no separator, return the complete source string as
+            % first token
+            \SH@DefineCommand{\SH@FirstArgName}{#4}%
+            \SH@DefineCommand{\SH@SecondArgName}{}%
+        \fi%
+     }
+
+%
+% \DefineCommand{<Name>}{<Value>}
+%     Creates a new command \<Name> with the value passed as second parameter.
+%------------------------------------------------------------------------------
+\def\SH@DefineCommand#1#2{%
+  \expandafter\edef\csname #1\endcsname{#2}%
+}
+

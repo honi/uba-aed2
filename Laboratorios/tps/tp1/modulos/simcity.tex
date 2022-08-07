@@ -1,0 +1,495 @@
+\subsection{Módulo SimCity}
+
+\begin{Interfaz}
+
+\textbf{se explica con}: \tadNombre{SimCity}
+
+\textbf{géneros}: \TipoVariable{simcity}
+
+{\textbf{\large Operaciones básicas}}
+
+\InterfazFuncion{NuevoSimCity}{\In{m}{mapa}}{simcity}
+{$res \igobs iniciar(m)$}
+[$O(copy(m))$]
+[Crea un nuevo SimCity con el mapa provisto.]
+
+\InterfazFuncion{AvanzarTurno}{\Inout{s}{simcity}, \In{cs}{dicc(pos, construccion)}}{}
+[$s_0 = s \land construccionesValidas(s, cs)$]
+{$s \igobs avanzarTurno(s_0, cs)$}
+[$O(\#cs)$]
+[Avanza un turno en la instancia s construyendo las nuevas casas y comercios en las posiciones indicadas. Como éstas se guardan en diccionarios lineales, agregar nuevas construcciones solo requiere definir rápido las nuevas posiciones de las casas y comercios. Si se agrega una única casa o comercio, $\#cs = 1$ y por lo tanto la complejidad de toda la operación resulta $O(1)$.]
+
+\InterfazFuncion{Unir}{\Inout{a}{simcity}, \In{b}{simcity}}{}
+[$a_0 = a \land unionValida(a, b)$]
+{$a \igobs unir(a_0, b)$}
+[$O(1)$]
+[Une la instancia b con la instancia a. Esta función no ejecuta propiamente dicha la unión, sino que simplemente agrega atrás de una lista enlazada de uniones una referencia a la instancia b. Por eso tiene complejidad O(1). Los efectos de la unión recién se procesan al observar las casas, comercios, etc.]
+[Se guarda una referencia a la instancia b que fue unidad a la instancia a. Recordemos que a partir de ahora la instancia b ya no puede ser modificada.]
+
+\InterfazFuncion{Mapa}{\In{s}{simcity}}{mapa}
+{$res \igobs mapa(s)$}
+[$O(p^2 * rs)$ donde $p$ es la popularidad de $s$, $rs$ es la máxima cantidad de ríos horizontales y verticales de alguna unión (directa o indirecta), sin considerar los ríos que obtiene por sus propias uniones.]
+[Devuelve el mapa de la instancia s contemplando todas las uniones realizadas.]
+[No genera aliasing ya que no devuelve el mapa original de la instancia s, sino que construye uno nuevo sumando todos los ríos de todas sus uniones.]
+
+\InterfazFuncion{Casas}{\In{s}{simcity}}{dicc(pos, nivel)}
+{$res \igobs casas(s)$}
+[$O(p^2 * (maxCasas^2 + maxComercios^2))$]
+[Devuelve las posiciones de todas las casas de la instancia s (contemplando sus uniones) mapeando a su respectivo nivel.]
+[No genera aliasing ya que no devuelve el diccionario de casas de la instancia s, sino que construye uno nuevo sumando todas las casas de todas sus uniones.]
+
+\InterfazFuncion{Comercios}{\In{s}{simcity}}{dicc(pos, nivel)}
+{$res \igobs comercios(s)$}
+[$O(p^2 * (maxCasas^2 + maxComercios^2))$]
+[Devuelve las posiciones de todos los comercios de la instancia s (contemplando sus uniones) mapeando a su respectivo nivel.]
+[No genera aliasing ya que no devuelve el diccionario de comercios de la instancia s, sino que construye uno nuevo sumando todos los comercios de todas sus uniones.]
+
+\InterfazFuncion{Popularidad}{\In{s}{simcity}}{nat}
+{$res \igobs popularidad(s)$}
+[$O(1)$]
+[Devuelve la popularidad (cantidad de uniones directas e indirectas) de la instancia s.]
+
+\InterfazFuncion{Turnos}{\In{s}{simcity}}{nat}
+{$res \igobs turnos(s)$}
+[$O(1)$]
+[Devuelve el turno actual (antigüedad) de la instancia s.]
+
+\end{Interfaz}
+
+\begin{Representacion}
+
+Un SimCity contiene un mapa y construcciones de dos tipos: casas y comercios, además de guardar la cantidad de turnos, popularidad y uniones realizadas.
+
+El turno actual de la instancia se trackea con 2 variables: turnos y maxTurnos. La primera, turnos, es la cantidad de turnos transcurridos desde el inicio del SimCity sin contemplar las posibles uniones realizadas. Por otro lado, maxTurnos hace referencia a lo que llamamos la antigüedad del SimCity. Es decir, la cantidad máxima de turnos transcurridos entre esta instancia y todas sus uniones (directas e indirectas). Cada vez que se avanza de turno, se incrementan ambas variables. Esto lo necesitamos por dos razones: para poder calcular correctamente los niveles de las construcciones cuando se realizan uniones, y para no tener que modificar las instancias que fueron unidas (ya que al unir un SimCity se guarda una referencia al mismo pero necesitamos seguir subiendo de nivel sus construcciones).
+
+La popularidad es un contador que indica la cantidad de uniones realizadas en la instancia (tanto directas como indirectas). Se actualiza cada vez que se realiza una unión.
+
+Las casas y comercios son guardados en la estructura como diccionarios que mapean las posiciones de las construcciones con el turno en el que fueron construidos (se usa el turno real de la instancia). Estos diccionarios se implementan con listas enlazadas. Al agregar nuevas construcciones, se pide como precondición que la posición esté libre, es decir, la clave no está definida, y por lo tanto definir nuevas claves tiene complejidad $O(1)$ si se hace de forma rápida.
+
+Las uniones realizadas se guardan en una lista enlazada de tuplas. La primer componente de la tupla es una referencia al SimCity unido, y la segunda es el turno en el que se unió dicho SimCity (se usa el turno real de la instancia a donde se une). Guardamos esta información ya que luego necesitamos poder calcular correctamente los niveles de las construcciones unidas. La unión tiene complejidad $O(1)$ ya que lo único que se hace es agregar atrás de la lista la nueva tupla que representa la unión.
+
+Resolver los conflictos, calcular los niveles de las construcciones y generar el mapa a partir de todas las uniones sucede cuando se observa la instancia. Optimizamos la estructura para poder modificar la instancia de forma eficiente, a expensas de tener una mayor complejidad cuando se quiere observar dicha instancia.
+
+~
+
+\begin{Estructura}{simcity}[estr]
+    \begin{Tupla}[estr]
+        \tupItem{mapa}{mapa}%
+        \tupItem{\\turnos$^1$}{nat}%
+        \tupItem{\\maxTurnos$^2$}{nat}%
+        \tupItem{\\popularidad}{nat}%
+        \tupItem{\\casas}{diccLineal(pos, nat)}%
+        \tupItem{\\comercios}{diccLineal(pos, nat)}%
+        \tupItem{\\uniones}{lista(union)}%
+    \end{Tupla}%
+\end{Estructura}
+
+\begin{Tupla}[union]
+    \tupItem{simcity}{puntero(simcity)}%
+    \tupItem{turnosUnion}{nat}%
+\end{Tupla}%
+
+\begin{enumerate}
+    \scriptsize
+    \item Este el turno real de la instancia.
+    \item Este es el turno máximo entre la instancia y todas sus uniones (directas e indirectas). Es decir, indica la antigüedad.
+\end{enumerate}
+
+\tadOperacion{Rep}{estr}{bool}{}
+
+Rep(e) $\equiv$ true $\iff$ ( \\
+    \tab {\color{gray} // Validación de las posiciones de las casas y comercios propios.} \\
+    \tab ($\forall$p: pos)( \\
+    \tab\tab (p $\in$ claves(e.casas) $\lor$ p $\in$ claves(e.comercios) $\impluego$ ( \\
+    \tab\tab\tab {\color{gray} // Nuestras construcciones no se pisan con nuestros ríos.} \\
+    \tab\tab\tab x(p) $\notin$ verticales(e.mapa) $\land$ y(p) $\notin$ horizontales(e.mapa) \\
+    \tab\tab\tab {\color{gray} // Ni con los ríos de las uniones.} \\
+    \tab\tab\tab $\land$ ($\forall$i: nat)(0 $\leq$ i $<$ long(e.uniones) \impluego ( \\
+    \tab\tab\tab\tab x(p) $\notin$ verticales(mapa(*e.uniones[i].simcity)) \\
+    \tab\tab\tab\tab $\land$ y(p) $\notin$ horizontales(mapa(*e.uniones[i].simcity)) \\
+    \tab\tab\tab )) \\
+    \tab\tab )) \\
+    \tab\tab $\land$ (p $\in$ claves(e.casas) $\impluego$ ( \\
+    \tab\tab\tab {\color{gray} // Nuestras casas no se pisan con nuestros comercios.} \\
+    \tab\tab\tab p $\notin$ claves(e.comercios) \\
+    \tab\tab\tab {\color{gray} // Fue construida en un turno válido.} \\
+    \tab\tab\tab $\land$ obtener(p, e.casas) $\leq$ e.turnos \\
+    \tab\tab )) \\
+    \tab\tab $\land$ (p $\in$ claves(e.comercios) $\impluego$ ( \\
+    \tab\tab\tab {\color{gray} // Nuestros comercios no se pisan con nuestras casas.} \\
+    \tab\tab\tab p $\notin$ claves(e.casas) \\
+    \tab\tab\tab {\color{gray} // Fue construido en un turno válido.} \\
+    \tab\tab\tab $\land$ obtener(p, e.comercios) $\leq$ e.turnos \\
+    \tab\tab )) \\
+    \tab) \\
+    \tab {\color{gray} // Existe al menos una casa y/o comercio de nivel máximo (es decir, se construyó en el turno 0).} \\
+    \tab $\land$ ($\exists$p: pos)( \\
+    \tab\tab (p $\in$ claves(e.casas) $\impluego$ obtener(p, e.casas) $=$ 0) \\
+    \tab\tab $\lor$ (p $\in$ claves(e.comercios) $\impluego$ obtener(p, e.comercios) $=$ 0) \\
+    \tab) \\
+    \tab {\color{gray} // Validación de las uniones.} \\
+    \tab $\land$ ($\forall$i: nat)(0 $\leq$ i $<$ long(e.uniones) \impluego ( \\
+    \tab\tab {\color{gray} // El turno de la instancia unida es menor o igual que el turno máximo entre todas las uniones.} \\
+    \tab\tab turnos(*e.uniones[i].simcity) $\leq$ e.maxTurnos \\
+    \tab\tab {\color{gray} // Fue unido en un turno válido.} \\
+    \tab\tab $\land$ e.uniones[i].turnosUnion $\leq$ e.turnos \\
+    \tab\tab $\land$ ($\forall$p: pos)( \\
+    \tab\tab\tab p $\in$ claves(casas(*e.uniones[i].simcity)) $\lor$ p $\in$ claves(comercios(*e.uniones[i].simcity)) $\impluego$ ( \\
+    \tab\tab\tab\tab {\color{gray} // Las construcciones de las uniones no se pisan con nuestros ríos.} \\
+    \tab\tab\tab\tab x(p) $\notin$ verticales(e.mapa) $\land$ y(p) $\notin$ horizontales(e.mapa) \\
+    \tab\tab\tab\tab {\color{gray} // Ni tampoco se pisan con los ríos de otras uniones.} \\
+    \tab\tab\tab\tab $\land$ ($\forall$j: nat)(0 $\leq$ j $<$ long(e.uniones) $\land$ j $\neq$ i \impluego ( \\
+    \tab\tab\tab\tab\tab x(p) $\notin$ verticales(mapa(*e.uniones[j].simcity)) \\
+    \tab\tab\tab\tab\tab $\land$ y(p) $\notin$ horizontales(mapa(*e.uniones[j].simcity)) \\
+    \tab\tab\tab\tab ) \\
+    \tab\tab\tab ) \\
+    \tab\tab ) \\
+    \tab )) \\
+    \tab {\color{gray} // El turno de esta instancia es menor o igual que el turno máximo entre todas las uniones.} \\
+    \tab $\land$ e.turnos $\leq$ e.maxTurnos \\
+    \tab {\color{gray} // La popularidad es la cantidad de uniones directas e indirectas.} \\
+    \tab $\land$ e.popularidad $\igobs$ long(e.uniones)
+            + $\sum_{i=0}^{long(e.uniones) - 1}$ popularidad(*e.uniones[i].simcity) \\
+)
+
+~
+
+\tadOperacion{Abs}{estr/e}{simcity}{Rep(e)}
+
+Abs(e) $\igobs$ s: simcity $\mid$ \\
+    \tab mapa(s) $\igobs$ e.mapa \\
+    \tab $\land$ turnos(s) $\igobs$ e.maxTurnos \\
+    \tab $\land$ popularidad(s) $\igobs$ e.popularidad \\
+    \tab $\land$ ($\forall$p: pos)( \\
+    \tab\tab {\color{gray} // La posición corresponde a una casa en la instancia abstracta s.} \\
+    \tab\tab (p $\in$ claves(casas(s)) $\impluego$ ( \\
+    \tab\tab\tab {\color{gray} // La casa es propia...} \\
+    \tab\tab\tab (p $\in$ claves(e.casas) $\yluego$ obtener(p, casas(s)) $\igobs$ e.turnos - obtener(p, e.casas)) \\
+    \tab\tab\tab {\color{gray} // O vino de una unión.} \\
+    \tab\tab\tab $\lor$ ($\exists$i: nat)(0 $\leq$ i $<$ long(e.uniones) $\yluego$ p $\in$ claves(casas(*e.uniones[i].simcity)) $\yluego$ ( \\
+    \tab\tab\tab\tab obtener(p, casas(s)) $\igobs$ ( \\
+    \tab\tab\tab\tab\tab (e.turnos - e.uniones[i].turnosUnion) + obtener(p, casas(*e.uniones[i].simcity)) \\
+    \tab\tab\tab\tab ) \\
+    \tab\tab\tab )) \\
+    \tab\tab )) \\
+    \tab\tab {\color{gray} // La posición corresponde a un comercio en la instancia abstracta s.} \\
+    \tab\tab (p $\in$ claves(comercios(s)) $\impluego$ ( \\
+    \tab\tab\tab {\color{gray} // El comercio es propio...} \\
+    \tab\tab\tab (p $\in$ claves(e.comercios) $\yluego$ obtener(p, comercios(s)) $\igobs$ e.turnos - obtener(p, e.comercios)) \\
+    \tab\tab\tab {\color{gray} // O vino de una unión.} \\
+    \tab\tab\tab $\lor$ ($\exists$i: nat)(0 $\leq$ i $<$ long(e.uniones) $\yluego$ p $\in$ claves(comercios(*e.uniones[i].simcity)) $\yluego$ ( \\
+    \tab\tab\tab\tab obtener(p, comercios(s)) $\igobs$ ( \\
+    \tab\tab\tab\tab\tab (e.turnos - e.uniones[i].turnosUnion) + obtener(p, comercios(*e.uniones[i].simcity)) \\
+    \tab\tab\tab\tab ) \\
+    \tab\tab\tab )) \\
+    \tab\tab )) \\
+    \tab )
+
+\end{Representacion}
+
+~
+
+\begin{Algoritmos}
+
+\begin{algorithm}[H]{\textbf{NuevoSimCity}(\In{m}{mapa}) $\to$ \Out{res}{simcity}}
+\begin{algorithmic}[1]
+    \State res.mapa $\gets$ m \Comment $O(copy(m))$
+    \State res.casas $\gets$ Vacio() \Comment $O(1)$
+    \State res.comercios $\gets$ Vacio() \Comment $O(1)$
+    \State res.turnos $\gets$ 0 \Comment $O(1)$
+    \State res.maxTurnos $\gets$ 0 \Comment $O(1)$
+    \State res.popularidad $\gets$ 0 \Comment $O(1)$
+    \State res.uniones $\gets$ Vacia() \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(copy(m))$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{AvanzarTurno}(\Inout{s}{simcity}, \In{cs}{dicc(pos, construccion)})}
+\begin{algorithmic}[1]
+    \State it $\gets$ CrearIt(cs) \Comment $O(1)$
+    \While {HaySiguiente(it)} \Comment $O(\#cs)$
+        \State pos $\gets$ SiguienteClave(it) \Comment $O(1)$
+        \State construccion $\gets$ SiguienteSignificado(it) \Comment $O(1)$
+        \If {construccion = 'casa'}
+            \State DefinirRapido(s.casas, pos, s.turnos) \Comment $O(1)$
+        \ElsIf {construccion = 'comercio'}
+            \State DefinirRapido(s.comercios, pos, s.turnos) \Comment $O(1)$
+        \EndIf
+        \State Avanzar(it) \Comment $O(1)$
+    \EndWhile
+    \State s.turnos $\gets$ s.turnos + 1 \Comment $O(1)$
+    \State s.maxTurnos $\gets$ s.maxTurnos + 1 \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#cs)$ \\
+Podemos usar DefinirRapido pues por precondición las nuevas construcciones están en posiciones libres.
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Unir}(\Inout{a}{simcity}, \In{b}{simcity})}
+\begin{algorithmic}[1]
+    \State AgregarAtras(a.uniones, $\langle$ \&b, a.turnos $\rangle$) \Comment $O(1)$
+    \State a.maxTurnos $\gets$ max(a.maxTurnos, turnos(b)) \Comment $O(turnos(b))$
+    \State a.popularidad $\gets$ a.popularidad + popularidad(b) + 1 \Comment $O(popularidad(b))$
+\end{algorithmic}
+\textbf{Complejidad}: $O(turnos(b)) + O(popularidad(b)) = O(1)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Mapa}(\In{s}{simcity}) $\to$ \Out{res}{mapa}}
+\\ {\small Construye el mapa de la instancia teniendo en cuenta las uniones realizadas.}
+\begin{algorithmic}[1]
+    \State hs $\gets$ Copiar(Horizontales(s.mapa)) \Comment $O(copy(Horizontales(s.mapa)))$
+    \State vs $\gets$ Copiar(Verticales(s.mapa)) \Comment $O(copy(Verticales(s.mapa)))$
+    \State itUniones $\gets$ CrearIt(s.uniones) \Comment $O(1)$
+    \While {HaySiguiente(itUniones)} \Comment $O(p)$
+        \State sUnion $\gets$ *Siguiente(itUniones).simcity \Comment $O(1)$
+        \State sMapa $\gets$ Mapa(sUnion) \Comment $O(Mapa(sUnion))$
+        \State UnirConjuntos(hs, Horizontales(sMapa)) \Comment $O(\#Horizontales(sMapa))$
+        \State UnirConjuntos(vs, Verticales(sMapa)) \Comment $O(\#Verticales(sMapa))$
+        \State Avanzar(itUniones) \Comment $O(1)$
+    \EndWhile
+    \State res $\gets$ CrearMapa(hs, vs) \Comment $O(copy(hs) + copy(vs))$
+\end{algorithmic}
+\textbf{Complejidad}: $O( \sum_{i=0}^p i * rs ) = O( p^2 * rs )$ \\
+Si consideramos las uniones como nodos de un árbol tipo rosetree (donde cada nodo puede tener una cantidad arbitraria de hijos, o sea, uniones), la popularidad $p$ del SimCity nos indica la cantidad total de nodos. Para obtener el mapa de forma tal que incluya todos los ríos de todas las uniones, necesitamos iterar $p$ veces (no necesariamente se itera $p$ veces en un único llamado a Mapa, sino que sería la cantidad total de iteraciones entre todos los llamados recursivos a Mapa). \\
+Los casos base de la recursión es cuando no hay uniones. En estos casos, no se hace ninguna iteración (ni llamados recursivos) y la complejidad de Mapa esta dada únicamente por la copia de los ríos, lo cual se hace 2 veces. En ese caso la complejidad resulta: $O(2(copy(hs) + copy(vs))) = O(copy(hs) + copy(vs))$. \\
+Por otro lado, consideramos $rs$ como la máxima cantidad de ríos horizontales y verticales de alguna unión (directa o indirecta), sin considerar los ríos que obtiene por sus propias uniones. \\
+De esta forma 'aplanamos' la recursión como si fuese un único ciclo de $p$ iteraciones (sin llamados recursivos), en donde en el peor caso, hay que insertar $rs$ ríos a los conjuntos $hs$ y/o $vs$. \\
+\em{Esta lógica para calcular la complejidad la reutilizamos en otros algoritmos.}
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Casas}(\In{s}{simcity}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\\ {\small Construye el diccionario de casas de la instancia teniendo en cuenta las uniones realizadas. Resuelve los conflictos y calcula el nivel correcto para las casas resultantes.}
+\begin{algorithmic}[1]
+    \State res $\gets$ CasasPropias(s) \Comment $O(\#s.casas)$
+    \State casasUniones $\gets$ CasasUniones(s) \Comment $O(p^2 * maxCasas^2)$
+    \State UnirConstrucciones(res, casasUniones) \Comment $O(\#res * \#casasUniones)$
+    \State comercios $\gets$ ComerciosPropios(s) \Comment $O(\#s.comercios)$
+    \State comerciosUniones $\gets$ ComerciosUniones(s) \Comment $O(p^2 * maxComercios^2)$
+    \State UnirConstrucciones(comercios, comerciosUniones) \Comment $O(\#comercios * \#comerciosUniones)$
+    \State SacarCasasSolapadas(res, comercios) \Comment $O(\#res * \#comercios)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(p^2 * (maxCasas^2 + maxComercios^2))$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Comercios}(\In{s}{simcity}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\\ {\small Construye el diccionario de comercios de la instancia teniendo en cuenta las uniones realizadas. Resuelve los conflictos y calcula el nivel correcto para los comercios resultantes, aplicando la regla de adopción de nivel por la distancia manhattan.}
+\begin{algorithmic}[1]
+    \State res $\gets$ ComerciosPropios(s) \Comment $O(\#s.comercios)$
+    \State comerciosUniones $\gets$ ComerciosUniones(s) \Comment $O(p^2 * maxComercios^2)$
+    \State UnirConstrucciones(res, comerciosUniones) \Comment $O(\#res * \#comerciosUniones)$
+    \State casas $\gets$ CasasPropias(s) \Comment $O(\#s.casas)$
+    \State casasUniones $\gets$ CasasUniones(s) \Comment $O(p^2 * maxCasas^2)$
+    \State UnirConstrucciones(casas, casasUniones) \Comment $O(\#casas * \#casasUniones)$
+    \State AdoptarNiveles(res, casas) \Comment $O(\#res * (\#res + \#casas))$
+    \State SacarComerciosSolapados(res, casas) \Comment $O(\#res * \#casas)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(p^2 * (maxCasas^2 + maxComercios^2))$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Popularidad}(\In{s}{simcity}) $\to$ \Out{res}{nat}}
+\begin{algorithmic}[1]
+    \State res $\gets$ s.popularidad \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(1)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Turnos}(\In{s}{simcity}) $\to$ \Out{res}{nat}}
+\begin{algorithmic}[1]
+    \State res $\gets$ s.maxTurnos \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(1)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{CasasPropias}(\In{s}{simcity}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\\ {\small Reconstruye el diccionario $s.casas$ calculando el nivel de cada casa a partir de su turno de creación.}
+\begin{algorithmic}[1]
+    \State res $\gets$ Vacio() \Comment $O(1)$
+    \State itCasas $\gets$ CrearIt(s.casas) \Comment $O(1)$
+    \While {HaySiguiente(itCasas)} \Comment $O(\#s.casas)$
+        \State pos $\gets$ SiguienteClave(itCasas) \Comment $O(1)$
+        \State turnosCreacion $\gets$ SiguienteSignificado(itCasas) \Comment $O(1)$
+        \State nivel $\gets$ s.turnos - turnosCreacion \Comment $O(1)$
+        \State DefinirRapido(res, pos, nivel) \Comment $O(1)$
+        \State Avanzar(itCasas) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad: $O(\#s.casas)$}
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{CasasUniones}(\In{s}{simcity}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\\ {\small Construye un diccionario de todas las casas de las uniones. Se hace una recursión mútua con la función Casas ya que se piden las casas de cada unión, que vienen con su nivel definido a partir de los turnos del SimCity de la unión. Luego se ajusta el nivel compensando los turnos transcurridos desde la unión (recordemos que un SimCity ya no puede ser modificado luego de ser unido a otro, por lo tanto desde la perspectiva de ese SimCity unido, sus construcciones quedan fijadas en el nivel que tenían cuando sucedió la unión).}
+\begin{algorithmic}[1]
+    \State res $\gets$ Vacio() \Comment $O(1)$
+    \State itUniones $\gets$ CrearIt(s.uniones) \Comment $O(1)$
+    \While {HaySiguiente(itUniones)} \Comment $O(p)$
+        \State sUnion $\gets$ *Siguiente(itUniones).simcity \Comment $O(1)$
+        \State turnosUnion $\gets$ Siguiente(itUniones).turnosUnion \Comment $O(1)$
+        \State turnosDesdeLaUnion $\gets$ s.turnos - turnosUnion \Comment $O(1)$
+        \State casasUnion $\gets$ Casas(sUnion)
+        \State SumarATodos(casasUnion, turnosDesdeLaUnion) \Comment $O(\#casasUnion^2)$
+        \State UnirConstrucciones(res, casasUnion) \Comment $O(max\{1, \#res\} * \#casasUnion)$
+        \State Avanzar(itUniones) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O( \sum_{i=0}^p i * maxCasas^2 ) = O( p^2 * maxCasas^2 )$ \\
+De forma similar a la función Mapa, $p$ es la popularidad de la instancia $s$ lo cual representa la cantidad total de uniones (directas o indirectas), y $maxCasas$ representa la máxima cantidad de casas de alguna unión (directa o indirecta), sin considerar los casas que obtiene por sus propias uniones.
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{ComerciosPropios}(\In{s}{simcity}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\\ {\small Algoritmo análogo a CasasPropias. Reconstruye el diccionario $s.comercios$ calculando el nivel de cada comercio a partir de su turno de creación.}
+\begin{algorithmic}[1]
+    \State res $\gets$ Vacio() \Comment $O(1)$
+    \State itComercios $\gets$ CrearIt(s.comercios) \Comment $O(1)$
+    \While {HaySiguiente(itComercios)} \Comment $O(\#s.comercios)$
+        \State pos $\gets$ SiguienteClave(itComercios) \Comment $O(1)$
+        \State turnosCreacion $\gets$ SiguienteSignificado(itComercios) \Comment $O(1)$
+        \State nivel $\gets$ s.turnos - turnosCreacion \Comment $O(1)$
+        \State DefinirRapido(res, pos, nivel) \Comment $O(1)$
+        \State Avanzar(itComercios) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#s.comercios)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{ComerciosUniones}(\In{s}{simcity}) $\to$ \Out{res}{dicc(pos, nivel)}}
+\\ {\small Algoritmo análogo a CasasUniones. Construye un diccionario de todos los comercios de las uniones.}
+\begin{algorithmic}[1]
+    \State res $\gets$ Vacio() \Comment $O(1)$
+    \State itUniones $\gets$ CrearIt(s.uniones) \Comment $O(1)$
+    \While {HaySiguiente(itUniones)} \Comment $O(p)$
+        \State sUnion $\gets$ *Siguiente(itUniones).simcity \Comment $O(1)$
+        \State turnosUnion $\gets$ Siguiente(itUniones).turnosUnion \Comment $O(1)$
+        \State turnosDesdeLaUnion $\gets$ s.turnos - turnosUnion \Comment $O(1)$
+        \State comerciosUnion $\gets$ Comercios(sUnion)
+        \State SumarATodos(comerciosUnion, turnosDesdeLaUnion) \Comment $O(\#comerciosUnion^2)$
+        \State UnirConstrucciones(res, comerciosUnion) \Comment $O(max\{1, \#res\} * \#comerciosUnion)$
+        \State Avanzar(itUniones) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O( \sum_{i=0}^p i * maxComercios^2 ) = O( p^2 * maxComercios^2 )$ \\
+De forma similar a la función Mapa y la función CasasPropias, $p$ es la popularidad de la instancia $s$ lo cual representa la cantidad total de uniones (directas o indirectas), y $maxComercios$ representa la máxima cantidad de comercios de alguna unión (directa o indirecta), sin considerar los comercios que obtiene por sus propias uniones.
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{SumarATodos}(\Inout{d}{dicc(pos, nivel)}, \In{n}{nat})}
+\\ {\small Incrementa $n$ a todos los significados de $d$.}
+\begin{algorithmic}[1]
+    \State it $\gets$ CrearIt(d) \Comment $O(1)$
+    \While {HaySiguiente(it)} \Comment $O(\#d)$
+        \State pos $\gets$ SiguienteClave(it) \Comment $O(1)$
+        \State nivel $\gets$ SiguienteSignificado(it) \Comment $O(1)$
+        \State Definir(d, pos, nivel + n) \Comment $O(\#d)$
+        \State Avanzar(it) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#d^2)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{UnirConstrucciones}(\Inout{dst}{dicc(pos, nivel)}, \In{src}{dicc(pos, nivel)})}
+\\ {\small Une todas las construcciones definidas en $src$ con las que están en $dst$, quedándose con el mayor nivel en el caso de un conflicto.}
+\begin{algorithmic}[1]
+    \State it $\gets$ CrearIt(src) \Comment $O(1)$
+    \While {HaySiguiente(it)} \Comment $O(\#src)$
+        \State pos $\gets$ SiguienteClave(it) \Comment $O(1)$
+        \State nivelSrc $\gets$ SiguienteSignificado(it) \Comment $O(1)$
+        \If {Definido?(dst, pos)} \Comment $O(\#dst)$
+            \State nivelDst $\gets$ Significado(dst, pos) \Comment $O(\#dst)$
+            \State Definir(dst, pos, max(nivelDst, nivelSrc)) \Comment $O(\#dst)$
+        \Else
+            \State DefinirRapido(dst, pos, nivelSrc) \Comment $O(1)$
+        \EndIf
+        \State Avanzar(it) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#src * max\{1, \#dst\})$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{SacarCasasSolapadas}(\Inout{casas}{dicc(pos, nivel)}, \In{comercios}{dicc(pos, nivel)})}
+\\ {\small Resuelve los conflictos entre casas y comercios eliminando de $casas$ las que tienen un nivel igual o menor al de un comercio.}
+\begin{algorithmic}[1]
+    \State itCasas $\gets$ CrearIt(casas) \Comment $O(1)$
+    \While {HaySiguiente(itCasas)} \Comment $O(\#casas)$
+        \State pos $\gets$ SiguienteClave(itCasas) \Comment $O(1)$
+        \State nivelCasa $\gets$ SiguienteSignificado(itCasas) \Comment $O(1)$
+        \If {Definido?(comercios, pos)} \Comment $O(\#comercios)$
+            \State nivelComercio $\gets$ Significado(comercios, pos) \Comment $O(\#comercios)$
+            \If {nivelCasa $\leq$ nivelComercio} \Comment $O(1)$
+                \State EliminarSiguiente(itCasas) \Comment $O(1)$
+            \EndIf
+        \EndIf
+        \State Avanzar(itCasas) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#casas * \#comercios)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{SacarComerciosSolapados}(\Inout{comercios}{dicc(pos, nivel)}, \In{casas}{dicc(pos, nivel)})}
+\\ {\small Algoritmo análogo a SacarCasasSolapadas. Resuelve los conflictos entre comercios y casas eliminando de $comercios$ los que tienen un nivel estrictamente menor al de una casa.}
+\begin{algorithmic}[1]
+    \State itComercios $\gets$ CrearIt(comercios) \Comment $O(1)$
+    \While {HaySiguiente(itComercios)} \Comment $O(\#comercios)$
+        \State pos $\gets$ SiguienteClave(itComercios) \Comment $O(1)$
+        \State nivelComercio $\gets$ SiguienteSignificado(itComercios) \Comment $O(1)$
+        \If {Definido?(casas, pos)} \Comment $O(\#casas)$
+            \State nivelCasa $\gets$ Significado(casa, pos) \Comment $O(\#casas)$
+            \If {nivelComercio $<$ nivelCasa} \Comment $O(1)$
+                \State EliminarSiguiente(itComercios) \Comment $O(1)$
+            \EndIf
+        \EndIf
+        \State Avanzar(itComercios) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#comercios * \#casas)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{AdoptarNiveles}(\Inout{comercios}{dicc(pos, nivel)}, \In{casas}{dicc(pos, nivel)})}
+\\ {\small Construye un nuevo diccionario de comercios con los niveles adoptados (solo si el nivel que podría adoptar es mayor que el nivel que ya tiene).}
+\begin{algorithmic}[1]
+    \State itComercios $\gets$ CrearIt(comercios) \Comment $O(1)$
+    \While {HaySiguiente(itComercios)} \Comment $O(\#comercios)$
+        \State pos $\gets$ SiguienteClave(itComercios) \Comment $O(1)$
+        \State nivelComercio $\gets$ SiguienteSignificado(itComercios) \Comment $O(1)$
+        \State nivelManhattan $\gets$ ObtenerNivelManhattan(pos, casas) \Comment $O(\#casas)$
+        \State Definir(comercios, pos, max(nivelComercio, nivelManhattan)) \Comment $O(\#comercios)$
+        \State Avanzar(itComercios) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#comercios * (\#casas + \#comercios))$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{ObtenerNivelManhattan}(\In{posComercio}{pos}, \In{casas}{dicc(pos, nivel)}) $\to$ \Out{res}{nat}}
+\\ {\small Devuelve el nivel máximo que puede adoptar un comercio de acuerdo a los niveles de las casas que están a cierta distancia Manhattan. Si no hay casas a la distancia Manhattan estipulada, se devuelve 0 por convención.}
+\begin{algorithmic}[1]
+    \State res $\gets$ 0 \Comment $O(1)$
+    \State itCasas $\gets$ CrearIt(casas) \Comment $O(1)$
+    \While {HaySiguiente(itCasas)} \Comment $O(\#casas)$
+        \State posCasa $\gets$ SiguienteClave(itCasas) \Comment $O(1)$
+        \State nivelCasa $\gets$ SiguienteSignificado(itCasas) \Comment $O(1)$
+        \State distanciaManhattan $\gets$ DistanciaManhattan(posComercio, posCasa) \Comment $O(1)$
+        \If {distanciaManhattan $=$ 3} \Comment $O(1)$
+            \State res $\gets$ max(res, nivelCasa) \Comment $O(1)$
+        \EndIf
+        \State Avanzar(itCasas) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#casas)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{DistanciaManhattan}(\In{p1}{pos}, \In{p2}{pos}) $\to$ \Out{res}{nat}}
+\begin{algorithmic}[1]
+    \State res $\gets$ abs(x(p1) - x(p2)) + abs(y(p1) - y(p2)) \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(1)$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{UnirConjuntos}(\Inout{c1}{conj(nat)}, \In{c2}{conj(nat)})}
+\begin{algorithmic}[1]
+    \State it $\gets$ CrearIt(c2) \Comment $O(1)$
+    \While {HaySiguiente(it)} \Comment $O(\#c2)$
+        \State Agregar(c1, Siguiente(it)) \Comment $O(\#c1)$
+        \State Avanzar(it) \Comment $O(1)$
+    \EndWhile
+\end{algorithmic}
+\textbf{Complejidad}: $O(\#c1 * \#c2)$ \\
+Por cada elemento de c2 que se agrega a c1, se debe verificar que estos no pertenezcan ya a c1.
+\end{algorithm}
+
+\end{Algoritmos}

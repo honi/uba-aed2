@@ -1,0 +1,449 @@
+\subsection{TAD SimCity}
+
+\begin{tad}{\tadNombre{SimCity}}
+
+\tadIgualdadObservacional{s}{s'}{simcity}{
+    mapa($s$) $\igobs$ mapa($s'$) \\
+    $\land$ casas($s$) $\igobs$ casas($s'$) \\
+    $\land$ comercios($s$) $\igobs$ comercios($s'$) \\
+    $\land$ popularidad($s$) $\igobs$ popularidad($s'$)
+}
+
+\tadGeneros{simcity}
+\tadExporta{simcity, generadores, observadores, turnos, unionValida, construccionesValidas}
+\tadUsa{Mapa, Construccion, Pos, Nivel, Bool, Nat, Diccionario, Conjunto}
+
+\tadObservadores
+\tadAlinearFunciones{popularidad}{simcity}
+\tadOperacion{mapa}{simcity}{mapa}{}
+\tadOperacion{casas}{simcity}{dicc(pos, nivel)}{}
+\tadOperacion{comercios}{simcity}{dicc(pos, nivel)}{}
+\tadOperacion{popularidad}{simcity}{nat}{}
+
+\tadGeneradores
+% Le sacamos la "o" a propósito para que la restricción entre en una sola línea.
+\tadAlinearFunciones{avanzarTurn}{simcity/s, dicc(pos, construccion)/cs}
+\tadOperacion{iniciar}{mapa}{simcity}{}
+\tadOperacion{avanzarTurno}{simcity/s, dicc(pos, construccion)/cs}{simcity}{construccionesValidas(s, cs)}
+\tadOperacion{unir}{simcity/a, simcity/b}{simcity}{unionValida(a, b)}
+
+\tadOtrasOperaciones
+\tadAlinearFunciones{turnos}{simcity}
+\tadOperacion{turnos}{simcity}{nat}{}
+
+\vspace{1em}
+\tadAlinearFunciones{noSeSolapanMaxNivel}{simcity, dicc(pos, construccion)}
+\tadOperacion{construccionesValidas}{simcity, dicc(pos, construccion)}{bool}{}
+\tadOperacion{unionValida}{simcity, simcity}{bool}{}
+\tadOperacion{noSeSolapanConRios}{simcity, simcity}{bool}{}
+\tadOperacion{noSeSolapanMaxNivel}{simcity, simcity}{bool}{}
+
+\vspace{1em}
+\tadAlinearFunciones{posConNivelAux}{simcity, nat, conj(pos)}
+\tadOperacion{posLibre}{simcity, pos}{bool}{}
+\tadOperacion{posOcupadas}{simcity}{conj(pos)}{}
+\tadOperacion{xOcupadas}{simcity}{conj(nat)}{}
+\tadOperacion{xOcupadasAux}{conj(pos)}{conj(nat)}{}
+\tadOperacion{yOcupadas}{simcity}{conj(nat)}{}
+\tadOperacion{yOcupadasAux}{conj(pos)}{conj(nat)}{}
+\tadOperacion{posConNivel}{simcity, nat}{conj(pos)}{}
+\tadOperacion{posConNivelAux}{simcity, nat, conj(pos)}{conj(pos)}{}
+
+\vspace{1em}
+\tadAlinearFunciones{adoptarNiveles}{simcity, dicc(pos, nivel)}
+\tadOperacion{nivel}{simcity/s, pos/p}{nat}{p $\in$ posOcupadas(s)}
+\tadOperacion{maxNivel}{simcity}{nat}{}
+\tadOperacion{maxNivelAux}{simcity, conj(pos)}{nat}{}
+\tadOperacion{subirNivel}{dicc(pos, nivel)}{dicc(pos, nivel)}{}
+\tadOperacion{adoptarNiveles}{simcity, dicc(pos, nivel)}{dicc(pos, nivel)}{}
+
+\vspace{1em}
+\tadAlinearFunciones{sacarComerciosSolapados}{dicc(pos, construccion), construccion}
+\tadOperacion{nuevasConstrucciones}{dicc(pos, construccion), construccion}{dicc(pos, nivel)}{}
+\tadOperacion{unirConstrucciones}{dicc(pos, nivel), dicc(pos, nivel)}{dicc(pos, nivel)}{}
+\tadOperacion{sacarCasasSolapadas}{dicc(pos, nivel), dicc(pos, nivel)}{dicc(pos, nivel)}{}
+\tadOperacion{sacarComerciosSolapados}{dicc(pos, nivel), dicc(pos, nivel)}{dicc(pos, nivel)}{}
+
+\vspace{1em}
+\tadAlinearFunciones{distanciaManhattan}{simcity, conj(pos), pos}
+\tadOperacion{distanciaManhattan}{pos, pos}{nat}{}
+\tadOperacion{nivelManhattan}{pos, dicc(pos, nivel)}{nat}{}
+
+% Inicio axiomas
+
+\tadAxiomas
+    [\paratodo{simcity}{s, s1, s2},
+    \paratodo{pos}{p, p1, p2},
+    \paratodo{conj(pos)}{ps},
+    \paratodo{construccion}{c},
+    \\
+    \paratodo{dicc(pos $\times$ construccion)}{cs},
+    \paratodo{dicc(pos $\times$ nivel)}{ns},
+    \paratodo{nat}{n}
+]
+
+% Axiomas: mapa()
+\vspace{1em}
+\tadAlinearAxiomas{mapa(avanzarTurno(s, cs))}
+\tadAxioma{mapa(iniciar(m))}{
+    m
+}
+\tadAxioma{mapa(avanzarTurno(s, cs))}{
+    mapa(s)
+}
+\tadAxioma{mapa(unir(s1, s2))}{
+    crear( \\
+    \tab horizontales(mapa(s1)) $\cup$ horizontales(mapa(s2)), \\
+    \tab verticales(mapa(s1)) $\cup$ verticales(mapa(s2)) \\
+    )
+}
+
+% Axiomas: casas
+\vspace{1em}
+\tadAlinearAxiomas{casas(avanzarTurno(s, cs))}
+\tadAxioma{casas(iniciar(m))}{
+    vacio
+}
+\tadAxioma{casas(avanzarTurno(s, cs))}{
+    subirNivel(unirConstrucciones( \\
+    \tab casas(s), \\
+    \tab nuevasConstrucciones(cs, 'casa') \\
+    ))
+}
+\tadAxioma{casas(unir(s1, s2))}{
+    sacarCasasSolapadas( \\
+    \tab unirConstrucciones(casas(s1), casas(s2)), \\
+    \tab unirConstrucciones(comercios(s1), comercios(s2)) \\
+    )
+}
+
+% Axiomas: comercios
+\vspace{1em}
+\tadAlinearAxiomas{comercios(avanzarTurno(s, cs))}
+\tadAxioma{comercios(iniciar(m))}{
+    vacio
+}
+\tadAxioma{comercios(avanzarTurno(s, cs))}{
+    subirNivel( \\
+    \tab unirConstrucciones( \\
+    \tab\tab comercios(s), \\
+    \tab\tab adoptarNiveles(s, nuevasConstrucciones(cs, 'comercio')) \\
+    \tab ) \\
+    )
+}
+\tadAxioma{comercios(unir(s1, s2))}{
+    adoptarNiveles( \\
+    \tab unir(s1, s2), \\
+    \tab sacarComerciosSolapados( \\
+    \tab\tab unirConstrucciones(comercios(s1), comercios(s2)), \\
+    \tab\tab unirConstrucciones(casas(s1), casas(s2)) \\
+    \tab ) \\
+    )
+}
+
+% Axiomas: popularidad
+\vspace{1em}
+\tadAlinearAxiomas{popularidad(avanzarTurno(s, cs))}
+\tadAxioma{popularidad(iniciar(m))}{
+    0
+}
+\tadAxioma{popularidad(avanzarTurno(s, cs))}{
+    popularidad(s)
+}
+\tadAxioma{popularidad(unir(s1, s2))}{
+    popularidad(s1) + popularidad(s2) + 1
+}
+
+% Axiomas: turnos
+\vspace{1em}
+\tadAlinearAxiomas{turnos(avanzarTurno(s, cs))}
+\tadAxioma{turnos(iniciar(m))}{
+    0
+}
+\tadAxioma{turnos(avanzarTurno(s, cs))}{
+    turnos(s) + 1
+}
+\tadAxioma{turnos(unir(s1, s2))}{
+    max(turnos(s1), turnos(s2))
+}
+
+% Axiomas: unionValida
+\vspace{1em}
+\tadAlinearAxiomas{construccionesValidas(s, cs)}
+\tadAxioma{construccionesValidas(s, cs)}{
+    \#(claves(cs)) $>$ 0
+    $\land$
+    claves(cs) $\cap$ posOcupadas(s) $\igobs \emptyset$
+}
+\tadAxioma{unionValida(s1, s2)}{
+    noSeSolapanConRios(s1, s2) $\land$ noSeSolapanConRios(s2, s1) \\
+    $\yluego$ noSeSolapanMaxNivel(s1, s2) $\land$ noSeSolapanMaxNivel(s2, s1)
+}
+
+% Axiomas: noSeSolapanConRios, noSeSolapanMaxNivel
+\vspace{1em}
+\tadAlinearAxiomas{noSeSolapanMaxNivel(s1, s2)}
+\tadAxioma{noSeSolapanConRios(s1, s2)}{
+    xOcupadas(s1) $\cap$ verticales(mapa(s2)) $\igobs$ $\emptyset$ \\
+    $\land$ yOcupadas(s1) $\cap$ horizontales(mapa(s2)) $\igobs$ $\emptyset$
+}
+\tadAxioma{noSeSolapanMaxNivel(s1, s2)}{
+    posConNivel(s1, maxNivel(s1)) $\cap$ posOcupadas(s2) $\igobs$ $\emptyset$
+}
+
+% Axiomas: posLibre, posOcupadas
+\vspace{1em}
+\tadAlinearAxiomas{posOcupadas(s)}
+\tadAxioma{posLibre(s, p)}{
+    p $\notin$ claves(casas(s)) $\land$ p $\notin$ claves(comercios(s)) \\
+    $\land$ x(p) $\notin$ verticales(mapa(s)) $\land$ y(p) $\notin$ horizontales(mapa(s))
+}
+\tadAxioma{posOcupadas(s)}{
+    claves(casas(s)) $\cup$ claves(comercios(s))
+}
+
+% Axiomas: xOcupadas, yOcupadas
+\vspace{1em}
+\tadAlinearAxiomas{xOcupadasAux(ps)}
+\tadAxioma{xOcupadas(s)}{xOcupadasAux(posOcupadas(s))}
+\tadAxioma{xOcupadasAux(ps)}{
+    \IFV{
+        vacio?(ps)
+    }THEN{
+        $\emptyset$
+    }
+    ELSE{
+        Ag(x(dameUno(ps)), xOcupadasAux(sinUno(ps)))
+    }FI
+}
+\tadAxioma{yOcupadas(s)}{yOcupadasAux(posOcupadas(s))}
+\tadAxioma{yOcupadasAux(ps)}{
+    \IFV{
+        vacio?(ps)
+    }THEN{
+        $\emptyset$
+    }
+    ELSE{
+        Ag(y(dameUno(ps)), yOcupadasAux(sinUno(ps)))
+    }FI
+}
+
+% Axiomas: posConNivel
+\vspace{1em}
+\tadAlinearAxiomas{posConNivelAux(s, n, ps)}
+\tadAxioma{posConNivel(s, n)}{posConNivelAux(s, n, posOcupadas(s))}
+\tadAxioma{posConNivelAux(s, n, ps)}{
+    \IFV{
+        vacio?(ps)
+    }THEN{
+        $\emptyset$
+    }
+    ELSE{
+        \IFV{
+            nivel(s, dameUno(ps)) $\igobs$ n
+        }THEN{
+            Ag(dameUno(ps), posConNivelAux(s, n, sinUno(ps)))
+        }ELSE{
+            posConNivelAux(s, n, sinUno(ps))
+        }FI
+    }FI
+}
+
+% Axiomas: nivel
+\vspace{1em}
+\tadAlinearAxiomas{nivel(s, p)}
+\tadAxioma{nivel(s, p)}{
+    \IFV{
+        p $\in$ claves(casas(s))
+    }THEN{
+        obtener(p, casas(s))
+    }ELSE{
+        obtener(p, comercios(s))
+    }FI
+}
+
+% Axiomas: maxNivel
+\vspace{1em}
+\tadAlinearAxiomas{maxNivelAux(s, ps)}
+\tadAxioma{maxNivel(s)}{maxNivelAux(s, posOcupadas(s))}
+\tadAxioma{maxNivelAux(s, ps)}{
+    \IF{
+        vacio?(ps)
+    }THEN{
+        0
+    }ELSE{
+        max(nivel(s, dameUno(ps)), maxNivelAux(s, sinUno(ps)))
+    }FI
+}
+
+% Axiomas: subirNivel
+\vspace{1em}
+\tadAlinearAxiomas{subirNivel(ns)}
+\tadAxioma{subirNivel(ns)}{
+    \IFV{
+        vacio?(claves(ns))
+    }
+    THEN{
+        vacio
+    }
+    ELSE{
+        definir( \\
+        \tab dameUno(claves(ns)), \\
+        \tab obtener(dameUno(claves(ns))) + 1, \\
+        \tab subirNivel(borrar(dameUno(claves(ns)), ns)) \\
+        )
+    }FI
+}
+
+% Axiomas: adoptarNiveles
+\vspace{1em}
+\tadAlinearAxiomas{adoptarNiveles(s, ns)}
+\tadAxioma{adoptarNiveles(s, ns)}{
+    \IFV{
+        vacio?(claves(ns))
+    }THEN{
+        vacio
+    }ELSE{
+        definir( \\
+            \tab dameUno(claves(ns)), \\
+            \tab max( \\
+                \tab\tab obtener(dameUno(claves(ns)), ns), \\
+                \tab\tab nivelManhattan(dameUno(claves(ns)), casas(s)) \\
+            \tab), \\
+            \tab adoptarNiveles(s, borrar(dameUno(claves(ns)), ns)) \\
+        )
+    }FI
+}
+
+% Axiomas: nuevasConstrucciones
+\vspace{1em}
+\tadAlinearAxiomas{nuevasConstrucciones(cs, c)}
+\tadAxioma{nuevasConstrucciones(cs, c)}{
+    \IFV{
+        vacio?(claves(cs))
+    }
+    THEN{
+        vacio
+    }
+    ELSE{
+        \IFV{
+            obtener(dameUno(claves(cs)), cs) $\igobs$ c
+        }THEN{
+            definir( \\
+            \tab dameUno(claves(cs)), \\
+            \tab 0, \\
+            \tab nuevasConstrucciones(borrar(dameUno(claves(cs)), cs), c) \\
+            )
+        }ELSE{
+            nuevasConstrucciones(borrar(dameUno(claves(cs)), cs), c)
+        }FI
+    }FI
+}
+
+% Axiomas: unirConstrucciones
+\vspace{1em}
+\tadAlinearAxiomas{unirConstrucciones(ns1, ns2)}
+\tadAxioma{unirConstrucciones(ns1, ns2)}{
+    \IFV{
+        vacio?(claves(ns2))
+    }THEN{
+        ns1
+    }ELSE{
+        unirConstrucciones( \\
+        \tab definir( \\
+        \tab\tab dameUno(claves(ns2)), \\
+        \tab\tab \textbf{if}
+            def?(dameUno(claves(ns2)), ns1)
+            \textbf{then} \\
+            \tab\tab\tab max( \\
+            \tab\tab\tab\tab obtener(dameUno(claves(ns2)), ns1), \\
+            \tab\tab\tab\tab obtener(dameUno(claves(ns2)), ns2) \\
+            \tab\tab\tab ) \\
+            \tab\tab \textbf{else} \\
+            \tab\tab\tab obtener(dameUno(claves(ns2)), ns2) \\
+            \tab\tab \textbf{fi}, \\
+            \tab\tab ns1 \\
+        \tab ), \\
+        \tab borrar(dameUno(claves(ns2)), ns2) \\
+        )
+    }FI
+}
+
+% Axiomas: sacarCasasSolapadas, sacarComerciosSolapados
+\vspace{1em}
+\tadAlinearAxiomas{sacarComerciosSolapados(ns1, ns2)}
+\tadAxioma{sacarCasasSolapadas(ns1, ns2)}{
+    \IFV{
+        vacio?(claves(ns2))
+    }THEN{
+        ns1
+    }ELSE{
+        \IFV{
+            def?(dameUno(claves(ns2)), ns1) \\
+            $\yluego$ obtener(dameUno(claves(ns2)), ns1) \\
+            $\leq$ obtener(dameUno(claves(ns2)), ns2)
+        }THEN{
+            sacarCasasSolapadas( \\
+            \tab borrar(dameUno(claves(ns2)), ns1), \\
+            \tab borrar(dameUno(claves(ns2)), ns2) \\
+            )
+        }ELSE{
+            sacarCasasSolapadas( \\
+            \tab ns1, \\
+            \tab borrar(dameUno(claves(ns2)), ns2) \\
+            )
+        }FI
+    }FI
+}
+\tadAxioma{sacarComerciosSolapados(ns1, ns2)}{
+    \IFV{
+        vacio?(claves(ns2))
+    }THEN{
+        ns1
+    }ELSE{
+        \IFV{
+            def?(dameUno(claves(ns2)), ns1) \\
+            $\yluego$ obtener(dameUno(claves(ns2)), ns1) \\
+            $<$ obtener(dameUno(claves(ns2)), ns2)
+        }THEN{
+            sacarComerciosSolapados( \\
+            \tab borrar(dameUno(claves(ns2)), ns1), \\
+            \tab borrar(dameUno(claves(ns2)), ns2) \\
+            )
+        }ELSE{
+            sacarComerciosSolapados( \\
+            \tab ns1, \\
+            \tab borrar(dameUno(claves(ns2)), ns2) \\
+            )
+        }FI
+    }FI
+}
+
+% Axiomas: distanciaManhattan, nivelManhattan
+\vspace{1em}
+\tadAlinearAxiomas{distanciaManhattan(p1, p2)}
+
+\tadAxioma{distanciaManhattan(p1, p2)}{
+    |x(p1) - x(p2)| + |y(p1) - y(p2)|
+}
+
+\tadAxioma{nivelManhattan(p, ns)}{
+    \IFV{
+        vacio?(claves(ns))
+    }THEN{
+        0
+    }ELSE{
+        \IFV{
+            distanciaManhattan(p, dameUno(claves(ns))) = 3
+        }THEN{
+            max( \\
+                \tab obtener(dameUno(claves(ns)), ns), \\
+                \tab nivelManhattan(p, borrar(dameUno(claves(ns)), ns)) \\
+            )
+        }ELSE{
+            nivelManhattan(p, borrar(dameUno(claves(ns)), ns))
+        }FI
+    }FI
+}
+
+\end{tad}

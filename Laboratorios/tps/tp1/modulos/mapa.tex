@@ -1,0 +1,83 @@
+\subsection{Módulo Mapa}
+
+\begin{Interfaz}
+\textbf{se explica con}: \tadNombre{Mapa}
+
+\textbf{géneros}: \TipoVariable{mapa}
+
+{\textbf{\large Operaciones básicas}}
+
+\InterfazFuncion{CrearMapa}{\In{hs}{conj(nat)}, \In{vs}{conj(nat)}}{mapa}
+{$res \igobs crear(hs, vs)$}
+[$O(copy(hs) + copy(vs))$]
+[Crea un nuevo mapa con los ríos horizontales y verticales provistos.]
+
+\InterfazFuncion{Horizontales}{\In{m}{mapa}}{conj(nat)}
+{$res \igobs horizontales(m)$}
+[$O(1)$]
+[Devuelve los ríos horizontales, dando su ubicación en el eje vertical.]
+[Genera aliasing, devuelve una referencia no modificable.]
+
+\InterfazFuncion{Verticales}{\In{m}{mapa}}{conj(nat)}
+{$res \igobs verticales(m)$}
+[$O(1)$]
+[Devuelve los ríos verticales, dando su ubicación en el eje horizontal.]
+[Genera aliasing, devuelve una referencia no modificable.]
+
+\end{Interfaz}
+
+~
+
+\begin{Representacion}
+
+Un mapa contiene rios infinitos horizontales y verticales. Los ríos se
+representan como conjuntos lineales de naturales que indican la posición en
+los ejes de los ríos.
+
+\begin{Estructura}{mapa}[estr]
+    \begin{Tupla}[estr]
+        \tupItem{horizontales}{conj(nat)}%
+        \tupItem{verticales}{conj(nat)}%
+    \end{Tupla}
+\end{Estructura}
+
+\Rep[estr]{true}
+
+~
+
+\Abs[estr]{mapa}[e]{m}{
+    horizontales(m) $\igobs$ e.horizontales $\land$
+    verticales(m) $\igobs$ e.verticales
+}
+
+\end{Representacion}
+
+~
+
+\begin{Algoritmos}
+
+\begin{algorithm}[H]{\textbf{CrearMapa}(\In{hs}{conj(nat)}, \In{vs}{conj(nat)}) $\to$ \Out{res}{mapa}}
+\begin{algorithmic}[1]
+    \State res.horizontales $\gets$ hs \Comment $O(copy(hs))$
+    \State res.verticales $\gets$ vs \Comment O($copy(vs))$
+\end{algorithmic}
+\textbf{Complejidad}: $O(copy(hs) + copy(vs))$
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Horizontales}(\In{e}{estr}) $\to$ \Out{res}{conj(nat)}}
+\begin{algorithmic}[1]
+    \State res $\gets$ e.horizontales \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(1)$ \\
+Pues se devuelven los ríos horizontales por referencia no modificable.
+\end{algorithm}
+
+\begin{algorithm}[H]{\textbf{Verticales}(\In{e}{estr}) $\to$ \Out{res}{conj(nat)}}
+\begin{algorithmic}[1]
+    \State res $\gets$ e.verticales \Comment $O(1)$
+\end{algorithmic}
+\textbf{Complejidad}: $O(1)$ \\
+Pues se devuelven los ríos verticales por referencia no modificable.
+\end{algorithm}
+
+\end{Algoritmos}

@@ -1,0 +1,19 @@
+\subsection{TAD Pos}
+
+Extendemos el TAD Tupla simplemente para definir renombres más semánticos para las operaciones de acceso a los componentes de la tupla.
+
+\begin{tad}{\tadNombre{Pos extiende Tupla(nat, nat)}}
+
+\tadGeneros{pos}
+
+\tadExporta{x, y}
+
+\tadOtrasOperaciones
+\tadOperacion{x}{pos}{nat}{}
+\tadOperacion{y}{pos}{nat}{}
+
+\tadAxiomas[\paratodo{pos}{p}]
+\tadAxioma{x(p)}{$\pi_{1}$(p)}
+\tadAxioma{y(p)}{$\pi_{2}$(p)}
+
+\end{tad}

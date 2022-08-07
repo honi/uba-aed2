@@ -1,0 +1,42 @@
+\NeedsTeXFormat{LaTeX2e}
+
+\ProvidesPackage{aed2-itef}[2010/03/16 - if-then-else-fi en lenguaje de TADs.]
+\RequirePackage{ifthen}%ifthenelse.
+
+% Imprimir un mensajito al procesar un .tex que use este package
+\typeout{Cargando package 'itef' (2010/03/16)}
+
+% parametros modificables
+\newlength{\itefIndentacion}\setlength{\itefIndentacion}{5mm}
+
+% Los símbolos a utilizar
+\newcommand{\LIF}{\textrm{\textbf{if}}}
+\newcommand{\LTHEN}{\textrm{\textbf{then}}}
+\newcommand{\LELSE}{\textrm{\textbf{else}}}
+\newcommand{\LFI}{\textrm{\textbf{fi}}}
+
+\newlength{\itef@widthUnaLinea}
+\def\IF#1THEN#2ELSE#3FI{%
+    \settowidth{\itef@widthUnaLinea}{\IFL#1THEN#2ELSE#3FI}%
+    \ifthenelse{\lengthtest{\itef@widthUnaLinea<\linewidth}}{%
+        \IFL#1THEN#2ELSE#3FI%
+    }%
+    {%
+        \IFV#1THEN#2ELSE#3FI%
+    }%
+}
+
+% if then else fi, en una línea.
+\def\IFL#1THEN#2ELSE#3FI{\LIF\ #1~\LTHEN\ #2~\LELSE\ #3~\LFI}
+
+\newlength{\itef@linewidth}
+\def\IFV#1THEN#2ELSE#3FI{%
+    \setlength{\itef@linewidth}{\linewidth-\itefIndentacion}%
+    \LIF\ #1~\LTHEN\\%
+    \hspace*{\itefIndentacion}\parbox[t]{\itef@linewidth}{#2}\\%
+    \LELSE\\%
+    \hspace*{\itefIndentacion}\parbox[t]{\itef@linewidth}{#3}\\%
+    \LFI%
+}
+
+
