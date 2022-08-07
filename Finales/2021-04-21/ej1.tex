@@ -1,13 +1,13 @@
-\section{Ejercicio 1}
+\section*{Ejercicio 1}
 
-\subsection{}
+\subsection*{a)}
 
 \begin{itemize}
     \item No es necesario el generador \lstinline{pase_el_que_sigue} ya que esto sucede como parte del generador \lstinline{atender_cliente}. Es decir, cuando se atiende al primer cliente de la cola, automáticamente pasa el siguiente si es que hay. Si planteamos este generador, estamos delegando al usuario lo que se pide como un comportamiento automático, permitiendo así instancias inválidas del TAD (hay clientes en la cola pero nadie está siendo atendido).
     \item Como el generador \lstinline{llega_cliente} recibe un cliente, el observador \lstinline{largo_de_la_cola} debería ser \lstinline{cola: banco $\rightarrow$ cola(cliente)} para poder identificar los clientes en la cola y su posición. De la forma planteada, distintas colas del mismo largo son observacionalmente iguales aunque hayan distintos clientes en ella. Otra solución es simplificar el TAD y sacar el parámetro \lstinline{cliente} del generador \lstinline{llega_cliente} para modelar así únicamente el aspecto cuantitativo de una cola del banco (cuántos clientes hay) sin importar quiénes están en la cola. No está precisamente \emph{mal} que reciba el parámetro \lstinline{cliente} pero la realidad es que así como está planteado el TAD no se usa para nada.
 \end{itemize}
 
-\subsection{}
+\subsection*{b)}
 
 \begin{itemize}
     \item El TAD no tiene problemas que impiden su uso.
@@ -15,7 +15,7 @@
     \item Aplica la misma aclaración planteada en el segundo item del caso a).
 \end{itemize}
 
-\subsection{}
+\subsection*{c)}
 
 \begin{itemize}
     \item En este caso necesitamos que \lstinline{clientes_atendidos} sea un observador para poder trackear correctamente el historial de clientes. Como queremos el historial, no es suficiente con solo observar el estado actual de la cola, necesitamos también incluir en la igualdad observacional lo que pasó antes. Pues sino, podríamos tener 2 instancias observacionalmente iguales a partir de sus colas actuales, pero con historiales totalmente distintos.
