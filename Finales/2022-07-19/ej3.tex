@@ -1,0 +1,18 @@
+\section*{Ejercicio 3}
+
+Se necesita implementar diccionarios en forma tal que a las operaciones clásicas se le agrega la de devolver el elemento cuya clave es mínima. Analice la performance de los árboles AVL y Heaps. Proponga una estructura que permita implementar TODAS las operaciones en forma óptima. Explique informalmente por qué es óptima.
+
+Los árboles AVL tienen complejidad $O(log(n))$ para las operaciones de búsqueda, inserción y borrado, donde $n$ es la cantidad de nodos en el árbol. Por el invariante de representación del AVL (en realidad por el del ABB), para obtener el mínimo debemos caminar por el árbol desde la raíz siempre tomando la rama izquierda hasta llegar a una hoja. Esta operación tiene un costo de $O(log(n))$ ya que para llegar hasta la hoja de más a la izquierda debemos recorrer toda la altura del árbol, que es $log(n)$.
+
+Un Heap (asumiendo un MinHeap) puede obtener la clave mínima en $O(1)$ ya que ésta está en el nodo raíz. No obstante si queremos borrar el mínimo la complejidad es $O(log(n))$ ya que debemos reestablecer el invariante del Heap. Insertar en el Heap también es $O(log(n))$, pero para buscar, a diferencia del AVL donde en cada nodo decidimos ir por la izquierda o la derecha según la comparación entre la clave buscada y la clave del nodo, en el Heap debemos buscar por ambas ramas, en efecto recorriendo todo el Heap entero en el peor caso lo cual resulta $O(n)$.
+
+Una estructura posible podría ser así:
+
+\begin{lstlisting}
+minDicc(K, V) es tupla $\langle$ raiz: AVL(K, V), min: AVL(K, V) $\rangle$
+AVL(K, V) es tupla $\langle$ clave: K, significado: V, izq: AVL(K, V), der: AVL(K, V) $\rangle$
+\end{lstlisting}
+
+La componente \lstinline{raiz} es un puntero a la raíz del AVL, y \lstinline{min} es un puntero al nodo mínimo dentro del árbol.
+
+De esta forma podemos obtener el mínimo en $O(1)$ al igual que el Heap. Durante las operaciones de inserción y borrado, además de realizar el algoritmo clásico del AVL, tenemos que mantener el puntero \lstinline{min} actualizado como corresponde. Si insertamos una nueva clave que es menor que el mínimo actual, actualizamos \lstinline{min} para que apunte al nuevo nodo insertado. Si borramos el mínimo, debemos actualizar \lstinline{min} con el nuevo mínimo, que podemos obtenerlo al mismo tiempo que buscamos la clave a borrar, o podemos buscarlo luego de borrar el nodo. Ambas operaciones siguen siendo $O(log(n))$ ya que mantener actualizada la referencia al mínimo no demanda mayor complejidad (a lo sumo cambia la constante).

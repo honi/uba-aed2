@@ -1,0 +1,21 @@
+\section*{Ejercicio 4}
+
+Analice comparativamente ventajas y desventajas de la representación de diccionarios con Hashing Abierto y Cerrado, dando además ejemplos de contextos en los que preferiría una sobre la otra.
+
+Hashing abierto utiliza un direccionamiento cerrado o concatenación para resolver las colisiones. La HashTable no contiene directamente los significados, sino que en cada posición tenemos una lista enlazada de claves y significados (por ejemplo con tuplas). De esta forma, cuando la función de hash produce la misma posición para 2 claves distintas, la colisión se resuelve simplemente concatenando una nueva tupla (clave, significado) a la lista enlazada ubicada en la posición asignada por la función de hash.
+
+Cuando necesitamos obtener el significado de una clave, calculamos su posición en la HashTable y luego debemos iterar por la lista enlazada de esa posición hasta encontrar la clave. Suponiendo que la función de hash realiza una asignación uniforme a todas las posiciones de la HashTable podemos garantizar que en el caso promedio encontrar la clave será $O(1)$.
+
+Hashing cerrado utiliza un direccionamiento abierto (sí, los nombres son confusos). Este direccionamiento asigna una única clave por posición de la HashTable, y en el caso de una colisión, se busca iterativamente nuevas posiciones libres para colocar la clave. Para lograr esto, se introduce un segundo argumento $i$ a la función de hash que indica el número de barrido o número de intento para encontrarle la posición a una clave. La primer posición es calculada con $i=0$, y en caso de una colisión, se recalcula la posición con $i=1$, luego con $i=1$ y así sucesivamente hasta que encontramos una posición libre o detectamos que se llenó la HashTable.
+
+Hay varias formas de direccionamiento abierto. Sea $T$ la HashTable, $k$ la clave, $i$ el número de intento:
+
+\begin{itemize}
+    \item Barrido lineal: $h(k, i) = (h_1(k) + i) \text{ mod } |T|$
+    \item Barrido cuadrático: $h(k, i) = (h_1(k) + i^2) \text{ mod } |T|$
+    \item Doble hashing: $h(k, i) = (h_1(k) + i h_2(k)) \text{ mod } |T|$
+\end{itemize}
+
+Hashing abierto puede ser más conveniente en contextos donde vamos a tener que eliminar claves de la HashTable, ya que esto simplemente requiere eliminar el nodo de la lista enlazada correspondiente (y si además la lista es doblemente enlazada y tenemos una referencia directa al nodo nos evitamos buscarlo para borrarlo).
+
+Con hashing cerrado, borrar claves resulta mucho más trabajoso. No podemos simplemente limpiar la posición que tenía la clave en el HashTable, tenemos que marcar de alguna forma que borramos la clave que estaba en esa posición (y así diferenciarla de las posiciones vacías). Durante el barrido de otras claves, si estamos insertando una clave, podemos permitir reutilizar una posición que está marcada como borrada. Si estamos buscando una clave, no debemos frenar cuando encontramos una posición borrada, tenemos que considerarla como si estuviese ocupada y seguir barriendo hasta encontrar la clave o encontrar una posición que realmente esté vacía. Si frenamos la búsqueda cuando encontramos una posición borrada no estamos permitiendo acceder a todas las claves que se insertaron después de la clave que fue borrada y que además hayan colisionado con ella.

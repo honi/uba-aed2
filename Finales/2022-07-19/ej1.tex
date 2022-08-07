@@ -1,0 +1,21 @@
+\section*{Ejercicio 1}
+
+Responda verdadero o falso justificando.
+
+\begin{enumerate}
+    \item Lo que hace que una operación sea observador básico es que deba escribirse en base a los generadores.
+
+    \textbf{Falso}. Cualquier operación puede ser axiomatizada sobre los generadores. Una operación es un observador básico si expone alguna característica distintiva de la instancia que permita diferenciarla de cualquier otra instancia. Así, el conjunto de observadores básicos generan las clases de equivalencia del TAD, donde cada clase es el conjunto de instancias que son observacionalmente iguales en el contexto de nuestro problema.
+
+    \item Si una operación rompe la congruencia debe ser transformada en observador básico.
+
+    \textbf{Verdadero}. La congruencia se rompe si dado 2 instancias observacionalmente iguales, éstas dejan de serlo luego de aplicar la misma operación a ambas. Si esto sucede, significa que los cambios producidos por alguna otra operación no están siendo observados en su totalidad, y por lo tanto hay alguna característica de la instancia que no se está tomando en cuenta para generar las clases de equivalencia. Al convertir la operación que rompió la congruencia en un observador básico en efecto estamos ahora considerando esa característica para determinar la igualdad observacional, y consecuentemente no romper la congruencia.
+
+    \item Dos instancias del mismo TAD pueden ser observacionalmente iguales y aún así ser distinguibles por una operación.
+
+    \textbf{Falso}. Asumiendo que los observadores están bien definidos para modelar el comportamiento deseado, si 2 instancias son observacionalmente iguales, al aplicar la misma operación sobre ambas instancias éstas deberían permanecer en la misma clase de equivalencia.
+
+    \item Si un enunciado dice ``siempre que sucede A sucede inmediatamente B y B no puede suceder de ninguna otra manera'' y la correspondiente axiomatización incluye las operaciones A y B entonces el TAD está mal escrito.
+
+    \textbf{Verdadero}. B es un comportamiento automático, por lo tanto, como el nombre lo indica, los efectos de B deben suceder automáticamente durante la axiomatización de A. Si tenemos una operación explícita para B, estamos delegando al usuario la responsabilidad de aplicar B cada vez que sucede A. Pero así no tenemos forma de garantizar lo que nos piden (que siempre suceda B después de A), ya que el usuario puede simplemente no aplicar B a propósito o por olvido.
+\end{enumerate}
