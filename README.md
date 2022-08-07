@@ -20,11 +20,11 @@ Cursada: 1er cuatrimestre 2022
   - [Laboratorio 2](Laboratorios/labo02): Más clases
   - [Laboratorio 3](Laboratorios/labo03): Preprocesamiento y compilación
   - [Laboratorio 4](Laboratorios/labo04): Punteros
-  - Laboratorio 5: Listas enlazadas (taller entregable, lo subo al final del cuatrimestre)
+  - Laboratorio 5: Listas enlazadas (taller entregable)
   - [Laboratorio 6](Laboratorios/labo06): Templates
   - [Laboratorio 6.2](Laboratorios/labo06.2): Iteradores
-  - Laboratorio 7: Árboles ABB (taller entregable, lo subo al final del cuatrimestre)
-  - Laboratorio 8: Trie (taller entregable, lo subo al final del cuatrimestre)
+  - Laboratorio 7: Árboles ABB (taller entregable)
+  - Laboratorio 8: Trie (taller entregable)
 
 - Parciales
 
