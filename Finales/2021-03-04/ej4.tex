@@ -1,7 +1,17 @@
 \section*{Ejercicio 4}
 
-La algomeración primaria sucede cuando hay un conjunto de posiciones ocupadas que, cuando hay una colisión con cualquiera de ellas, el barrido debe recorrerlas a todas hasta encontrar la próxima posición libre, y así se incrementa el tamaño de la algomeración en 1.
+Las aglomeraciones solo suceden cuando se usa un direccionamiento abierto (hashing cerrado). Es decir, cuando todas las claves se colocan directamente en el HashTable.
 
-La aglomeración primaria es un conjunto de posiciones ocupadas que degradan la performance del HashTable. Por la función de hash y la forma de realizar el barrio, sucede que si una clave hashea a cualquiera de las posiciones dentro de la aglomeración primaria
+La aglomeración primaria es cuando 2 claves hashean a la misma posición y realizan desde ahí el mismo barrido hasta encontrar una posición libre. El barrido lineal forma una aglomeración desde la posición inicial donde sucedió la primer colisión. Cuando otras claves colisionan con la aglomeración, el barrido lineal revisará el resto de las posiciones que ya forman parte de la aglomeración hasta encontrar la próxima libre, la cual ahora pasa a ser parte de la aglomeración empeorando aún más el problema.
 
-donde todas generan una colisión
+Barrido lineal: $h(k, i) = (h_1(k) + i) \text{ mod } |T|$
+
+La aglomeración secundaria es similar, excepto que el conjunto de posiciones que forman la aglomeración no son posiciones adyacentes entre sí. Esto se debe a que la aglomeración secundaria sucede cuando se usa un barrido cuadrático. Cuando 2 claves colisionan, el barrido no revisa posiciones adyacentes barriendo linealmente, sino que realiza saltos siguiendo un patrón cuadrático en función del número de intento/barrido.
+
+Barrido cuadrático: $h(k, i) = (h_1(k) + i^2) \text{ mod } |T|$
+
+En ambos casos el problema de base es que cuando hay una colisión, la secuencia de barrido que se realiza sigue un patrón determinístico independiente de la clave. Por lo tanto estamos revisando siempre las mismas posiciones, y cada vez que sucede esto, incrementamos en 1 la cantidad de posiciones a revisar en la próxima colisión con la aglomeración. La primaria afecta a cualquier colisión dentro de la aglomeración. La secundaria solo afecta cuando la colisión se da en la posición inicial de la aglomeración.
+
+La aglomeración primaria se puede eliminar utilizando un barrido cuadrático. La aglomeración secundaria (y la primaria) se puede eliminar utilizando hashing doble, en donde la secuencia de barrido ahora sí depende también de la clave. De esta forma, cuando sucede una colisión, la secuencia de barrido será distinta para cada clave, siempre y cuando se hayan elegido buenas funciones de hash.
+
+Hashing doble: $h(k, i) = (h_1(k) + i h_2(k)) \text{ mod } |T|$
