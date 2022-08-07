@@ -13,7 +13,7 @@ Hay varias formas de direccionamiento abierto. Sea $T$ la HashTable, $k$ la clav
 \begin{itemize}
     \item Barrido lineal: $h(k, i) = (h_1(k) + i) \text{ mod } |T|$
     \item Barrido cuadrático: $h(k, i) = (h_1(k) + i^2) \text{ mod } |T|$
-    \item Doble hashing: $h(k, i) = (h_1(k) + i h_2(k)) \text{ mod } |T|$
+    \item Hashing doble: $h(k, i) = (h_1(k) + i h_2(k)) \text{ mod } |T|$
 \end{itemize}
 
 Hashing abierto puede ser más conveniente en contextos donde vamos a tener que eliminar claves de la HashTable, ya que esto simplemente requiere eliminar el nodo de la lista enlazada correspondiente (y si además la lista es doblemente enlazada y tenemos una referencia directa al nodo nos evitamos buscarlo para borrarlo).

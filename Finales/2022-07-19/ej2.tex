@@ -2,7 +2,7 @@
 
 Explique detalladamente el rol que juega el invariante de representación en el diseño jerárquico de tipos abstractos de datos. Relaciónelo con el concepto de complejidad algorítmica.
 
-El invariante de representación nos permite determinar si una instancia de la estructura de representación es válida o no. La estructura contiene toda la información necesaria para observar la instancia del TAD y poder realizar sus operaciones.
+El invariante de representación nos permite determinar si una instancia de la estructura de representación es válida o no. Necesitamos que la estructura sea válida para poder determinar a qué instancia abstracta del TAD representa.
 
 En todas las funciones de la interfaz se asume que el invariante vale en la Pre y en la Post. No necesariamente tiene que valer en el medio de la función, ni en funciones auxiliares que no son exportadas (no están en la interfaz).
 
