@@ -10,7 +10,7 @@ Ciencias de la Computación - FCEN - UBA\
   - 2022-08-02: [enunciado + solución](Finales/2022-08-02/AED2-2022-08-02.pdf)
   - 2021-07-19: [enunciado](Finales/2021-07-19/AED2-2021-07-19-enunciado.pdf), [solución](Finales/2021-07-19/AED2-2021-07-19.pdf)
   - 2021-04-21: [enunciado](Finales/2021-04-21/AED2-2021-04-21-enunciado.pdf), [solución](Finales/2021-04-21/AED2-2021-04-21.pdf), [python](Finales/2021-04-21/python) (incompleto)
-  - 2021-03-04: [enunciado](Finales/2021-03-04/AED2-2021-03-04-enunciado.pdf), [solución](Finales/2021-03-04/AED2-2021-03-04.pdf), [python](Finales/2021-03-04/python) (incompleto)
+  - 2021-03-04: [enunciado](Finales/2021-03-04/AED2-2021-03-04-enunciado.pdf), [solución](Finales/2021-03-04/AED2-2021-03-04.pdf), [python](Finales/2021-03-04/python)
 
 - Parciales
 
