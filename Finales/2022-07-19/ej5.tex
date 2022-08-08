@@ -1,3 +1,19 @@
 \section*{Ejercicio 5}
 
 Justifique detalladamente la existencia de una cota inferior para la complejidad temporal asociada a ordenar un arreglo de números naturales sobre los que no se tiene ninguna hipótesis adicional. Relacione con la complejidad de distintos algoritmos de ordenamiento vistos en la materia.
+
+Cualquier algoritmo de ordenamiento basado en comparaciones entre los elementos tiene como cota inferior $\Omega(n log(n))$ donde $n$ es la cantidad de elementos a ser ordenados.
+
+Podemos representar todas las posibles comparaciones que realiza el algoritmo en un árbol de decisión. Éste es un árbol binario donde cada nodo representa una comparación entre 2 elementos. Como la comparación produce un resultado binario (la comparación es verdadero o falso), cada hijo representa uno de los posibles resultados. Notemos que entonces todos los nodos tienen exactamente 0 o 2 hijos, ya que no pueden haber comparaciones que sean solo verdadero o solo falso. Las hojas ya no modelan una comparación sino que representan una posible permutación del arreglo de entrada.
+
+El algoritmo inicia su ejecución desde la raíz del árbol de decisión, y luego de cada comparación, decide por cuál rama seguir hasta llegar a una hoja. El recorrido que realiza el algoritmo por el árbol determina el orden relativo entre todos los elementos del arreglo, y la hoja en donde termina indica la permutación del arreglo original que produce un arreglo ordenado según el criterio de ordenamiento.
+
+Un arreglo de tamaño $n$ tiene $n!$ permutaciones como máximo. Pueden ser menos si hay elementos repetidos, pero ésto no cambia la cota. Como el árbol de decisión modela todas las posibles permutaciones, vamos a tener $n!$ hojas en el árbol. Si $h$ es la altura del árbol, la cantidad máxima de hojas que puede tener es $2^h$, y por lo tanto vale que $n! \leq 2^h$. Utilizando la desigualdad de Stirling:
+
+$log(n!) \leq log(2^h) \iff log(n!) \leq h \iff n log(n) \leq h$
+
+Esto nos dice que la altura $h$ del árbol de decisión es a lo sumo $n log(n)$. Como el algoritmo recorre el árbol desde la raíz hasta una hoja para ordenar $n$ elementos, en efecto visita a lo sumo $n log(n)$ nodos (o realiza $n log(n)$ comparaciones / pasos). A partir de este resultado podemos concluir que cualquier algoritmo de ordenamiento basado en comparaciones tiene una cota inferior $\Omega(n log(n))$.
+
+En la práctica no es posible construir este árbol de decisión de forma eficiente y recorrerlo para ordenar el arreglo. Cada algoritmo utiliza diferentes estrategias para realizar la menor cantidad de comparaciones. MergeSort y HeapSort tienen una complejidad $O(n log(n))$, y considerando ahora la cota inferior $\Omega(n log(n))$ podemos decir que tienen complejidad asintótica óptima (no podemos lograr una cota mejor).
+
+Notemos que los algoritmos que logran una cota mejor, como el CountingSort que puede ordenar en tiempo lineal $O(n+k)$, no se basan en comparaciones y necesitan de alguna hipótesis adicional sobre el arreglo de entrada.
