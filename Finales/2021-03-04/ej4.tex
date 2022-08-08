@@ -8,7 +8,7 @@ Barrido lineal: $h(k, i) = (h_1(k) + i) \text{ mod } |T|$
 
 La aglomeración secundaria es similar, excepto que el conjunto de posiciones que forman la aglomeración no son posiciones adyacentes entre sí. Esto se debe a que la aglomeración secundaria sucede cuando se usa un barrido cuadrático. Cuando 2 claves colisionan, el barrido no revisa posiciones adyacentes barriendo linealmente, sino que realiza saltos siguiendo un patrón cuadrático en función del número de intento/barrido.
 
-Barrido cuadrático: $h(k, i) = (h_1(k) + i^2) \text{ mod } |T|$
+Barrido cuadrático: $h(k, i) = (h_1(k) + c_1 i + c_2 i^2) \text{ mod } |T|$
 
 En ambos casos el problema de base es que cuando hay una colisión, la secuencia de barrido que se realiza sigue un patrón determinístico independiente de la clave. Por lo tanto estamos revisando siempre las mismas posiciones, y cada vez que sucede esto, incrementamos en 1 la cantidad de posiciones a revisar en la próxima colisión con la aglomeración. La primaria afecta a cualquier colisión dentro de la aglomeración. La secundaria solo afecta cuando la colisión se da en la posición inicial de la aglomeración.
 

@@ -12,7 +12,7 @@ Hay varias formas de direccionamiento abierto. Sea $T$ la HashTable, $k$ la clav
 
 \begin{itemize}
     \item Barrido lineal: $h(k, i) = (h_1(k) + i) \text{ mod } |T|$
-    \item Barrido cuadrático: $h(k, i) = (h_1(k) + i^2) \text{ mod } |T|$
+    \item Barrido cuadrático: $h(k, i) = (h_1(k) + c_1 i + c_2 i^2) \text{ mod } |T|$
     \item Hashing doble: $h(k, i) = (h_1(k) + i h_2(k)) \text{ mod } |T|$
 \end{itemize}
 
