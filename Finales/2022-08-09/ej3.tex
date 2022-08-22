@@ -1,0 +1,8 @@
+\section*{Ejercicio 3}
+
+\begin{enumerate}
+    \item \textbf{Verdadero}. Estas técnicas asignan a las operaciones un costo mayor del que realmente tienen en concepto de ``crédito a favor'' o ``potencial acumulado'' a ser usado en futuras operaciones. De esta forma, cuando analizamos la ejecución de múltiples operaciones a lo largo del tiempo, podemos realizar un promedio aritmético de la complejidad para determinar la complejidad promedio de una operación en particular.
+    \item \textbf{Verdadero}. Si suponemos que todas las operaciones individuales tienen una complejidad del peor caso, al calcular el promedio éste va a ser el peor caso, pero nunca peor que eso. Las operaciones que sean mejores que el peor caso van a mejorar el promedio.
+    \item \textbf{Falso}. Las skip lists perfectas garantizan $O(log(n))$ para la búsqueda pero la inserción en el peor caso resulta $O(n)$ si se inserta un elemento al inicio de la skip list (hay que reacomodar todos los niveles del resto de los elementos). Las skip lists randomizadas tiran una moneda repitadas veces hasta que salga cruz, y la cantidad de caras obtenidas indica hasta qué nivel debemos conectar el elemento insertado. En el caso promedio esto logra una complejidad de $O(log(n))$ para ambas operaciones, pero en el peor caso serían $O(n)$.
+    \item \textbf{Falso}. En el peor caso es $O(n)$ si insertamos en la primer página que está llena y ahora necesitamos rearmar todas las páginas siguientes.
+\end{enumerate}

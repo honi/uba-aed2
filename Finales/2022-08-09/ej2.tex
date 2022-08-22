@@ -1,0 +1,7 @@
+\section*{Ejercicio 2}
+
+\begin{enumerate}
+    \item \textbf{Falso}. El invariante debe valer en la Pre y Post únicamente en las funciones de la interfaz, es decir, las funciones públicas del módulo. En las funciones auxiliares podemos romper el invariante, e incluso es muy común tener funciones auxiliares que reestablecen el invariante de representación (por ejemplo una función para balancear un AVL).
+    \item \textbf{Falso}. Los algoritmos de las operaciones se definen a partir del invariante de representación, ya que éste tiene que valer en la Pre y Post y nos garantiza propiedades de la estructura y también nos obliga a mantenerlas al finalizar la operación. Además, el invariante probablemente haya sido diseñado antes que los algoritmos.
+    \item \textbf{Verdadero}. El invariante determina únicamente la \textbf{cota inferior} de la complejidad de las operaciones. Por ejemplo, el invariante del AVL nos garantiza ciertas propiedades sobre la estructura: cada nodo es un ABB y el factor de desbalanceo $F$ es tal que $|F| \leq 1$. Gracias a esto, podemos implementar algoritmos que se apoyan en estas propiedades para ser eficientes, en el caso del AVL lograr las operaciones en $O(log(n))$. Aún así, nuestros algoritmos pueden ignorar estas propiedades y ser muy ineficientes, por eso el invariante no determina una cota superior.
+\end{enumerate}

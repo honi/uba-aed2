@@ -1,0 +1,8 @@
+\section*{Ejercicio 1}
+
+\begin{enumerate}
+    \item \textbf{Falso}. Una operación es un observador básico si permite observar alguna característica distintiva de la instancia del TAD, y junto al resto de los observadores básicos, poder determinar si 2 instancias son observacionalmente iguales o no. Cualquier operación puede ser axiomatizada sobre los generadores, eso no determina si la operación es un observador.
+    \item \textbf{Verdadero}. Significa que esa operación está observando alguna característica necesaria para determinar la igualdad observacional. O dependiendo del contexto de uso, también se puede eliminar esa operación del TAD para solucionar el problema.
+    \item \textbf{Falso}. Asumiendo que el TAD está bien definido, si 2 instancias del TAD son observacionalmente iguales esto no puede suceder.
+    \item \textbf{Verdadero}. El enunciado pide que B sea un comportamiento automático. Como el nombre lo indica, los efectos de B deben suceder automáticamente cuando sucede A. Esto se debe modelar durante la axiomatización de A, ya que si tenemos una operación explícita para B, estamos delegando al usuario la responsabilidad de aplicar B siempre que suceda A (y el usuario puede no hacerlo por olvido o intencionalmente).
+\end{enumerate}
